@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac3f-7a05-add4-97714cc496a3",
+  "name": "Tiles - 3",
+  "createdAt": "2026-09-10T15:56:16.5371700\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.2303415\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 50,
+    "height": 50,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M9.32 0L0 9.32v9.31L18.63 0H9.32zm22.05 0l9.31 9.32L50 18.63V9.32L40.68 0h-9.31zM25 6.37L6.37 25 25 43.63 43.63 25 25 6.37zm-25 25v9.31L9.32 50h9.31L0 31.37zm50 0L31.37 50h9.31L50 40.68v-9.31z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac3f-7798-89c0-3b20ad1d48da",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M18.63 0L25 6.37 31.37 0H18.63zM0 18.63v12.74L6.37 25 0 18.63zm50 0L43.63 25 50 31.37V18.63zm-25 25L18.63 50h12.74L25 43.63z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac3f-792f-b970-c9c0fdfa877a",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

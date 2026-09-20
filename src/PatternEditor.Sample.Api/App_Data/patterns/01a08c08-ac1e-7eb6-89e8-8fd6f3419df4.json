@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac1e-7eb6-89e8-8fd6f3419df4",
+  "name": "Pipes",
+  "createdAt": "2026-09-10T15:56:15.9845255\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.5727586\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 25,
+    "height": 25,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M9.19 0v3.93A9.187 9.187 0 003.93 9.19H0m0 6.618h3.93a9.188 9.188 0 005.26 5.26V25m6.619 0v-3.93a9.188 9.188 0 005.261-5.261H25m0-6.618h-3.93A9.188 9.188 0 0015.81 3.93V0",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac1e-71ec-ab57-63041ce65d54",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

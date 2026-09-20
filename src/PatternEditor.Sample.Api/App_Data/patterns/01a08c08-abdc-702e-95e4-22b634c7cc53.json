@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-abdc-702e-95e4-22b634c7cc53",
+  "name": "Diamonds - 4",
+  "createdAt": "2026-09-10T15:56:14.7369900\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.2954215\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 21,
+    "height": 48,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m10.5 24 10.38 9.58-4.06 14.05zm0 0L.12 33.59l4.07 14.05ZM16.82.4 10.5 24l10.38-9.57ZM4.19.39 10.5 24 .12 14.44Z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abdc-70e3-978f-fe0233c3672d",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

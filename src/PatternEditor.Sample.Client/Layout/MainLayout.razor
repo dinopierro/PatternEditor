@@ -1,0 +1,189 @@
+@inherits LayoutComponentBase
+@using PatternEditor.Components
+@using PatternEditor.Sample.Client.Components
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject AuthClient Auth
+@inject Lingua T
+
+@* Il tema scelto qui vale per la pagina e viene passato all'editor: la modal non deve
+   restare chiara mentre il resto dell'applicazione è scuro. *@
+<CascadingValue Value="_tema">
+    <div class="app-shell">
+        <header>
+            @* Il marchio riporta a casa. Non è più un titolo ma un collegamento, perché
+               adesso le pagine sono due e la prima cosa che si prova, per tornare indietro,
+               è cliccare il nome in alto a sinistra.
+
+               Non è nemmeno più un <h1>: il titolo di primo livello appartiene alla pagina,
+               e averne uno nel guscio significava averne due in ogni schermata. *@
+            <a class="app-marchio" href="">
+                <span class="app-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+                         stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                        <rect x="2.5" y="2.5" width="8" height="8" rx="1.5" />
+                        <circle cx="17.5" cy="6.5" r="4" />
+                        <path d="M2.5 21.5 L6.5 13.5 L10.5 21.5 Z" />
+                        <path d="M13.5 21.5 L16 17.5 L18.5 19.5 L21.5 14.5" />
+                    </svg>
+                </span>
+                @* Il nome del prodotto non si traduce: è un nome, non una parola. *@
+                <span class="app-marchio__nome">Pattern Editor SVG</span>
+            </a>
+            <span class="app-subtitle">@T["app.sottotitolo"]</span>
+
+            @* Due pagine, due voci. `NavLinkMatch.All` sulla prima serve perché l'indirizzo
+               vuoto è prefisso di qualunque altro: senza, la presentazione risulterebbe
+               attiva anche stando nella gestione. *@
+            <nav class="app-nav" aria-label="@T["app.nav.sezioni"]">
+                <NavLink class="app-nav__voce" href="" Match="NavLinkMatch.All">@T["app.nav.presentazione"]</NavLink>
+                <NavLink class="app-nav__voce" href="gestione">@T["app.nav.gestione"]</NavLink>
+
+                @* La terza voce c'è solo per chi modera. Nasconderla non protegge niente — a
+                   proteggere è l'API, che rifiuta le richieste di chiunque altro — ma evita
+                   di offrire a tutti una pagina che per quasi tutti sarebbe un muro. *@
+                @if (Auth.Utente is { IsAdmin: true })
+                {
+                    <NavLink class="app-nav__voce" href="moderazione">@T["app.nav.moderazione"]</NavLink>
+                }
+            </nav>
+
+            <button type="button" class="app-tema" role="switch" aria-checked="@(ScuroAttivo ? "true" : "false")"
+                    title="@(ScuroAttivo ? T["app.tema.vaiChiaro"] : T["app.tema.vaiScuro"])"
+                    @onclick="AlternaAsync">
+                <span class="app-tema__icona">
+                    @if (ScuroAttivo)
+                    {
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z" />
+                        </svg>
+                    }
+                    else
+                    {
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                             stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="4.2" />
+                            <path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6" />
+                        </svg>
+                    }
+                </span>
+                <span class="app-tema__testo">@(ScuroAttivo ? T["app.tema.scuro"] : T["app.tema.chiaro"])</span>
+            </button>
+
+            @* La lingua accanto al tema: sono le due scelte che riguardano come si vede
+               l'applicazione e non che cosa ci si fa dentro. *@
+            <SelettoreLingua />
+
+            @* Il manuale accanto alla lingua, perche' e' la stessa scelta vista da un altro
+               lato: in che lingua si legge l'applicazione, e in che lingua si legge il libretto
+               che la spiega. *@
+            <ScaricaManuale />
+
+            @* L'accesso sta a destra di tutto, dopo il tema: è l'ultima cosa della riga
+               perché è quella che si tocca di rado — una volta per sessione. *@
+            <AccountMenu />
+        </header>
+        <main>
+            @Body
+        </main>
+
+        @* Le finestre dell'utente stanno fuori dall'intestazione: quella ha un
+           backdrop-filter, e un elemento con quella proprietà diventa il blocco contenitore
+           dei propri discendenti a posizione fissa — una modale dichiarata lì dentro
+           resterebbe rinchiusa nella striscia alta quaranta pixel, e non si vedrebbe. *@
+        <AccountDialogs />
+    </div>
+</CascadingValue>
+
+@code {
+    private PatternEditorTheme _tema = PatternEditorTheme.System;
+    private bool _sistemaScuro;
+    private IJSObjectReference? _modulo;
+
+    // La sessione si ripristina dopo il primo rendering, cioè dopo che questa intestazione
+    // è già stata disegnata: senza l'iscrizione, la voce «Moderazione» comparirebbe al primo
+    // cambio di pagina invece che all'accesso.
+    protected override void OnInitialized()
+    {
+        Auth.Cambiato += Ridisegna;
+
+        // Il guscio è il primo a disegnare del testo: se non si riallineasse al cambio di
+        // lingua resterebbe l'unica parte della pagina a parlare quella di prima.
+        T.Cambiata += Ridisegna;
+    }
+
+    private void Ridisegna() => InvokeAsync(StateHasChanged);
+
+    /// <summary>
+    /// Cosa sta effettivamente vedendo l'utente. Con il tema di sistema dipende dalla
+    /// preferenza del sistema operativo, letta una volta all'avvio.
+    /// </summary>
+    private bool ScuroAttivo => _tema switch
+    {
+        PatternEditorTheme.Dark => true,
+        PatternEditorTheme.Light => false,
+        _ => _sistemaScuro,
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        // La lingua si decide qui e non prima: serve il runtime JavaScript per sapere che
+        // cosa ha scelto chi torna e che lingua parla il browser, e senza di lui non si
+        // saprebbe nemmeno che domanda porre.
+        await T.IniziaAsync();
+
+        // Il modulo si carica dopo il primo rendering, quando il runtime JavaScript è pronto.
+        _modulo = await JS.InvokeAsync<IJSObjectReference>("import", "./js/tema.js");
+        _sistemaScuro = await _modulo.InvokeAsync<bool>("sistemaPreferisceScuro");
+
+        var salvato = await _modulo.InvokeAsync<string?>("leggi");
+        _tema = salvato switch
+        {
+            "dark" => PatternEditorTheme.Dark,
+            "light" => PatternEditorTheme.Light,
+            _ => PatternEditorTheme.System,
+        };
+
+        // Riallinea la pagina alla scelta letta. Di norma l'ha già fatto lo script in
+        // index.html, ma senza questa riga il layout dipenderebbe da quello script: lo
+        // stato di Blazor direbbe "scuro" mentre la pagina resterebbe chiara.
+        if (salvato is not null)
+        {
+            await _modulo.InvokeVoidAsync("applica", salvato);
+        }
+
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Alterna fra chiaro e scuro partendo da ciò che l'utente sta vedendo: al primo clic
+    /// il risultato è sempre l'opposto di quanto ha davanti, anche se finora il tema
+    /// seguiva il sistema.
+    /// </summary>
+    private async Task AlternaAsync()
+    {
+        _tema = ScuroAttivo ? PatternEditorTheme.Light : PatternEditorTheme.Dark;
+
+        if (_modulo is not null)
+        {
+            await _modulo.InvokeVoidAsync("applica", _tema == PatternEditorTheme.Dark ? "dark" : "light");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Auth.Cambiato -= Ridisegna;
+        T.Cambiata -= Ridisegna;
+
+        if (_modulo is not null)
+        {
+            await _modulo.DisposeAsync();
+        }
+    }
+}

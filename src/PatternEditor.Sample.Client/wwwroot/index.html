@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8" />
+
+    <!--
+      Senza questa riga il telefono impagina a 980 pixel finti e poi rimpicciolisce il
+      risultato: i punti di rottura a 1024 e 640 non scatterebbero mai, e tutta
+      l’impaginazione stretta già scritta nei fogli resterebbe inutilizzata.
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Il titolo lo riscrive ogni pagina appena l'applicazione parte: questo si vede
+         solo mentre carica, quando la lingua non è ancora stata scelta. -->
+    <title>Pattern Editor SVG</title>
+    <base href="/" />
+    <link rel="stylesheet" href="_content/PatternEditor/patternEditor.css" />
+    <link rel="stylesheet" href="css/app.css" />
+
+    <!--
+      Il tema salvato viene applicato prima del caricamento dell'applicazione: se aspettasse
+      l'avvio di Blazor, la pagina comparirebbe col tema di sistema per poi cambiare sotto
+      gli occhi dell'utente. La chiave e' la stessa usata da js/tema.js.
+    -->
+    <script>
+        (function () {
+            try {
+                var tema = localStorage.getItem("pattern-editor-tema");
+                if (tema === "light" || tema === "dark") {
+                    document.documentElement.setAttribute("data-theme", tema);
+                }
+            } catch (e) { /* dati dei siti non disponibili: si segue il sistema */ }
+        })();
+    </script>
+</head>
+<body>
+    <div id="app">Loading…</div>
+
+    <div id="blazor-error-ui">
+        Si è verificato un errore imprevisto.
+        <a href="" class="reload">Ricarica</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+</html>

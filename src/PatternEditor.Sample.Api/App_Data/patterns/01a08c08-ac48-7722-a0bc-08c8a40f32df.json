@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac48-7722-a0bc-08c8a40f32df",
+  "name": "Triangles - 4",
+  "createdAt": "2026-09-10T15:56:16.7268304\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.4493176\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 20,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M0 30h20L10 50zm-10-20h20L0 30zm20 0h20L20 30zM0-10h20L10 10z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac48-7336-bd97-cfc7bdcaa7b8",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

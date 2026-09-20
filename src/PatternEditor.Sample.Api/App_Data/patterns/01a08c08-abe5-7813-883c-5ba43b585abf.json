@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-abe5-7813-883c-5ba43b585abf",
+  "name": "Egyptian Pattern - 8",
+  "createdAt": "2026-09-10T15:56:14.9010533\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.4691468\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 40,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M12.5 12.499h15v15h-15zM0 10.001v19.998l10-9.998zm40 19.998V10.001L30 20zM10 40h20L20 30zM30 0H10l10 10z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abe5-738c-b6a6-3e1b1917faee",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 0v3.533l12.5 12.502v-3.537h3.533L3.535 0zm20 0-5.002 5h10zm16.465 0L23.97 12.498h3.53v3.54L40 3.532V0zM27.5 23.967v3.531h-3.537L36.465 40H40v-3.533Zm-15 .002L0 36.467V40h3.535l12.506-12.502H12.5zM14.998 35 20 40l4.998-5z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abe5-719f-a6c4-be543f3628ca",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M5.002 15 0 20.002 5.002 25zm29.996 0v10L40 20.002zM20 15.002a4.999 5 0 0 0-4.998 5A4.999 5 0 0 0 20 25a4.999 5 0 0 0 4.998-4.998 4.999 5 0 0 0-4.998-5zm0 2.498a2.5 2.5 0 0 1 2.5 2.502 2.5 2.5 0 0 1-2.5 2.5 2.5 2.5 0 0 1-2.5-2.5A2.5 2.5 0 0 1 20 17.5z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abe5-7fad-b7bc-e30f1be8caf7",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

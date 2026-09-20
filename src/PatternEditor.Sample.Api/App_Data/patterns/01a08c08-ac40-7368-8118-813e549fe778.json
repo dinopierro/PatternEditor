@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac40-7368-8118-813e549fe778",
+  "name": "Triangles - 11",
+  "createdAt": "2026-09-10T15:56:16.5554276\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.2439275\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 100,
+    "height": 82,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M74.4-14.6l-24 41.1h48l-24-41.1zm0 82l-24 41.1h48l-24-41.1z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac40-797f-95cc-115b8b1d8879",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 0l24 41.1L48 0H0zm-1.6 26.5l-24 41.1h48l-24-41.1zm100 0l-24 41.1h48l-24-41.1z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac40-742c-972b-9be50c39f287",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M24 41.1l24 41.1 24-41.1H24z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac40-7a93-acc4-f1d9283a33f8",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

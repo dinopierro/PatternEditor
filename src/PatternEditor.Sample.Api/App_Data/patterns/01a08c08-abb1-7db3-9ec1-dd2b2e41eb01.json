@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "id": "01a08c08-abb1-7db3-9ec1-dd2b2e41eb01",
+  "name": "Brick Wall - 1",
+  "createdAt": "2026-09-10T15:56:13.9785279\u002B00:00",
+  "modifiedAt": "2026-09-10T20:04:30.6406774\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 30,
+    "height": 30,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 0,
+        "width": 30,
+        "height": 30,
+        "fill": "#b3323f",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08ceb-6c3d-79b8-9f66-15bfdef597d3",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 22.5h30v15H0zm15-15h30v15H15m-30-15h30v15h-30zm15-15h30v15H0z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#d6d6d6",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abb1-719a-bdd9-11fc0fda96e9",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

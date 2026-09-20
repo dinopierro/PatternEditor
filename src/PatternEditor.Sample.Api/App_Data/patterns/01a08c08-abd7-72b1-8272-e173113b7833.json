@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-abd7-72b1-8272-e173113b7833",
+  "name": "Diamonds - 14",
+  "createdAt": "2026-09-10T15:56:14.6415951\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.1742489\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 40,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M15.986 4.186 4.1 16.072v.58L16.566 4.186Zm7.62 0 12.38 12.38v-.58l-11.8-11.8Zm12.38 19.248L23.52 35.9h.58l11.886-11.886ZM4.1 23.52v.58l11.8 11.8h.58z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abd7-74a3-83b6-aca1e0696650",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

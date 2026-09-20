@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-abf9-78a3-a2f0-88f830dabdeb",
+  "name": "Herringbone - 3",
+  "createdAt": "2026-09-10T15:56:15.2909337\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.8332827\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 40,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M20 0L0 10v10l20-10zm0 10v10l20 10V20z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abf9-73d3-8aa5-0d3d9d6ea78d",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M20-10V0l20 10V0zm0 30L0 30v10l20-10zm0 10v10l20 10V40z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abf9-74c7-9784-35209669b431",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

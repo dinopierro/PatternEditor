@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac26-7001-bb17-355712707a73",
+  "name": "Rectangles \u0026 Squares - 1",
+  "createdAt": "2026-09-10T15:56:16.1090496\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.6946514\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 60,
+    "height": 60,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M40 30H20m20 20H0m60-40H20m30 10v40M10 0v40M0 40V0h20v40m40-20v40H40V20m0 40H0V40h40M20 0h40v20H20",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac26-7a43-b881-7f70a57f436b",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

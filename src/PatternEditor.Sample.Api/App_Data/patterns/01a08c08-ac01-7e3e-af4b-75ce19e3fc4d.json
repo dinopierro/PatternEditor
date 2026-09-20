@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac01-7e3e-af4b-75ce19e3fc4d",
+  "name": "Houndstooth - 1",
+  "createdAt": "2026-09-10T15:56:15.4151240\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.9779097\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 60,
+    "height": 60,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M0 0v22.5L7.5 15V7.5L15 0H7.5Zm52.5 0-15 15H45l7.5-7.5V15H60V0ZM60 15l-7.5 7.5V30l7.5-7.5Zm-22.5 7.5L30 30h-7.5l-15 15H15l7.5-7.5V45H30l-7.5 7.5V60l15-15v-7.5L45 30h-7.5Zm-30 30L0 60h7.5Z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac01-7937-aa8a-06f4ef6018b0",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "m22.5 0-15 15H15l7.5-7.5V15H30l-7.5 7.5V30l15-15V7.5L45 0H30Zm-15 22.5L0 30v22.5L7.5 45v-7.5L15 30H7.5Zm45 7.5-15 15H45l7.5-7.5V45H60V30ZM60 45l-7.5 7.5V60l7.5-7.5Zm-22.5 7.5L30 60h7.5z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac01-7ba5-9366-f4f766f7baa1",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

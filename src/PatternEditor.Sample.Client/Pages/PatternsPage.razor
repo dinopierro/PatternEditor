@@ -1,0 +1,1801 @@
+@page "/gestione"
+@* La gestione non è più la porta d'ingresso: chi arriva trova la presentazione, e da lì
+   entra qui. È un indirizzo proprio e non una schermata dentro un'altra, perché il lavoro
+   vero si fa qui e un indirizzo si manda a qualcuno. *@
+@using Microsoft.AspNetCore.Components.Forms
+@using PatternEditor.Abstractions.Plugins
+@using PatternEditor.Core.Models
+@using PatternEditor.Components
+@using PatternEditor.Services
+@using PatternEditor.Services.Riconoscimento
+@using PatternEditor.Sample.Client.Components
+@inject PatternApiClient Api
+@inject AuthClient Auth
+@inject Lingua T
+@inject IVectorElementPluginRegistry Registry
+@inject TestiEditor E
+@inject IPatternSvgRenderer SvgRenderer
+@inject IPatternCloner Cloner
+@inject ISvgPatternImporter Importer
+@inject IRasterPatternImporter Convertitore
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+@* ------------------------------------------------------------------ vetrina ------ *@
+<section class="vetrina">
+    @* Lo sfondo non è una decorazione qualsiasi: sono due pattern veri, generati dallo
+       stesso renderer del componente e animati sulle sue stesse proprietà (scala,
+       rotazione, traslazione). La pagina che dimostra lo strumento è fatta con lo
+       strumento, e lo si vede muovere. *@
+    <div class="vetrina__cielo" aria-hidden="true"></div>
+    <div class="vetrina__trama vetrina__trama--lontano" aria-hidden="true">@((MarkupString)_tramaLontana)</div>
+    <div class="vetrina__trama vetrina__trama--vicino" aria-hidden="true">@((MarkupString)_tramaVicina)</div>
+    <div class="vetrina__velo" aria-hidden="true"></div>
+
+    <div class="vetrina__testo">
+        <span class="vetrina__occhiello sale" style="--ritardo: 0ms">@T["vetrina.occhiello"]</span>
+        <h1 class="sale" style="--ritardo: 80ms">Pattern Editor <span class="vetrina__brillante">SVG</span></h1>
+        <p class="sale" style="--ritardo: 160ms">@T["vetrina.testo"]</p>
+        <div class="vetrina__azioni sale" style="--ritardo: 240ms">
+            <button type="button" class="app-btn app-btn--primary app-btn--grande" @onclick="OpenNewPattern">
+                <span class="app-btn__glyph">+</span> @T["vetrina.crea"]
+            </button>
+
+            @* Il campo per il file è un <input type="file"> vero, reso invisibile e steso
+               sopra l'etichetta: così il pulsante ha l'aspetto degli altri e conserva tutto
+               ciò che il campo nativo sa già fare — apre il dialogo del sistema, si raggiunge
+               col tabulatore, risponde a Invio. Ridisegnarlo con un pulsante che apre il
+               campo per interoperabilità costa di più e funziona peggio. *@
+            <label class="app-btn app-btn--grande vetrina__importa @(_importInCorso ? "is-attesa" : null)"
+                   title="@T["vetrina.importaTitolo"]">
+                <span class="app-btn__glyph">↥</span>
+                @(_importInCorso ? T["vetrina.lettura"] : T["vetrina.importa"])
+                <InputFile class="vetrina__file" accept=".svg,image/svg+xml"
+                           OnChange="ImportaSvgAsync" disabled="@_importInCorso" />
+            </label>
+
+            @* Lo stesso gesto dell'importazione, per un'immagine a punti: si sceglie un file e
+               ne esce un pattern. La differenza sta tutta in mezzo — là il documento c'è già,
+               qui va ricostruito — ma da fuori è lo stesso comando, e finisce nella stessa
+               finestra di anteprima. *@
+            @* Lo stesso gesto dell'importazione, per un'immagine a punti: si sceglie un file e
+               ne esce un pattern. Quanti colori tenere non si chiede qui: la scelta sta dentro
+               l'anteprima, dove si vede il risultato. Chiederla prima vuol dire chiederla
+               quando chi risponde non ha ancora gli elementi per farlo. *@
+            <label class="app-btn app-btn--grande vetrina__importa @(_conversioneInCorso ? "is-attesa" : null)"
+                   title="@T["vetrina.convertiTitolo"]">
+                <span class="app-btn__glyph">⬗</span>
+                @(_conversioneInCorso ? T["vetrina.analisi"] : T["vetrina.converti"])
+                <InputFile class="vetrina__file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp"
+                           OnChange="ConvertiImmagineAsync" disabled="@_conversioneInCorso" />
+            </label>
+
+            <div class="vetrina__numeri">
+                <span><strong data-conteggio="@(_summaries?.Count ?? 0)">0</strong> @T["vetrina.pattern"]</span>
+                <span><strong data-conteggio="@Registry.All.Count()">0</strong> @T["vetrina.tipi"]</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* ------------------------------------------------------------------ barra --------- *@
+<div class="barra">
+    <div class="barra__sinistra">
+        @if (_selectedIds.Count > 0)
+        {
+            <span class="barra__selezione">@Selezionati</span>
+            <button type="button" class="app-btn app-btn--danger" @onclick="DeleteSelectedAsync">@T["comune.elimina"]</button>
+            <button type="button" class="app-btn app-btn--piatto" @onclick="() => _selectedIds.Clear()">@T["gestione.annullaSelezione"]</button>
+        }
+        else
+        {
+            <h2 class="barra__titolo">@T["gestione.titolo"]</h2>
+            <span class="barra__conteggio">@Totale</span>
+            @if (FiltroAttivo)
+            {
+                <button type="button" class="app-btn app-btn--piatto app-btn--minuto"
+                        @onclick="AzzeraFiltri" title="@T["gestione.azzeraFiltriTitolo"]">
+                    @T["gestione.azzeraFiltri"]
+                </button>
+            }
+        }
+    </div>
+
+    <div class="barra__destra">
+        @* La ricerca sta per prima perché è quella che si usa di più: con qualche centinaio
+           di pattern, scorrere trentacinque pagine non è una strada. Filtra mentre si
+           scrive — l'elenco è già tutto in memoria, non c'è niente da chiedere all'API. *@
+        <label class="campo campo--ricerca">
+            <span>@T["gestione.cerca"]</span>
+            <input type="search" class="campo__testo" placeholder="@T["gestione.cercaSegnaposto"]"
+                   value="@_ricerca" @oninput="e => CambiaRicerca(e.Value?.ToString())"
+                   aria-label="@T["gestione.cercaAria"]" />
+        </label>
+
+        <label class="campo">
+            <span>@T["gestione.tipo"]</span>
+            <select class="campo__scelta" value="@_tipoFiltro"
+                    @onchange="e => CambiaTipo(e.Value?.ToString())">
+                <option value="">@T["gestione.tipo.tutti"]</option>
+                @foreach (var plugin in Registry.All)
+                {
+                    <option value="@plugin.Type">@E.NomeDelTipo(plugin.Type, plugin.DisplayName)</option>
+                }
+            </select>
+        </label>
+
+        @* Compare solo a chi ha fatto l'accesso: a un anonimo «solo i miei» non
+           selezionerebbe niente, e un filtro che non può che dare zero risultati è un
+           comando che si offre per essere frainteso. *@
+        @if (Auth.Autenticato)
+        {
+            <label class="campo">
+                <span>@T["gestione.autore"]</span>
+                <select class="campo__scelta" value="@_autoreFiltro"
+                        @onchange="e => CambiaAutore(e.Value?.ToString())">
+                    <option value="">@T["gestione.autore.tutti"]</option>
+                    <option value="miei">@T["gestione.autore.miei"]</option>
+                    <option value="altrui">@T["gestione.autore.altrui"]</option>
+                </select>
+            </label>
+        }
+
+        @* Anche questo solo a chi è entrato, e per una ragione più netta: a un anonimo
+           l'elenco contiene per costruzione solo pattern pubblici, e un menu le cui altre
+           due voci danno sempre zero è un menu che promette qualcosa che non c'è. *@
+        @if (Auth.Autenticato)
+        {
+            <label class="campo">
+                <span>@T["gestione.stato"]</span>
+                <select class="campo__scelta" value="@_statoFiltro"
+                        @onchange="e => CambiaStato(e.Value?.ToString())">
+                    <option value="">@T["gestione.stato.tutti"]</option>
+                    <option value="Pubblica">@T["gestione.stato.pubblici"]</option>
+                    <option value="InAttesa">@T["gestione.stato.inAttesa"]</option>
+                    <option value="Privata">@T["gestione.stato.privati"]</option>
+                </select>
+            </label>
+        }
+
+        <label class="campo">
+            <span>@T["gestione.ordina"]</span>
+            <select class="campo__scelta" value="@_ordine" @onchange="e => CambiaOrdine(e.Value?.ToString())">
+                <option value="@Ordine.CreazioneRecente">@T["gestione.ordina.creazioneRecente"]</option>
+                <option value="@Ordine.CreazioneVecchia">@T["gestione.ordina.creazioneVecchia"]</option>
+                <option value="@Ordine.ModificaRecente">@T["gestione.ordina.modifica"]</option>
+                <option value="@Ordine.NomeAZ">@T["gestione.ordina.nomeAZ"]</option>
+                <option value="@Ordine.NomeZA">@T["gestione.ordina.nomeZA"]</option>
+                <option value="@Ordine.PiuElementi">@T["gestione.ordina.elementi"]</option>
+            </select>
+        </label>
+
+        <label class="campo">
+            <span>@T["gestione.perPagina"]</span>
+            <select class="campo__scelta" value="@_perPagina" @onchange="e => CambiaPerPagina(e.Value?.ToString())">
+                @foreach (var n in DimensioniPagina)
+                {
+                    <option value="@n">@n</option>
+                }
+                <option value="0">@T["gestione.perPagina.tutti"]</option>
+            </select>
+        </label>
+    </div>
+</div>
+
+@* ------------------------------------------------------------------ contenuto ----- *@
+@if (_summaries is null)
+{
+    <div class="griglia">
+        @for (var i = 0; i < 6; i++)
+        {
+            <article class="scheda scheda--attesa" aria-hidden="true">
+                <div class="scheda__tela"></div>
+                <div class="scheda__corpo">
+                    <span class="fantasma fantasma--titolo"></span>
+                    <span class="fantasma"></span>
+                </div>
+            </article>
+        }
+    </div>
+}
+else if (_summaries.Count > 0 && Filtrati.Count == 0)
+{
+    @* Nessun esito non è la stessa cosa di archivio vuoto: qui i pattern ci sono, è la
+       ricerca che non li trova, e la via d'uscita è togliere il filtro — non crearne uno. *@
+    <div class="vuoto">
+        <h3>@T["gestione.vuoto.nessunEsito"]</h3>
+        <p>
+            @(string.IsNullOrWhiteSpace(_ricerca)
+                ? T["gestione.vuoto.soloTipo"]
+                : _tipoFiltro is { Length: > 0 }
+                    ? T["gestione.vuoto.nomeETipo", _ricerca]
+                    : T["gestione.vuoto.nome", _ricerca])
+        </p>
+        <button type="button" class="app-btn app-btn--primary" @onclick="AzzeraFiltri">
+            @T["gestione.azzeraFiltri"]
+        </button>
+    </div>
+}
+else if (_summaries.Count == 0)
+{
+    <div class="vuoto">
+        <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor"
+             stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1.2" />
+            <rect x="14" y="3" width="7" height="7" rx="1.2" />
+            <rect x="3" y="14" width="7" height="7" rx="1.2" />
+            <path d="M17.5 14.5 v6 M14.5 17.5 h6" />
+        </svg>
+        <h3>@T["gestione.vuoto.archivio"]</h3>
+        <p>@T["gestione.vuoto.archivioTesto"]</p>
+        <button type="button" class="app-btn app-btn--primary" @onclick="OpenNewPattern">
+            <span class="app-btn__glyph">+</span> @T["vetrina.crea"]
+        </button>
+    </div>
+}
+else
+{
+    <div class="griglia">
+        @{ var posizione = 0; }
+        @foreach (var p in PaginaCorrente)
+        {
+            var selezionato = _selectedIds.Contains(p.Id);
+
+            @* Il ritardo cresce con la posizione: le schede entrano a cascata invece che
+               tutte insieme. Si ferma a dieci per non far aspettare le ultime di una
+               pagina piena. *@
+            var ritardo = Math.Min(posizione++, 10) * 45;
+
+            @* La chiave è l'istanza del riepilogo, non il suo identificativo. Blazor
+               pretende chiavi uniche fra fratelli e, quando ne trova due uguali, solleva
+               un'eccezione che non si recupera: la pagina muore e l'unica via d'uscita è
+               ricaricare. Un archivio può contenere due documenti con lo stesso
+               identificativo — basta copiare a mano un file nella cartella — e il difetto
+               non si vedrebbe subito: il primo disegno riesce, ed è la prima interazione
+               successiva a farlo esplodere.
+
+               L'istanza invece è unica per costruzione, e l'elenco resta leggibile anche
+               su un archivio incoerente. È la stessa lezione già imparata nell'elenco degli
+               elementi, dove un documento con un identificativo ripetuto faceva morire il
+               rendering allo stesso modo. *@
+            <article class="scheda sale @(selezionato ? "is-selezionata" : null)"
+                     style="--ritardo: @(ritardo)ms" @key="p">
+                <div class="scheda__tela app-checker" @onclick="() => OpenEditPattern(p.Id)"
+                     title="@T["gestione.scheda.apri"]">
+                    @((MarkupString)p.PreviewSvg)
+                    <span class="scheda__lente"><span class="scheda__etichetta">@T["gestione.scheda.modifica"]</span></span>
+                </div>
+
+                @* Duplica: sta sull'anteprima come la spunta, dalla parte opposta.
+                   Il clic non deve arrivare all'anteprima, che aprirebbe l'editor.
+
+                   Duplicare crea un pattern nuovo, quindi richiede un accesso: senza, il
+                   pulsante non c'è. Mostrarlo e poi rifiutarlo sarebbe una promessa non
+                   mantenuta. *@
+                <div class="scheda__strumenti">
+                    @if (Auth.Autenticato)
+                    {
+                        <button type="button" class="scheda__strumento" title="@T["gestione.scheda.duplica"]"
+                                aria-label="@T["gestione.scheda.duplicaAria", p.Name]"
+                                disabled="@(_duplicandoId == p.Id)"
+                                @onclick="() => DuplicaAsync(p)" @onclick:stopPropagation="true">
+                            @(_duplicandoId == p.Id ? "…" : "⧉")
+                        </button>
+                    }
+
+                    @* Scaricare non modifica niente e non crea niente: vale per tutti,
+                       compreso chi non ha fatto l'accesso. Sta qui e non dentro l'editor
+                       perché per prendere un file non si dovrebbe aprire un editor. *@
+                    <button type="button" class="scheda__strumento" title="@T["gestione.scheda.scarica"]"
+                            aria-label="@T["gestione.scheda.scaricaAria", p.Name]"
+                            disabled="@(_scaricandoId == p.Id)"
+                            @onclick="() => ScaricaAsync(p)" @onclick:stopPropagation="true">
+                        @(_scaricandoId == p.Id ? "…" : "↓")
+                    </button>
+                </div>
+
+                @* La spunta serve a eliminare, e si elimina solo ciò che è proprio. *@
+                @if (PuoScrivere(p))
+                {
+                    <label class="scheda__spunta" title="@T["gestione.scheda.seleziona"]">
+                        <input type="checkbox" checked="@selezionato"
+                               @onchange="e => ToggleSelected(p.Id, (bool)(e.Value ?? false))" />
+                    </label>
+                }
+                else if (Auth.Autenticato)
+                {
+                    @* Il lucchetto compare solo a chi ha fatto l'accesso: a un anonimo
+                       sarebbe su ogni scheda, e un segnale che vale sempre non segnala niente. *@
+                    <span class="scheda__lucchetto" title="@Perche(p)" aria-hidden="true">🔒</span>
+                }
+
+                <div class="scheda__corpo">
+                    <h3 class="scheda__nome">@(string.IsNullOrWhiteSpace(p.Name) ? T["comune.senzaNome"] : p.Name)</h3>
+
+                    <div class="scheda__composizione">
+                        @foreach (var tipo in p.ElementTypes)
+                        {
+                            Registry.TryGet(tipo, out var plugin);
+                            <span class="pastiglia" title="@(plugin is null ? tipo : E.NomeDelTipo(plugin.Type, plugin.DisplayName))">
+                                <VectorElementIcon Plugin="plugin" Size="13" />
+                            </span>
+                        }
+                        <span class="scheda__conta">@p.ElementCount @(p.ElementCount == 1 ? T["comune.elemento"] : T["comune.elementi"])</span>
+                    </div>
+
+                    @* Lo stato di pubblicazione compare quando dice qualcosa: sempre sui
+                       propri pattern, dove c'è anche il comando per cambiarlo, e su quelli
+                       altrui solo se non sono pubblici — cioè quando si sta guardando la
+                       coda di moderazione, l'unico caso in cui capita. Una pastiglia
+                       «Pubblico» su ogni scheda di un portale pubblico non informerebbe
+                       nessuno. *@
+                    @if (PuoScrivere(p) || !p.EPubblica)
+                    {
+                        <div class="scheda__stato">
+                            <span class="stato @StatoClasse(p)" title="@StatoSpiegato(p)">@T[p.VoceStato]</span>
+
+                            @if (PuoScrivere(p))
+                            {
+                                <button type="button" class="stato__azione"
+                                        disabled="@(_statoInCorso == p.Id)"
+                                        title="@StatoSpiegato(p)"
+                                        @onclick="() => CambiaVisibilitaAsync(p)">
+                                    @(_statoInCorso == p.Id ? "…" : AzioneSullaVisibilita(p))
+                                </button>
+                            }
+                        </div>
+                    }
+
+                    @if (p.OwnerName is { Length: > 0 } autore)
+                    {
+                        @* Quando l'autore è chi sta guardando, l'avatar si disegna
+                           dall'account e non dal riepilogo: il riepilogo è stato scaricato
+                           prima, e dopo un cambio di foto o di colore racconterebbe com'era.
+                           Per gli altri autori resta l'unica fonte disponibile. *@
+                        var proprio = Auth.Utente?.Id == p.OwnerId ? Auth.Utente : null;
+
+                        <div class="scheda__autore">
+                            <Avatar Account="proprio" Id="p.OwnerId" Nome="@autore" Lato="18"
+                                    ConFoto="p.OwnerHasPhoto" Colore="@p.OwnerColor"
+                                    Revisione="p.OwnerPhotoVersion" />
+                            <span>@autore</span>
+                            @if (Auth.Utente?.Id == p.OwnerId)
+                            {
+                                <span class="scheda__tuo">@T["comune.tuo"]</span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        @* Senza autore non si tace: un pattern che non si può salvare deve
+                           dire perché, e «più vecchio degli account» è una spiegazione. *@
+                        <div class="scheda__autore scheda__autore--senza">
+                            <span>@T["comune.senzaAutore"]</span>
+                        </div>
+                    }
+
+                    <dl class="scheda__dati">
+                        <div><dt>@T["comune.cella"]</dt><dd>@Misura(p.Width) × @Misura(p.Height)</dd></div>
+
+                        @* Quanto pesa il file che esce di qui. Su una scheda che mostra già
+                           misure e date è il terzo numero, ed è quello che sorprende: una
+                           trama che copre una parete sta in un paio di chilobyte. *@
+                        <div><dt>@T["comune.peso"]</dt><dd title="@T["comune.byteSvg", p.SizeBytes]">@p.Peso</dd></div>
+
+                        <div><dt>@T["comune.creato"]</dt><dd title="@Estesa(p.CreatedAt)">@Data(p.CreatedAt)</dd></div>
+
+                        @* La data di modifica compare solo se dice qualcosa di nuovo. Il
+                           confronto e' fatto sul testo mostrato e non sull'istante esatto:
+                           un pattern creato e confermato nello stesso minuto ha due istanti
+                           diversi ma la stessa data a schermo, e ripeterla sembrerebbe un
+                           difetto invece di un'informazione. *@
+                        @if (Data(p.ModifiedAt) != Data(p.CreatedAt))
+                        {
+                            <div><dt>@T["comune.modificato"]</dt><dd title="@Estesa(p.ModifiedAt)">@Data(p.ModifiedAt)</dd></div>
+                        }
+                    </dl>
+                </div>
+            </article>
+        }
+    </div>
+
+    @if (NumeroPagine > 1)
+    {
+        <nav class="impaginazione" aria-label="@T["gestione.pagine.aria"]">
+            <button type="button" class="app-btn app-btn--piatto" disabled="@(_pagina == 1)"
+                    @onclick="() => VaiA(_pagina - 1)">@T["gestione.pagine.precedente"]</button>
+
+            <div class="impaginazione__numeri">
+                @foreach (var n in NumeriMostrati)
+                {
+                    if (n == 0)
+                    {
+                        <span class="impaginazione__salto">…</span>
+                    }
+                    else
+                    {
+                        var pagina = n;
+                        <button type="button" class="impaginazione__numero @(pagina == _pagina ? "is-corrente" : null)"
+                                @onclick="() => VaiA(pagina)">@pagina</button>
+                    }
+                }
+            </div>
+
+            <button type="button" class="app-btn app-btn--piatto" disabled="@(_pagina == NumeroPagine)"
+                    @onclick="() => VaiA(_pagina + 1)">@T["gestione.pagine.successiva"]</button>
+        </nav>
+    }
+}
+
+@* ---------------------------------------------------------------- conferma -------
+
+   La conferma di un'eliminazione e' una finestra dell'applicazione e non il dialogo del
+   browser. Il dialogo nativo blocca il thread su cui gira l'applicazione, non si puo'
+   vestire come il resto, e soprattutto il browser lo puo' sopprimere: dopo qualche
+   apparizione Chrome offre di "impedire a questa pagina di creare altre finestre", e da
+   quel momento confirm() restituisce false all'istante senza mostrare niente. Il risultato
+   e' un pulsante Elimina che non elimina, e nessuna spiegazione.
+*@
+@if (_daEliminare is { } quanti)
+{
+    <div class="modal-backdrop" @onclick="() => _daEliminare = null">
+        <div class="conferma" role="alertdialog" aria-modal="true"
+             aria-labelledby="conferma-titolo" @onclick:stopPropagation="true">
+            @* Frasi intere e non composte a pezzi: cucire singolare e plurale con
+               espressioni in mezzo al testo è il modo più sicuro per ritrovarsi un
+               accento perso o una concordanza sbagliata. *@
+            <h2 class="conferma__titolo" id="conferma-titolo">
+                @(quanti == 1
+                    ? T["gestione.elimina.uno"]
+                    : T["gestione.elimina.molti", quanti])
+            </h2>
+            <p class="conferma__testo">
+                @(quanti == 1
+                    ? T["gestione.elimina.testoUno"]
+                    : T["gestione.elimina.testoMolti"])
+            </p>
+            <div class="conferma__azioni">
+                <button type="button" class="app-btn app-btn--piatto"
+                        @onclick="() => _daEliminare = null">@T["comune.annulla"]</button>
+                <button type="button" class="app-btn app-btn--danger" disabled="@_eliminazioneInCorso"
+                        @onclick="ConfermaEliminazioneAsync">
+                    @(_eliminazioneInCorso ? T["gestione.elimina.inCorso"] : T["comune.elimina"])
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@* Lo stesso riquadro per due nature diverse, distinte dal colore: un salvataggio non
+   riuscito è rosso perché chiede di fare qualcosa, una richiesta inviata è neutra perché
+   racconta e basta. Scrivere in rosso una cosa andata bene insegna a non leggere il rosso. *@
+@if (_avviso is { } messaggio)
+{
+    <div class="avviso-errore @(_avvisoENota ? "avviso-errore--nota" : null)" role="alert">
+        @messaggio
+        <button type="button" class="avviso-errore__chiudi" aria-label="@T["comune.chiudi"]"
+                @onclick="() => _avviso = null">✕</button>
+    </div>
+}
+
+@* ------------------------------------------------------- esito dell'importazione ---
+
+   L'importazione non salva niente: mostra che cosa ha trovato e lascia decidere. È la
+   stessa promessa dell'editor — si guarda, poi si conferma — e qui serve il doppio, perché
+   un documento SVG qualsiasi contiene quasi sempre qualcosa che il modello non sa
+   rappresentare, e chi importa deve saperlo PRIMA di trovarselo davanti.
+*@
+@if (_esitoImport is { } esito)
+{
+    <div class="modal-backdrop" @onclick="ChiudiImport">
+        <div class="conferma" role="alertdialog" aria-modal="true"
+             aria-labelledby="import-titolo" @onclick:stopPropagation="true">
+
+            <h2 class="conferma__titolo" id="import-titolo">
+                @(esito.IsEmpty
+                    ? T["gestione.import.fallito"]
+                    : esito.Imported == 1
+                        ? T["gestione.import.unElemento"]
+                        : T["gestione.import.molti", esito.Imported])
+            </h2>
+
+            @if (!esito.IsEmpty)
+            {
+                <p class="conferma__testo">
+                    @T["gestione.import.cella", Misura(esito.Pattern!.Definition.Width), Misura(esito.Pattern.Definition.Height)]
+                    @(esito.Skipped == 0
+                        ? T["gestione.import.tutto"]
+                        : esito.Skipped == 1
+                            ? T["gestione.import.unaFuori"]
+                            : T["gestione.import.molteFuori", esito.Skipped])
+                </p>
+            }
+
+            @* Il confronto sta prima degli avvisi perché è la risposta alla domanda
+               che uno si fa davvero: «somiglia?». Tre riquadri della stessa misura, ognuno
+               con la cella ripetuta, perché una trama si giudica ripetuta — su una
+               tessera sola l'occhio perdona errori che su una parete si vedono tutti. *@
+            @if (_confronto is { } confronto)
+            {
+                <div class="confronto">
+                    <div class="confronto__voce">
+                        <span class="confronto__nome">@T["confronto.originale"]</span>
+                        <div class="confronto__riquadro confronto__riquadro--punti"
+                             style="background-image: url('@_originale'); background-size: @(confronto.Larghezza)px @(confronto.Altezza)px;"></div>
+                    </div>
+
+                    <div class="confronto__voce">
+                        <span class="confronto__nome">@T["confronto.ricostruzione"]</span>
+                        <div class="confronto__riquadro">@((MarkupString)_ricostruzione)</div>
+                    </div>
+
+                    <div class="confronto__voce">
+                        <span class="confronto__nome">@T["confronto.differenza"]</span>
+                        <div class="confronto__riquadro confronto__riquadro--punti"
+                             style="background-image: url('@_differenza'); background-size: @(confronto.Larghezza)px @(confronto.Altezza)px;"></div>
+                    </div>
+                </div>
+
+                <p class="confronto__misura">
+                    <strong class="@(confronto.Somiglianza >= 0.9 ? "confronto__voto--bene" : confronto.Somiglianza >= 0.75 ? "confronto__voto--cosi" : "confronto__voto--male")">
+                        @T["confronto.somiglianza", (int)Math.Round(confronto.Somiglianza * 100)]
+                    </strong>
+                    <span class="confronto__legenda">@T["confronto.legenda"]</span>
+                </p>
+
+                @* La scelta dei colori sta anche qui, ed è qui che serve davvero: il punto
+                   giusto non si indovina guardando l'immagine di partenza, si trova provando e
+                   guardando che cosa ne esce. Cambiarla riconverte gli stessi punti, senza
+                   ripassare dal file — e ripassarci non funzionerebbe nemmeno, perché a
+                   riscegliere lo stesso file il browser non segnala nessun cambiamento. *@
+                <p class="confronto__regola">
+                    <label class="vetrina__colori" title="@T["vetrina.coloriTitolo"]">
+                        <span>@T["vetrina.colori"]</span>
+                        <select value="@_coloriDiConversione" @onchange="RiconvertiAsync"
+                                disabled="@_conversioneInCorso">
+                            @foreach (var quanteBande in Bande)
+                            {
+                                <option value="@quanteBande">@quanteBande</option>
+                            }
+                        </select>
+                    </label>
+                    <label class="vetrina__colori" title="@T["confronto.fedeltaTitolo"]">
+                        <span>@T["confronto.fedelta"]</span>
+                        <select value="@_fedelta" @onchange="CambiaFedeltaAsync"
+                                disabled="@_conversioneInCorso">
+                            <option value="@Fedelta.Normale">@T["confronto.fedelta.normale"]</option>
+                            <option value="@Fedelta.Massima">@T["confronto.fedelta.massima"]</option>
+                            <option value="@Fedelta.Ricalco">@T["confronto.fedelta.ricalco"]</option>
+                        </select>
+                    </label>
+                    <span class="confronto__legenda">
+                        @(_conversioneInCorso ? T["vetrina.analisi"] : T["confronto.riprova"])
+                    </span>
+                </p>
+            }
+
+            @if (esito.Avvisi.Count > 0)
+            {
+                @* Gli avvisi arrivano dalla libreria ancora traducibili: la frase la scrive il
+                   catalogo dell'editor, non l'importatore. *@
+                <ul class="conferma__elenco">
+                    @foreach (var avviso in esito.Avvisi)
+                    {
+                        <li>@E.Testo(avviso)</li>
+                    }
+                </ul>
+            }
+
+            <div class="conferma__azioni">
+                <button type="button" class="app-btn app-btn--piatto" @onclick="ChiudiImport">
+                    @(esito.IsEmpty ? T["comune.chiudi"] : T["comune.annulla"])
+                </button>
+                @if (!esito.IsEmpty)
+                {
+                    <button type="button" class="app-btn app-btn--primary" @onclick="ApriImportato">
+                        @T["gestione.import.apri"]
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@* ------------------------------------------------- scelta della pubblicazione -----
+
+   Compare al primo salvataggio di un pattern nuovo, e solo lì: chiedere a ogni conferma
+   trasformerebbe una domanda in un ostacolo, e la risposta smetterebbe di essere letta.
+   Dopo, lo stato si cambia dalla scheda, che è il posto dove lo si vede.
+
+   L'editor a questo punto è già chiuso, e non è un dettaglio di disposizione: dopo aver
+   emesso OnConfirm la sua macchina a stati è in «confermato» e non accetta più comandi —
+   tenerlo aperto sotto la finestra significherebbe lasciare a schermo un pulsante Conferma
+   che, premuto, solleva un'eccezione. Il disegno non si perde lo stesso: lo teniamo qui, e
+   se il salvataggio non riesce l'editor si riapre esattamente su quello.
+*@
+@if (_daPubblicare is not null)
+{
+    <div class="modal-backdrop">
+        <div class="conferma" role="dialog" aria-modal="true"
+             aria-labelledby="pubblica-titolo" @onclick:stopPropagation="true">
+            <h2 class="conferma__titolo" id="pubblica-titolo">@T["gestione.pubblica.titolo"]</h2>
+            <p class="conferma__testo">@T["gestione.pubblica.testo"]</p>
+            <div class="conferma__azioni">
+                <button type="button" class="app-btn app-btn--piatto" disabled="@_salvataggioInCorso"
+                        @onclick="() => SalvaNuovoAsync(PatternVisibility.Privata)">
+                    @T["gestione.pubblica.privato"]
+                </button>
+                <button type="button" class="app-btn app-btn--primary" disabled="@_salvataggioInCorso"
+                        @onclick="() => SalvaNuovoAsync(PatternVisibility.Pubblica)">
+                    @(_salvataggioInCorso ? T["gestione.pubblica.salvataggio"] : T["gestione.pubblica.chiedi"])
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_showEditor)
+{
+    <div class="modal-backdrop">
+        @* Il salvataggio non è passato e l'editor resta aperto: chiuderlo butterebbe via il
+           lavoro proprio nel momento in cui non è stato messo al sicuro. L'avviso sta sopra
+           di esso perché è la prima cosa da leggere. *@
+        @if (_avvisoPermesso is { } avviso)
+        {
+            <div class="avviso-permesso" role="alert" @onclick:stopPropagation="true">
+                <span>@avviso</span>
+                <button type="button" class="avviso-errore__chiudi" aria-label="@T["comune.chiudi"]"
+                        @onclick="() => _avvisoPermesso = null">✕</button>
+            </div>
+        }
+
+        <div class="modal-content">
+            <PatternEditor Pattern="_editingPattern"
+                           Theme="Tema"
+                           ReadOnly="_solaLettura"
+                           OnConfirm="HandleConfirmAsync"
+                           OnCancel="HandleCancel" />
+        </div>
+    </div>
+}
+
+@code {
+    private enum Ordine
+    {
+        CreazioneRecente,
+        CreazioneVecchia,
+        ModificaRecente,
+        NomeAZ,
+        NomeZA,
+        PiuElementi,
+    }
+
+    private static readonly int[] DimensioniPagina = [4, 8, 12, 24, 48];
+
+    /// <summary>
+    /// Tema scelto nell'intestazione dell'applicazione, inoltrato al componente perché la
+    /// modal resti coerente con la pagina che la ospita.
+    /// </summary>
+    [CascadingParameter]
+    public PatternEditorTheme Tema { get; set; } = PatternEditorTheme.System;
+
+    private List<PatternSummary>? _summaries;
+    private readonly HashSet<Guid> _selectedIds = new();
+
+    private string _ricerca = string.Empty;
+    private string _tipoFiltro = string.Empty;
+    private string _autoreFiltro = string.Empty;
+    private string _statoFiltro = string.Empty;
+
+    private Ordine _ordine = Ordine.CreazioneRecente;
+    private int _perPagina = 12;
+    private int _pagina = 1;
+
+    private Guid? _scaricandoId;
+
+    private bool _showEditor;
+    private Pattern? _editingPattern;
+    private bool _isNewPattern;
+
+    /// <summary>
+    /// L'editor è aperto ma non potrà salvare: l'utente è anonimo, oppure il pattern è di
+    /// qualcun altro. Si decide all'apertura e non si tocca più: cambiare modalità mentre
+    /// qualcuno sta lavorando è il modo più sicuro per fargli perdere il lavoro.
+    /// </summary>
+    private bool _solaLettura;
+
+    private string? _avvisoPermesso;
+
+    private string _tramaLontana = string.Empty;
+    private string _tramaVicina = string.Empty;
+    private IJSObjectReference? _movimento;
+
+    // ---------------------------------------------------------------- elenco --------
+
+    /// <summary>
+    /// L'elenco ridotto a ciò che si sta cercando.
+    ///
+    /// <para>
+    /// Il filtro viene prima dell'ordinamento e dell'impaginazione, perché è l'ordine in cui
+    /// le tre cose si compongono: si sceglie di che cosa si parla, poi come lo si dispone,
+    /// poi quanto se ne mostra per volta. Invertirli darebbe una pagina di risultati presa
+    /// da un elenco che comprende anche quelli esclusi.
+    /// </para>
+    ///
+    /// <para>
+    /// Il confronto è ordinale e senza distinzione fra maiuscole e minuscole: cercare
+    /// «tegole» deve trovare «Tegole1». Non si normalizzano gli accenti — nei nomi dei
+    /// pattern non compaiono quasi mai, e una normalizzazione dipende dalle tabelle di
+    /// globalizzazione, che in WebAssembly si pagano.
+    /// </para>
+    /// </summary>
+    private List<PatternSummary> Filtrati
+    {
+        get
+        {
+            IEnumerable<PatternSummary> elenco = _summaries ?? [];
+
+            if (!string.IsNullOrWhiteSpace(_ricerca))
+            {
+                var cercato = _ricerca.Trim();
+                elenco = elenco.Where(p => p.Name.Contains(cercato, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrEmpty(_tipoFiltro))
+            {
+                elenco = elenco.Where(p => p.ElementTypes.Contains(_tipoFiltro, StringComparer.Ordinal));
+            }
+
+            if (!string.IsNullOrEmpty(_autoreFiltro) && Auth.Utente is { } io)
+            {
+                elenco = _autoreFiltro switch
+                {
+                    "miei" => elenco.Where(p => p.OwnerId == io.Id),
+
+                    // «Degli altri» comprende anche i pattern senza autore: non sono miei, e
+                    // il menù non offre più una voce apposta per loro perché l'applicazione
+                    // non ne produce. Restano però possibili — un file copiato a mano nella
+                    // cartella — e un filtro che li facesse sparire dal conteggio senza dare
+                    // un modo di rivederli sarebbe peggio di uno che li comprende.
+                    "altrui" => elenco.Where(p => p.OwnerId != io.Id),
+
+                    _ => elenco,
+                };
+            }
+
+            if (!string.IsNullOrEmpty(_statoFiltro))
+            {
+                elenco = elenco.Where(p => string.Equals(p.Visibility, _statoFiltro, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return elenco.ToList();
+        }
+    }
+
+    private bool FiltroAttivo => !string.IsNullOrWhiteSpace(_ricerca)
+                             || !string.IsNullOrEmpty(_tipoFiltro)
+                             || !string.IsNullOrEmpty(_autoreFiltro)
+                             || !string.IsNullOrEmpty(_statoFiltro);
+
+    /// <summary>
+    /// Questo pattern lo si può salvare o eliminare: soltanto il suo autore.
+    ///
+    /// <para>
+    /// È la stessa regola che applica il server, ripetuta qui per <b>mostrare</b> l'esito
+    /// in anticipo invece di farlo scoprire da un rifiuto a lavoro finito. Non è un
+    /// controllo di sicurezza e non va scambiato per tale: a decidere è sempre l'API, che
+    /// è l'unico posto che un browser non può contraddire.
+    /// </para>
+    /// </summary>
+    private bool PuoScrivere(PatternSummary p) => Auth.Utente is { } io && p.OwnerId == io.Id;
+
+    private static string StatoClasse(PatternSummary p) =>
+        p.EPrivata ? "stato--privato" : p.EInAttesa ? "stato--attesa" : "stato--pubblico";
+
+    /// <summary>
+    /// Che cosa comporta lo stato in cui si trova. È il testo del suggerimento e vale la pena
+    /// scriverlo per esteso: «in attesa» non dice da sé che nel frattempo il pattern non si
+    /// vede, ed è la prima cosa che chiede chi lo legge.
+    /// </summary>
+    private string StatoSpiegato(PatternSummary p) =>
+        p.EPrivata ? T["stato.privato.spiega"]
+        : p.EInAttesa ? T["stato.inAttesa.spiega"]
+        : T["stato.pubblico.spiega"];
+
+    private string AzioneSullaVisibilita(PatternSummary p) =>
+        p.EPrivata ? T["stato.azione.chiedi"] : p.EInAttesa ? T["stato.azione.ritira"] : T["stato.azione.rendiPrivato"];
+
+    /// <summary>
+    /// Chiede il cambio di stato e mostra quello che il server ha concesso davvero.
+    ///
+    /// <para>
+    /// La riga si aggiorna da sola invece di ricaricare l'elenco: quattrocento anteprime
+    /// riscaricate per una parola cambiata sarebbero un'attesa senza motivo, e il riepilogo
+    /// è un record — se ne mette al posto uno identico con lo stato nuovo.
+    /// </para>
+    /// </summary>
+    private async Task CambiaVisibilitaAsync(PatternSummary p)
+    {
+        if (_statoInCorso is not null)
+        {
+            return;
+        }
+
+        _statoInCorso = p.Id;
+        try
+        {
+            var (esito, stato) = await Api.ChiediVisibilitaAsync(p.Id, p.EPrivata ? "Pubblica" : "Privata");
+
+            if (!esito.Riuscito)
+            {
+                _avviso = T["gestione.avviso.statoNonCambiato", esito.Testo(T)];
+                _avvisoENota = false;
+
+                if (esito.NonAutenticato)
+                {
+                    await Auth.SessioneScadutaAsync();
+                    Auth.ChiediAccesso();
+                }
+
+                return;
+            }
+
+            if (stato is { Length: > 0 } && _summaries is not null)
+            {
+                var posizione = _summaries.FindIndex(x => x.Id == p.Id);
+                if (posizione >= 0)
+                {
+                    _summaries[posizione] = p with { Visibility = stato };
+                }
+            }
+        }
+        finally
+        {
+            _statoInCorso = null;
+        }
+    }
+
+    /// <summary>Il pattern di cui si sta cambiando lo stato, per spegnerne il comando.</summary>
+    private Guid? _statoInCorso;
+
+    /// <summary>Perché non si può toccare. Sono due casi diversi e conviene distinguerli.</summary>
+    private string Perche(PatternSummary p) =>
+        p.OwnerId is null
+            ? T["gestione.scheda.senzaAutoreSpiega"]
+            : T["gestione.scheda.altruiSpiega", p.OwnerName ?? T["gestione.scheda.unAltroUtente"]];
+
+    private List<PatternSummary> Ordinati
+    {
+        get
+        {
+            var elenco = Filtrati;
+            return _ordine switch
+            {
+                Ordine.CreazioneRecente => elenco.OrderByDescending(p => p.CreatedAt).ToList(),
+                Ordine.CreazioneVecchia => elenco.OrderBy(p => p.CreatedAt).ToList(),
+                Ordine.ModificaRecente => elenco.OrderByDescending(p => p.ModifiedAt).ToList(),
+                Ordine.NomeAZ => elenco.OrderBy(p => p.Name, StringComparer.CurrentCultureIgnoreCase).ToList(),
+                Ordine.NomeZA => elenco.OrderByDescending(p => p.Name, StringComparer.CurrentCultureIgnoreCase).ToList(),
+                _ => elenco.OrderByDescending(p => p.ElementCount).ThenBy(p => p.Name).ToList(),
+            };
+        }
+    }
+
+    /// <summary>Zero significa "tutti su una pagina": evita di dover trattare a parte il caso.</summary>
+    private int NumeroPagine =>
+        _perPagina <= 0 ? 1 : Math.Max(1, (int)Math.Ceiling(Filtrati.Count / (double)_perPagina));
+
+    private IEnumerable<PatternSummary> PaginaCorrente =>
+        _perPagina <= 0 ? Ordinati : Ordinati.Skip((_pagina - 1) * _perPagina).Take(_perPagina);
+
+    /// <summary>
+    /// Quanti se ne vedono, e su quanti. Il secondo numero compare solo quando un filtro è
+    /// attivo: senza, «418 di 418» è rumore.
+    /// </summary>
+    private string Totale
+    {
+        get
+        {
+            var quanti = Filtrati.Count;
+            var tutti = _summaries?.Count ?? 0;
+
+            if (FiltroAttivo)
+            {
+                return T["gestione.conteggio.filtrati", quanti, tutti];
+            }
+
+            return quanti == 1 ? T["gestione.conteggio.uno"] : T["gestione.conteggio.molti", quanti];
+        }
+    }
+
+    private string Selezionati => _selectedIds.Count == 1
+        ? T["gestione.selezionati.uno"]
+        : T["gestione.selezionati.molti", _selectedIds.Count];
+
+    /// <summary>
+    /// Numeri di pagina da mostrare: primo, ultimo e un intorno di quello corrente.
+    /// Lo zero è il segnaposto dei puntini di sospensione.
+    /// </summary>
+    private IEnumerable<int> NumeriMostrati
+    {
+        get
+        {
+            var totale = NumeroPagine;
+            if (totale <= 7)
+            {
+                return Enumerable.Range(1, totale);
+            }
+
+            var numeri = new SortedSet<int> { 1, totale, _pagina };
+            if (_pagina > 1)
+            {
+                numeri.Add(_pagina - 1);
+            }
+
+            if (_pagina < totale)
+            {
+                numeri.Add(_pagina + 1);
+            }
+
+            var risultato = new List<int>();
+            var precedente = 0;
+            foreach (var n in numeri)
+            {
+                if (precedente != 0 && n - precedente > 1)
+                {
+                    risultato.Add(0);
+                }
+
+                risultato.Add(n);
+                precedente = n;
+            }
+
+            return risultato;
+        }
+    }
+
+    // ---------------------------------------------------------------- ciclo di vita --
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Due strati a scale e velocità diverse: la profondità nasce dalla differenza,
+        // non da un'ombra finta.
+        _tramaLontana = GeneraTrama("lontana", 108, 12, "circle");
+        _tramaVicina = GeneraTrama("vicina", 64, 30, "rect", "circle");
+
+        // Entrando o uscendo cambia mezza pagina: il filtro per autore compare, le spunte
+        // e i pulsanti «duplica» appaiono o spariscono, le schede dicono che cosa è tuo.
+        Auth.Cambiato += RidisegnaPerAccesso;
+
+        // Cambiando lingua cambia mezza pagina: i filtri, le etichette delle schede, i
+        // conteggi. Senza l'iscrizione resterebbe nella lingua di prima fino al primo clic.
+        T.Cambiata += Ridisegna;
+
+        await RefreshAsync();
+    }
+
+    private void RidisegnaPerAccesso()
+    {
+        // Un filtro per autore non ha senso da anonimi: lasciarlo acceso dopo l'uscita
+        // mostrerebbe un elenco vuoto senza il comando per capire perché.
+        if (!Auth.Autenticato && !string.IsNullOrEmpty(_autoreFiltro))
+        {
+            _autoreFiltro = string.Empty;
+            _pagina = 1;
+        }
+
+        if (_elencoDi != Auth.Utente?.Id)
+        {
+            InvokeAsync(async () =>
+            {
+                await RefreshAsync();
+                StateHasChanged();
+            });
+
+            return;
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Chi era l'utente quando l'elenco è stato chiesto.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// <para>
+    /// Serve perché l'elenco non è più lo stesso per tutti: da anonimi contiene solo i pattern
+    /// pubblici, da autenticati anche i propri in qualunque stato. La prima richiesta parte
+    /// prima che la sessione sia stata ripresa dall'archivio del browser — il ripristino
+    /// passa da JavaScript e quindi dal primo rendering — e senza questo confronto chi
+    /// ricarica la pagina non vedrebbe i propri pattern privati finché non tocca qualcosa.
+    /// </para>
+    /// <para>
+    /// Il confronto è sull'identità e non sulla notifica: <c>Cambiato</c> arriva anche per
+    /// una foto nuova o un colore diverso, e riscaricare quattrocento anteprime per quello
+    /// sarebbe uno spreco.
+    /// </para>
+    /// </remarks>
+    private Guid? _elencoDi;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _movimento = await JS.InvokeAsync<IJSObjectReference>("import", "./js/movimento.js");
+            await _movimento.InvokeVoidAsync("riflettore");
+            await _movimento.InvokeVoidAsync("origineFinestra");
+        }
+
+        // I contatori partono da zero: vanno animati quando i dati arrivano, non prima.
+        if (_movimento is not null && _summaries is not null)
+        {
+            await _movimento.InvokeVoidAsync("contatori");
+        }
+    }
+
+    private void Ridisegna() => InvokeAsync(StateHasChanged);
+
+    public async ValueTask DisposeAsync()
+    {
+        Auth.Cambiato -= RidisegnaPerAccesso;
+        T.Cambiata -= Ridisegna;
+
+        if (_movimento is not null)
+        {
+            await _movimento.DisposeAsync();
+        }
+
+        if (_libreria is not null)
+        {
+            await _libreria.DisposeAsync();
+        }
+
+        if (_moduloImmagine is not null)
+        {
+            await _moduloImmagine.DisposeAsync();
+        }
+    }
+
+    /// <summary>
+    /// Trama decorativa della vetrina: un pattern costruito e reso come qualunque altro,
+    /// con l'identificativo del nodo esplicito perché convive nella stessa pagina con le
+    /// anteprime delle schede.
+    /// </summary>
+    private string GeneraTrama(string nome, double lato, double rotazione, params string[] tipi)
+    {
+        var pattern = new Pattern { Name = nome };
+        pattern.Definition.Width = lato;
+        pattern.Definition.Height = lato;
+        pattern.Definition.Rotation = rotazione;
+
+        foreach (var tipo in tipi)
+        {
+            if (Registry.TryGet(tipo, out var plugin) && plugin is not null)
+            {
+                pattern.Definition.Elements.Add(plugin.Create());
+            }
+        }
+
+        return SvgRenderer.RenderStandaloneSvg(pattern, "100%", "100%", $"trama-{nome}");
+    }
+
+    private async Task RefreshAsync()
+    {
+        _elencoDi = Auth.Utente?.Id;
+        _summaries = (await Api.GetSummariesAsync()).ToList();
+        _selectedIds.Clear();
+        RiportaNellIntervallo();
+    }
+
+    // ---------------------------------------------------------------- interazione ----
+
+    /// <summary>
+    /// Cambiando filtro si torna alla prima pagina: restare alla dodicesima di un elenco che
+    /// adesso ne ha due mostrerebbe una pagina vuota, e sembrerebbe che non ci sia niente.
+    /// </summary>
+    private void CambiaRicerca(string? valore)
+    {
+        _ricerca = valore ?? string.Empty;
+        _pagina = 1;
+    }
+
+    private void CambiaTipo(string? valore)
+    {
+        _tipoFiltro = valore ?? string.Empty;
+        _pagina = 1;
+    }
+
+    private void AzzeraFiltri()
+    {
+        _ricerca = string.Empty;
+        _tipoFiltro = string.Empty;
+        _autoreFiltro = string.Empty;
+        _statoFiltro = string.Empty;
+        _pagina = 1;
+    }
+
+    private void CambiaAutore(string? valore)
+    {
+        _autoreFiltro = valore ?? string.Empty;
+        _pagina = 1;
+    }
+
+    private void CambiaStato(string? valore)
+    {
+        _statoFiltro = valore ?? string.Empty;
+        _pagina = 1;
+    }
+
+    private void CambiaOrdine(string? valore)
+    {
+        if (Enum.TryParse<Ordine>(valore, out var ordine))
+        {
+            _ordine = ordine;
+            _pagina = 1;
+        }
+    }
+
+    private void CambiaPerPagina(string? valore)
+    {
+        if (int.TryParse(valore, out var n))
+        {
+            _perPagina = n;
+            _pagina = 1;
+        }
+    }
+
+    private void VaiA(int pagina) => _pagina = Math.Clamp(pagina, 1, NumeroPagine);
+
+    /// <summary>Dopo una cancellazione la pagina corrente potrebbe non esistere più.</summary>
+    private void RiportaNellIntervallo() => _pagina = Math.Clamp(_pagina, 1, NumeroPagine);
+
+    private void ToggleSelected(Guid id, bool selected)
+    {
+        if (selected)
+        {
+            _selectedIds.Add(id);
+        }
+        else
+        {
+            _selectedIds.Remove(id);
+        }
+    }
+
+    private void OpenNewPattern()
+    {
+        _editingPattern = null; // Pattern == null → il componente crea un nuovo Pattern internamente.
+        _isNewPattern = true;
+
+        // Un anonimo può comunque comporre e scaricare: l'editor si apre, e si apre in sola
+        // lettura. Sbarrargli la porta sarebbe più semplice e meno utile — questo strumento
+        // serve anche solo a produrre un SVG, e per quello un account non c'entra niente.
+        _solaLettura = !Auth.Autenticato;
+        _showEditor = true;
+    }
+
+    /// <summary>
+    /// Pattern in corso di duplicazione, per spegnere il suo comando mentre la richiesta è
+    /// in volo: un doppio clic impaziente creerebbe due copie invece di una.
+    /// </summary>
+    private Guid? _duplicandoId;
+
+    // ------------------------------------------------------------------ importazione SVG
+
+    /// <summary>
+    /// Quanto può essere grande il file. Il limite non è prudenza generica: il contenuto
+    /// viene letto tutto in memoria dentro il browser, e un documento enorme bloccherebbe
+    /// la pagina senza spiegazioni. Tre megabyte sono molti per un disegno vettoriale.
+    /// </summary>
+    private const long DimensioneMassimaSvg = 3 * 1024 * 1024;
+
+    private SvgImportResult? _esitoImport;
+    private bool _importInCorso;
+
+    private bool _conversioneInCorso;
+
+    /// <summary>
+    /// Il lato massimo a cui si riduce un'immagine prima di analizzarla.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Non è per andare più veloci: è perché oltre una certa densità i pixel non aggiungono
+    /// informazione al problema. Una cella di retino sta in duecento punti; una fotografia da
+    /// quattromila descrive la carta su cui era stampata, e l'analisi si mette a riconoscere
+    /// la grana invece del disegno. A ridurre è il browser, che lo fa bene e gratis.
+    /// </remarks>
+    private const int LatoMassimoImmagine = 900;
+
+    private IJSObjectReference? _moduloImmagine;
+
+    /// <summary>Il confronto fra il disegno di partenza e la ricostruzione, quando c'è.</summary>
+    private Confronto? _confronto;
+
+    private string _originale = string.Empty;
+
+    private string _differenza = string.Empty;
+
+    private string _ricostruzione = string.Empty;
+
+    /// <summary>
+    /// Legge il file scelto e ne ricava un pattern, che <b>non</b> viene salvato: l'esito
+    /// finisce in una finestra che dice che cosa è entrato e che cosa è rimasto fuori, e
+    /// solo da lì si apre l'editor.
+    /// </summary>
+    private async Task ImportaSvgAsync(InputFileChangeEventArgs argomenti)
+    {
+        var file = argomenti.FileCount > 0 ? argomenti.File : null;
+        if (file is null)
+        {
+            return;
+        }
+
+        _importInCorso = true;
+        try
+        {
+            if (file.Size > DimensioneMassimaSvg)
+            {
+                _esitoImport = SvgImportResult.Failed(
+                    T["gestione.import.troppoGrande", DimensioneMassimaSvg / (1024 * 1024)]);
+                return;
+            }
+
+            using var flusso = file.OpenReadStream(DimensioneMassimaSvg);
+            using var lettore = new StreamReader(flusso);
+            var contenuto = await lettore.ReadToEndAsync();
+
+            // Il nome del file diventa il nome del pattern: è quasi sempre quello giusto, e
+            // comunque si corregge nell'editor prima di confermare.
+            _esitoImport = Importer.Import(contenuto, Path.GetFileNameWithoutExtension(file.Name));
+        }
+        catch (IOException e)
+        {
+            _esitoImport = SvgImportResult.Failed(T["gestione.import.illeggibile", e.Message]);
+        }
+        finally
+        {
+            _importInCorso = false;
+        }
+    }
+
+    /// <summary>
+    /// Legge un'immagine, prova a ricostruirne la trama e mostra l'esito nella stessa finestra
+    /// dell'importazione.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// <para>
+    /// La decodifica la fa il browser, in tre passaggi: <c>RequestImageFileAsync</c> apre il
+    /// file e lo riduce, poi il modulo lo disegna su una tela e ne restituisce i punti. Il
+    /// ridimensionamento è quello del framework perché è già scritto e già corretto —
+    /// mantiene le proporzioni e non ingrandisce mai.
+    /// </para>
+    /// <para>
+    /// Il pattern che ne esce <b>non viene salvato</b>, esattamente come per un SVG
+    /// importato: si guarda, e solo da lì si apre l'editor.
+    /// </para>
+    /// </remarks>
+    private async Task ConvertiImmagineAsync(InputFileChangeEventArgs argomenti)
+    {
+        var file = argomenti.FileCount > 0 ? argomenti.File : null;
+        if (file is null)
+        {
+            return;
+        }
+
+        _conversioneInCorso = true;
+        try
+        {
+            var ridotta = await file.RequestImageFileAsync(
+                "image/png", LatoMassimoImmagine, LatoMassimoImmagine);
+
+            using var flusso = ridotta.OpenReadStream(DimensioneMassimaImmagine);
+            using var memoria = new MemoryStream();
+            await flusso.CopyToAsync(memoria);
+
+            var indirizzo = "data:image/png;base64," + Convert.ToBase64String(memoria.ToArray());
+
+            _moduloImmagine ??= await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./js/immagine.js");
+
+            var misure = await _moduloImmagine.InvokeAsync<MisureImmagine>("analizza", indirizzo);
+            var punti = await _moduloImmagine.InvokeAsync<byte[]>("pixel");
+
+            // I punti si tengono: servono a riconvertire la stessa immagine con un altro
+            // numero di colori senza ripassare dal file. È anche l'unico modo che funzioni,
+            // perché a riscegliere lo stesso file il campo non segnala nessun cambiamento e
+            // non succederebbe niente.
+            _puntiImmagine = punti;
+            _misureImmagine = misure;
+            _nomeImmagine = Path.GetFileNameWithoutExtension(file.Name);
+        }
+        catch (Exception e) when (e is IOException or InvalidOperationException or JSException)
+        {
+            _esitoImport = SvgImportResult.Failed(T["gestione.converti.illeggibile", e.Message]);
+            _puntiImmagine = null;
+            _conversioneInCorso = false;
+            return;
+        }
+
+        await RicostruisciAsync();
+    }
+
+    /// <summary>Riconverte l'immagine già letta con la fedeltà scelta adesso.</summary>
+    private async Task CambiaFedeltaAsync(ChangeEventArgs argomenti)
+    {
+        if (!Enum.TryParse<Fedelta>(argomenti.Value?.ToString(), out var quale))
+        {
+            return;
+        }
+
+        _fedelta = quale;
+        await RicostruisciAsync();
+    }
+
+    /// <summary>Riconverte l'immagine già letta con il numero di colori scelto adesso.</summary>
+    private async Task RiconvertiAsync(ChangeEventArgs argomenti)
+    {
+        if (!int.TryParse(argomenti.Value?.ToString(), out var quanti))
+        {
+            return;
+        }
+
+        _coloriDiConversione = quanti;
+        await RicostruisciAsync();
+    }
+
+    /// <summary>
+    /// La conversione vera e propria, a partire dai punti già letti.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// La pausa prima di cominciare non è un vezzo: WebAssembly gira su un thread solo, e
+    /// senza restituire il controllo al browser la finestra resterebbe ferma sull'ultimo
+    /// disegno per tutti i venti secondi del conto, senza nemmeno mostrare che sta lavorando.
+    /// </remarks>
+    private async Task RicostruisciAsync()
+    {
+        if (_puntiImmagine is null || _misureImmagine is null)
+        {
+            return;
+        }
+
+        _conversioneInCorso = true;
+        StateHasChanged();
+        await Task.Delay(1);
+
+        try
+        {
+            var conversione = Convertitore.Import(
+                _puntiImmagine, _misureImmagine.Larghezza, _misureImmagine.Altezza,
+                _nomeImmagine ?? string.Empty, _coloriDiConversione, _fedelta);
+
+            _esitoImport = conversione.Esito;
+            await PreparaConfrontoAsync(conversione);
+        }
+        catch (Exception e) when (e is IOException or InvalidOperationException or JSException)
+        {
+            _esitoImport = SvgImportResult.Failed(T["gestione.converti.illeggibile", e.Message]);
+        }
+        finally
+        {
+            _conversioneInCorso = false;
+        }
+    }
+
+    /// <summary>Le scelte offerte per il numero di bande di colore.</summary>
+    private static readonly int[] Bande = [3, 4, 6, 8, 12, 16];
+
+    /// <summary>I punti dell'ultima immagine letta, per poterla riconvertire.</summary>
+    private byte[]? _puntiImmagine;
+
+    private MisureImmagine? _misureImmagine;
+
+    private string? _nomeImmagine;
+
+    /// <summary>In quante bande di colore dividere l'immagine da convertire.</summary>
+    private int _coloriDiConversione = 4;
+
+    /// <summary>Quanto avvicinarsi all'immagine, e a quale prezzo.</summary>
+    private Fedelta _fedelta = Fedelta.Normale;
+
+    /// <summary>Quanto può pesare l'immagine già ridotta dal browser.</summary>
+    private const long DimensioneMassimaImmagine = 8 * 1024 * 1024;
+
+    /// <summary>Le misure che il modulo restituisce dopo aver aperto l'immagine.</summary>
+    private sealed record MisureImmagine(int Larghezza, int Altezza);
+
+    /// <summary>
+    /// Prepara le tre immagini del confronto.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Le due mappe a punti diventano immagini nel browser, che sa già farlo: scrivere un
+    /// codificatore PNG in C# per mostrarle sarebbe qualche centinaio di righe per un lavoro
+    /// che una tela fa in tre. La ricostruzione invece è <b>l'SVG vero</b>, quello che
+    /// verrebbe salvato: mostrarne una copia disegnata da noi vorrebbe dire confrontare
+    /// l'originale con qualcosa che non è il risultato.
+    /// </remarks>
+    private async Task PreparaConfrontoAsync(EsitoConversione conversione)
+    {
+        _confronto = conversione.Confronto;
+        _originale = string.Empty;
+        _differenza = string.Empty;
+        _ricostruzione = string.Empty;
+
+        if (_confronto is null || _moduloImmagine is null || conversione.Esito.Pattern is null)
+        {
+            return;
+        }
+
+        _originale = await _moduloImmagine.InvokeAsync<string>(
+            "daPunti", _confronto.Originale, _confronto.Larghezza, _confronto.Altezza);
+
+        _differenza = await _moduloImmagine.InvokeAsync<string>(
+            "daPunti", _confronto.Differenza, _confronto.Larghezza, _confronto.Altezza);
+
+        _ricostruzione = SvgRenderer.RenderStandaloneSvg(
+            conversione.Esito.Pattern, "100%", "100%", "confronto");
+    }
+
+    private void ChiudiImport()
+    {
+        _esitoImport = null;
+        _confronto = null;
+    }
+
+    /// <summary>
+    /// Apre nell'editor il pattern importato. Vale come un pattern nuovo: ha un
+    /// identificativo suo e all'archivio arriva solo se lo si conferma.
+    /// </summary>
+    private void ApriImportato()
+    {
+        if (_esitoImport?.Pattern is not { } pattern)
+        {
+            return;
+        }
+
+        _esitoImport = null;
+        _editingPattern = pattern;
+        _isNewPattern = true;
+        _showEditor = true;
+    }
+
+    /// <summary>
+    /// Duplica un pattern e ricarica l'elenco. La copia è identica in tutto tranne che negli
+    /// identificativi, nelle date — che le assegna l'API alla creazione — e nel nome.
+    /// </summary>
+    /// <summary>
+    /// Scarica l'SVG di un pattern senza aprirlo.
+    ///
+    /// <para>
+    /// Il riepilogo non basta: contiene l'anteprima resa a misura di scheda, non il
+    /// documento. Si scarica la definizione completa e la si rende con lo stesso renderer
+    /// che usa l'editor, così il file è identico a quello che si otterrebbe entrando.
+    /// </para>
+    /// </summary>
+    private async Task ScaricaAsync(PatternSummary riepilogo)
+    {
+        if (_scaricandoId is not null)
+        {
+            return;
+        }
+
+        _scaricandoId = riepilogo.Id;
+
+        try
+        {
+            var pattern = await Api.GetByIdAsync(riepilogo.Id);
+            if (pattern is null)
+            {
+                _avvisoENota = false;
+                _avviso = T["gestione.avviso.nonEsistePiu"];
+                return;
+            }
+
+            var nome = string.IsNullOrWhiteSpace(pattern.Name) ? "pattern" : pattern.Name;
+            var modulo = await ModuloLibreriaAsync();
+
+            await modulo.InvokeVoidAsync(
+                "downloadTextFile", $"{nome}.svg", SvgRenderer.RenderStandaloneSvg(pattern), "image/svg+xml");
+        }
+        finally
+        {
+            _scaricandoId = null;
+        }
+    }
+
+    /// <summary>
+    /// Il modulo JavaScript della libreria, quello che sa consegnare un file al browser.
+    /// È lo stesso che usa il pulsante «Scarica SVG» dentro l'editor: due implementazioni
+    /// dello stesso gesto finirebbero per divergere sul nome del file o sul tipo MIME.
+    /// </summary>
+    private async Task<IJSObjectReference> ModuloLibreriaAsync() =>
+        _libreria ??= await JS.InvokeAsync<IJSObjectReference>(
+            "import", "./_content/PatternEditor/patternEditorInterop.js");
+
+    private IJSObjectReference? _libreria;
+
+    private async Task DuplicaAsync(PatternSummary riepilogo)
+    {
+        if (_duplicandoId is not null)
+        {
+            return;
+        }
+
+        _duplicandoId = riepilogo.Id;
+
+        try
+        {
+            // Il riepilogo non basta: contiene l'anteprima già resa, non la definizione.
+            // Per copiare davvero un pattern serve il documento completo.
+            var originale = await Api.GetByIdAsync(riepilogo.Id);
+            if (originale is null)
+            {
+                return;
+            }
+
+            var copia = Cloner.Clone(originale, T["gestione.avviso.copiaDi", originale.Name]);
+
+            var esito = await Api.CreateAsync(copia);
+            if (esito.Riuscito)
+            {
+                // L'elenco è ordinato per data di creazione: la copia compare in cima.
+                await RefreshAsync();
+            }
+            else
+            {
+                _avvisoENota = false;
+                _avviso = T["gestione.avviso.duplicaFallita", esito.Testo(T)];
+            }
+        }
+        finally
+        {
+            _duplicandoId = null;
+        }
+    }
+
+    private async Task OpenEditPattern(Guid id)
+    {
+        var pattern = await Api.GetByIdAsync(id);
+
+        if (pattern is null)
+        {
+            // Senza documento non si apre un editor: con Pattern a null il componente ne
+            // creerebbe uno nuovo e vuoto, e chi ha cliccato su una scheda piena si
+            // troverebbe davanti un foglio bianco senza capire che cosa è successo.
+            _avvisoENota = false;
+            _avviso = T["gestione.avviso.nonSiApre"];
+            return;
+        }
+
+        _editingPattern = pattern;
+        _isNewPattern = false;
+
+        // Chi non può salvarlo lo apre lo stesso: guardare com'è fatto un pattern altrui,
+        // modificarlo per provare e scaricarne il risultato è esattamente ciò che deve
+        // restare possibile. Quello che non deve poter fare è sovrascrivere l'originale.
+        var riepilogo = _summaries?.FirstOrDefault(p => p.Id == id);
+        _solaLettura = riepilogo is null ? !Auth.Autenticato : !PuoScrivere(riepilogo);
+
+        _showEditor = true;
+    }
+
+    private async Task HandleConfirmAsync(Pattern pattern)
+    {
+        // Un pattern nuovo non si salva subito: prima si chiede chi potrà vederlo. La domanda
+        // sta qui e non dentro l'editor perché l'editor è la libreria, che di portali e di
+        // approvazioni non sa niente — e non deve saperne.
+        if (_isNewPattern && Auth.Autenticato)
+        {
+            _daPubblicare = pattern;
+            _showEditor = false;
+            _editingPattern = null;
+            return;
+        }
+
+        // Su un pattern già esistente lo stato lo conserva il documento, con una sola
+        // eccezione che decide il server: un pattern pubblico che viene modificato torna in
+        // attesa. Va detto dopo, perché dirlo prima vorrebbe dire chiederlo, e non è una scelta.
+        var eraPubblico = !_isNewPattern
+            && _summaries?.FirstOrDefault(x => x.Id == pattern.Id) is { } prima
+            && (prima.EPubblica || prima.EInAttesa);
+
+        // La persistenza è responsabilità esclusiva dell'applicazione host, non del componente editor.
+        var esito = _isNewPattern
+            ? await Api.CreateAsync(pattern)
+            : await Api.UpdateAsync(pattern);
+
+        if (esito.Riuscito)
+        {
+            _showEditor = false;
+            _editingPattern = null;
+
+            if (eraPubblico)
+            {
+                _avviso = T["gestione.avviso.tornatoInAttesa"];
+                _avvisoENota = true;
+            }
+
+            await RefreshAsync();
+            return;
+        }
+
+        // L'editor resta aperto: chiuderlo su un salvataggio fallito butterebbe via il
+        // lavoro proprio nel momento in cui non è stato messo al sicuro. Si dice cos'è
+        // successo e si lascia la strada per riprovare — o almeno per scaricare.
+        _avvisoPermesso = esito.Testo(T);
+
+        if (esito.NonAutenticato)
+        {
+            // La sessione non vale più: l'interfaccia deve smettere di dire il contrario, e
+            // il modo per rientrare va offerto subito.
+            await Auth.SessioneScadutaAsync();
+            _solaLettura = true;
+            Auth.ChiediAccesso();
+        }
+        else if (esito.Vietato)
+        {
+            _solaLettura = true;
+        }
+    }
+
+    /// <summary>
+    /// Il pattern nuovo che aspetta di sapere chi potrà vederlo, prima di essere salvato.
+    /// </summary>
+    private Pattern? _daPubblicare;
+
+    private bool _salvataggioInCorso;
+
+    /// <summary>
+    /// Salva il pattern nuovo con la visibilità scelta. «Pubblica» è una richiesta e non un
+    /// esito: il server la trasforma in attesa, e l'avviso lo dice, perché chi ha appena
+    /// premuto «Chiedi la pubblicazione» deve capire perché sulla scheda non c'è scritto
+    /// «Pubblico».
+    /// </summary>
+    private async Task SalvaNuovoAsync(PatternVisibility visibilita)
+    {
+        if (_daPubblicare is not { } pattern || _salvataggioInCorso)
+        {
+            return;
+        }
+
+        _salvataggioInCorso = true;
+        try
+        {
+            pattern.Visibility = visibilita;
+            var esito = await Api.CreateAsync(pattern);
+
+            if (!esito.Riuscito)
+            {
+                // Il salvataggio non è passato: l'editor si riapre su questo stesso disegno,
+                // con l'avviso sopra. È un'apertura vera e propria — il componente riparte da
+                // «in modifica» — ed è ciò che rende ripetibile il tentativo.
+                _editingPattern = pattern;
+                _showEditor = true;
+                _daPubblicare = null;
+                _avvisoPermesso = esito.Testo(T);
+
+                if (esito.NonAutenticato)
+                {
+                    await Auth.SessioneScadutaAsync();
+                    _solaLettura = true;
+                    Auth.ChiediAccesso();
+                }
+                else if (esito.Vietato)
+                {
+                    _solaLettura = true;
+                }
+
+                return;
+            }
+
+            _daPubblicare = null;
+
+            if (visibilita == PatternVisibility.Pubblica)
+            {
+                _avviso = T["gestione.avviso.richiestaInviata"];
+                _avvisoENota = true;
+            }
+
+            await RefreshAsync();
+        }
+        finally
+        {
+            _salvataggioInCorso = false;
+        }
+    }
+
+    private void HandleCancel()
+    {
+        // Annulla: nessuna informazione viene persistita, l'elenco resta invariato.
+        _showEditor = false;
+        _editingPattern = null;
+        _daPubblicare = null;
+        _avvisoPermesso = null;
+    }
+
+    /// <summary>Quanti pattern sta chiedendo di eliminare la finestra di conferma; null se chiusa.</summary>
+    private int? _daEliminare;
+
+    private bool _eliminazioneInCorso;
+
+    /// <summary>
+    /// L'avviso in fondo alla pagina: un'eliminazione fallita, una duplicazione rifiutata,
+    /// un pattern che non si apre. Uno solo perché è uno solo il posto in cui si guarda.
+    /// </summary>
+    private string? _avviso;
+
+    /// <summary>L'avviso racconta invece di segnalare un guasto: cambia colore, non posto.</summary>
+    private bool _avvisoENota;
+
+    /// <summary>Apre la richiesta di conferma. L'eliminazione avviene solo dopo la risposta.</summary>
+    private void DeleteSelectedAsync()
+    {
+        if (_selectedIds.Count > 0)
+        {
+            _avviso = null;
+            _daEliminare = _selectedIds.Count;
+        }
+    }
+
+    private async Task ConfermaEliminazioneAsync()
+    {
+        _eliminazioneInCorso = true;
+
+        try
+        {
+            var esito = await Api.DeleteManyAsync(_selectedIds);
+            if (esito.Riuscito)
+            {
+                _daEliminare = null;
+                await RefreshAsync();
+            }
+            else
+            {
+                // Non si chiude e non si svuota la selezione: chi ha chiesto l'eliminazione
+                // deve poter riprovare senza rifare la scelta.
+                _avvisoENota = false;
+                _avviso = T["gestione.avviso.nonEliminati", esito.Testo(T)];
+
+                if (esito.NonAutenticato)
+                {
+                    await Auth.SessioneScadutaAsync();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            _avvisoENota = false;
+            _avviso = T["gestione.avviso.eliminazioneFallita", e.Message];
+        }
+        finally
+        {
+            _eliminazioneInCorso = false;
+        }
+    }
+
+    // ---------------------------------------------------------------- formattazione --
+
+    /// <summary>Le date arrivano dall'API in UTC e vengono mostrate nel fuso orario locale.</summary>
+    /// <summary>
+    /// Data per la scheda, in forma breve. L'anno viene omesso quando e' quello corrente:
+    /// nella scheda le date sono due e devono stare accanto alla dimensione della cella su
+    /// una riga sola, e "2026" ripetuto due volte sono quaranta pixel spesi per un'informazione
+    /// che chi guarda ha gia'. Sulle date di altri anni l'anno compare, a due cifre.
+    /// La data completa resta disponibile passandoci sopra il puntatore.
+    /// </summary>
+    private static string Data(DateTimeOffset value)
+    {
+        var locale = value.ToLocalTime();
+        return locale.Year == DateTimeOffset.Now.Year
+            ? locale.ToString("dd/MM HH:mm")
+            : locale.ToString("dd/MM/yy HH:mm");
+    }
+
+    /// <summary>Data completa, mostrata come suggerimento sul valore abbreviato.</summary>
+    private static string Estesa(DateTimeOffset value) =>
+        value.ToLocalTime().ToString("dddd d MMMM yyyy, HH:mm");
+
+    private static string Misura(double value) => value.ToString("0.##");
+}

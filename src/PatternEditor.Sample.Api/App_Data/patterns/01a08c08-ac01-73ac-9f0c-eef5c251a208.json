@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac01-73ac-9f0c-eef5c251a208",
+  "name": "Houndstooth - 2",
+  "createdAt": "2026-09-10T15:56:15.4211579\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.9638648\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 60,
+    "height": 60,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M0 0v22.5L7.5 15V7.5L15 0H0zm7.5 15H15l7.5-7.5L30 0h-7.5l-15 15zm30-15-15 15H30l7.5-7.5L45 0h-7.5zm15 0-15 15H45l7.5-7.5V15H60V0h-7.5zM60 15l-7.5 7.5V30l7.5-7.5V15zM7.5 22.5 0 30v7.5L7.5 30v-7.5zM60 30l-7.5 7.5V45l7.5-7.5V30zM7.5 37.5 0 45v7.5L7.5 45v-7.5zM60 45l-7.5 7.5V60l7.5-7.5V45zM7.5 52.5 0 60h7.5v-7.5z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac01-7074-879f-dcf7befeee74",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "m30 0-7.5 7.5V15l15-15H30zm7.5 7.5L30 15l-7.5 7.5V30l15-15V7.5zm0 15L30 30l-7.5 7.5V45l15-15v-7.5zm0 15L30 45l-7.5 7.5V60l15-15v-7.5zm0 15L30 60h7.5v-7.5z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac01-76c4-ba1e-00b1e8968ec9",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M7.5 30 0 37.5V45l7.5-7.5L15 30H7.5zm15 0-15 15H15l7.5-7.5L30 30h-7.5zm15 0-15 15H30l7.5-7.5L45 30h-7.5zm15 0-15 15H45l7.5-7.5L60 30h-7.5zm7.5 7.5L52.5 45H60v-7.5z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac01-75b0-a255-bc240503adf1",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

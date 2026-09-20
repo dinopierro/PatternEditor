@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac44-7220-be48-2240085bbef2",
+  "name": "Triangles - 20",
+  "createdAt": "2026-09-10T15:56:16.6204748\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.3402890\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 26.65,
+    "height": 16.45,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m0 8.29-13.32 16.25-13.33-16.25zm0 0h26.65L13.32 24.54zm13.32-.2L0-8.16h26.65zm13.33.2H53.3L39.97 24.54z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac44-730c-ba7b-b55ae1f57e20",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

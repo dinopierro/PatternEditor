@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 490" width="940" height="490" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="490" fill="#ffffff"/>
+  <defs><marker id="punta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b6ef5"/></marker></defs>
+  <text x="30" y="34" font-size="17" font-weight="600" fill="#1b2430">Figura 17 — Le due duplicazioni</text>
+  <text x="30" y="55" font-size="12.5" fill="#6b7684">Copiare un pattern intero e copiare un elemento sono lo stesso gesto a due livelli.</text>
+  <rect x="30.0" y="84.0" width="430.0" height="40.0" rx="8" fill="#eef3ff" stroke="#3b6ef5" stroke-width="1.5"/>
+  <text x="42.0" y="104.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">Duplicare un pattern — dalla pagina iniziale</text>
+  <rect x="30.0" y="140.0" width="430.0" height="46.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="42.0" y="160.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start"></text>
+  <text x="42.0" y="159.0" font-size="8.6" fill="#1b2430" font-weight="600" text-anchor="start">IPatternCloner.Clone(originale, "Copia di Briks")</text>
+  <text x="42.0" y="174.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">il nome lo decide il chiamante</text>
+  <rect x="30.0" y="196.0" width="430.0" height="46.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="42.0" y="216.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start"></text>
+  <text x="42.0" y="215.0" font-size="8.6" fill="#1b2430" font-weight="600" text-anchor="start">identificativo nuovo, date nuove</text>
+  <text x="42.0" y="230.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">è un altro oggetto, non una versione</text>
+  <rect x="30.0" y="252.0" width="430.0" height="46.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="42.0" y="272.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start"></text>
+  <text x="42.0" y="271.0" font-size="8.6" fill="#1b2430" font-weight="600" text-anchor="start">le sei misure della definizione, copiate una per una</text>
+  <text x="42.0" y="286.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">non un MemberwiseClone: un campo nuovo va copiato a mano, e si vede</text>
+  <rect x="30.0" y="308.0" width="430.0" height="46.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="42.0" y="328.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start"></text>
+  <text x="42.0" y="327.0" font-size="8.6" fill="#1b2430" font-weight="600" text-anchor="start">ogni elemento passa da IVectorElementCloner</text>
+  <text x="42.0" y="342.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">compresi quelli di tipo sconosciuto</text>
+  <rect x="30.0" y="364.0" width="430.0" height="46.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="42.0" y="384.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start"></text>
+  <text x="42.0" y="383.0" font-size="8.6" fill="#1b2430" font-weight="600" text-anchor="start">POST /api/patterns → la copia compare in cima</text>
+  <text x="42.0" y="398.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">ordinata per creazione, la più recente è la prima</text>
+  <rect x="500.0" y="84.0" width="410.0" height="40.0" rx="8" fill="#eef3ff" stroke="#3b6ef5" stroke-width="1.5"/>
+  <text x="512.0" y="104.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">Duplicare un elemento — dentro l'editor</text>
+  <rect x="500.0" y="140.0" width="410.0" height="46.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="512.0" y="160.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start"></text>
+  <text x="512.0" y="159.0" font-size="8.6" fill="#1b2430" font-weight="600" text-anchor="start">IVectorElementCloner.Clone(elemento)</text>
+  <text x="512.0" y="174.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">lo stesso servizio del caso sopra</text>
+  <rect x="500.0" y="196.0" width="410.0" height="46.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="512.0" y="216.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start"></text>
+  <text x="512.0" y="215.0" font-size="8.6" fill="#1b2430" font-weight="600" text-anchor="start">identificativo nuovo, tutto il resto identico</text>
+  <text x="512.0" y="230.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">due elementi non possono condividere l'id</text>
+  <rect x="500.0" y="252.0" width="410.0" height="46.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="512.0" y="272.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start"></text>
+  <text x="512.0" y="271.0" font-size="8.6" fill="#1b2430" font-weight="600" text-anchor="start">inserito subito sotto l'originale</text>
+  <text x="512.0" y="286.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">dove lo si cerca con gli occhi</text>
+  <rect x="500.0" y="308.0" width="410.0" height="46.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="512.0" y="328.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start"></text>
+  <text x="512.0" y="327.0" font-size="8.6" fill="#1b2430" font-weight="600" text-anchor="start">la scheda NON si apre</text>
+  <text x="512.0" y="342.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">si duplica spesso più volte di seguito</text>
+  <rect x="500.0" y="364.0" width="410.0" height="46.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="512.0" y="384.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start"></text>
+  <text x="512.0" y="383.0" font-size="8.6" fill="#1b2430" font-weight="600" text-anchor="start">l'anteprima si aggiorna: c'è una forma in più</text>
+  <text x="512.0" y="398.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">sovrapposta all'originale, finché non la si sposta</text>
+  <rect x="30.0" y="426.0" width="880.0" height="40.0" rx="6" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1.2"/>
+  <text x="40.0" y="443.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">La regola comune: una copia è un oggetto nuovo con un'identità nuova, e tutto il resto uguale. Il validatore lo verifica dopo il fatto —</text>
+  <text x="40.0" y="456.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">due elementi con lo stesso identificativo sono un errore segnalato, non un difetto che si scopre mesi dopo in un documento salvato.</text>
+</svg>

@@ -1,0 +1,16 @@
+{
+  "PatternEditor.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/src\/PatternEditor.Abstractions",
+  "PatternEditor.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/src\/PatternEditor.Core",
+  "PatternEditor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/src\/PatternEditor",
+  "PatternEditor.Element.Circle, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/plugins\/PatternEditor.Element.Circle",
+  "PatternEditor.Element.Ellipse, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/plugins\/PatternEditor.Element.Ellipse",
+  "PatternEditor.Element.Image, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/plugins\/PatternEditor.Element.Image",
+  "PatternEditor.Element.Line, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/plugins\/PatternEditor.Element.Line",
+  "PatternEditor.Element.Path, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/plugins\/PatternEditor.Element.Path",
+  "PatternEditor.Element.Polygon, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/plugins\/PatternEditor.Element.Polygon",
+  "PatternEditor.Element.Polyline, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/plugins\/PatternEditor.Element.Polyline",
+  "PatternEditor.Element.Rect, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/plugins\/PatternEditor.Element.Rect",
+  "PatternEditor.Element.Text, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/plugins\/PatternEditor.Element.Text",
+  "PatternEditor.Sample.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/src\/PatternEditor.Sample.Api",
+  "PatternEditor.Sample.Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "\/Users\/dinopierro\/RiderProjects\/PatternEditor\/src\/PatternEditor.Sample.Client"
+}

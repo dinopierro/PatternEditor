@@ -1,0 +1,195 @@
+@namespace PatternEditor.Element.Polygon.Components
+@using PatternEditor.Core.Formatting
+@using PatternEditor.Core.Models
+@using PatternEditor.Element.Polygon
+@inject TestiEditor E
+
+@if (Poly is not null)
+@*
+   Editor del poligono.
+
+   I vertici si scrivono nel formato dell'attributo "points": coppie separate da spazi o
+   virgole. La figura viene chiusa dalla specifica, quindi ripetere il primo vertice in coda
+   non serve. Ne servono almeno tre perché ci sia una superficie.
+
+   Ogni editor riceve l'elemento come VectorElement generico e lo riconduce al proprio tipo:
+   il contenitore che lo istanzia non conosce il tipo concreto, e passargli qualcosa di più
+   specifico obbligherebbe l'editor principale a conoscere questo assembly.
+
+   Nessun pulsante "Applica": ogni modifica aggiorna subito il modello e chiede la
+   rigenerazione delle anteprime. Vedere l'effetto mentre si regola un valore è il motivo
+   per cui questo strumento esiste, e una conferma intermedia lo annullerebbe.
+
+   L'elemento viene modificato sul posto, non sostituito: è la copia di lavoro interna
+   all'editor, e chi ha aperto il pattern la vede solo se conferma.
+*@
+
+{
+    <div class="pe-element-editor pe-polygon-editor">
+
+        <section class="pe-group">
+            <div class="pe-group__head">
+                <h4 class="pe-group__title">@E["campo.vertici"]</h4>
+                <span class="pe-badge">@PointCountLabel</span>
+            </div>
+            <label class="pe-field">
+                <span class="pe-field__label">@E["campo.coordinate"] <span class="pe-unit">[@E["campo.coordinateUnita"]]</span></span>
+                <textarea class="pe-input pe-textarea" rows="3" spellcheck="false"
+                          placeholder="25,4 46,19 38,44 12,44 4,19"
+                          @oninput="e => Update(() => Poly.Points = e.Value?.ToString() ?? string.Empty)">@Poly.Points</textarea>
+            </label>
+            <p class="pe-hint">@E["campo.poligonoNota", PolygonElement.MinimumPoints]</p>
+        </section>
+
+        <section class="pe-group">
+            <div class="pe-group__head">
+                <h4 class="pe-group__title">@E["campo.riempimento"]</h4>
+                <label class="pe-switch">
+                    <input type="checkbox" checked="@(Poly.Fill is not null)"
+                           @onchange="e => Update(() => Poly.Fill = ((bool)(e.Value ?? false)) ? (Poly.Fill ?? DefaultFill) : null)" />
+                    <span>@E["campo.attivo"]</span>
+                </label>
+            </div>
+
+            @if (Poly.Fill is not null)
+            {
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.colore"]</span>
+                    <span class="pe-color">
+                        <input class="pe-color__input" type="color" value="@SvgColor.ForPicker(Poly.Fill)"
+                               @oninput="e => Update(() => Poly.Fill = SvgColor.Normalize(e.Value?.ToString()) ?? Poly.Fill)" />
+                        <input class="pe-color__code" type="text" spellcheck="false" autocomplete="off"
+                               maxlength="7" size="8" pattern="@SvgColor.HtmlPattern"
+                               title="@E["campo.coloreTitolo"]"
+                               @key="_revisioneColore" value="@Poly.Fill"
+                               @oninput="e => ColoreDigitato(e, v => Update(() => Poly.Fill = v))"
+                               @onchange="e => ColoreConfermato(e, v => Update(() => Poly.Fill = v))" />
+                    </span>
+                </label>
+                <label class="pe-field pe-field--slider">
+                    <span class="pe-field__label">
+                        @E["campo.opacita"] <span class="pe-unit">[%]</span>
+                        <span class="pe-field__value">@Pct(Poly.FillOpacity)</span>
+                    </span>
+                    <input class="pe-range" type="range" min="0" max="1" step="0.01" value="@Num(Poly.FillOpacity)"
+                           @oninput="e => Update(() => Poly.FillOpacity = InvariantNumber.Parse(e.Value, Poly.FillOpacity))" />
+                </label>
+            }
+        </section>
+
+        <section class="pe-group">
+            <div class="pe-group__head">
+                <h4 class="pe-group__title">@E["campo.bordo"]</h4>
+                <label class="pe-switch">
+                    <input type="checkbox" checked="@(Poly.Stroke is not null)"
+                           @onchange="e => Update(() => Poly.Stroke = ((bool)(e.Value ?? false)) ? (Poly.Stroke ?? DefaultStroke) : null)" />
+                    <span>@E["campo.attivo"]</span>
+                </label>
+            </div>
+
+            @if (Poly.Stroke is not null)
+            {
+                <div class="pe-grid-2">
+                    <label class="pe-field">
+                        <span class="pe-field__label">@E["campo.colore"]</span>
+                        <span class="pe-color">
+                            <input class="pe-color__input" type="color" value="@SvgColor.ForPicker(Poly.Stroke)"
+                                   @oninput="e => Update(() => Poly.Stroke = SvgColor.Normalize(e.Value?.ToString()) ?? Poly.Stroke)" />
+                            <input class="pe-color__code" type="text" spellcheck="false" autocomplete="off"
+                                   maxlength="7" size="8" pattern="@SvgColor.HtmlPattern"
+                                   title="@E["campo.coloreTitolo"]"
+                                   @key="_revisioneColore" value="@Poly.Stroke"
+                                   @oninput="e => ColoreDigitato(e, v => Update(() => Poly.Stroke = v))"
+                                   @onchange="e => ColoreConfermato(e, v => Update(() => Poly.Stroke = v))" />
+                        </span>
+                    </label>
+                    <label class="pe-field">
+                        <span class="pe-field__label">@E["campo.spessore"] <span class="pe-unit">[px]</span></span>
+                        <input class="pe-input" type="number" min="0" step="0.1" value="@Num(Poly.StrokeWidth)"
+                               @oninput="e => Update(() => Poly.StrokeWidth = InvariantNumber.Parse(e.Value, Poly.StrokeWidth))" />
+                    </label>
+                </div>
+                <label class="pe-field pe-field--slider">
+                    <span class="pe-field__label">
+                        @E["campo.opacita"] <span class="pe-unit">[%]</span>
+                        <span class="pe-field__value">@Pct(Poly.StrokeOpacity)</span>
+                    </span>
+                    <input class="pe-range" type="range" min="0" max="1" step="0.01" value="@Num(Poly.StrokeOpacity)"
+                           @oninput="e => Update(() => Poly.StrokeOpacity = InvariantNumber.Parse(e.Value, Poly.StrokeOpacity))" />
+                </label>
+            }
+        </section>
+
+    </div>
+}
+
+@code {
+    const string DefaultFill = "#AEFAEF";
+    const string DefaultStroke = "#000000";
+
+    /// <summary>
+    /// Elemento da modificare. Ricevuto come VectorElement per rispettare il contratto
+    /// generico usato dall'editor principale, che non conosce il tipo concreto.
+    /// </summary>
+    [Parameter]
+    public VectorElement? Element { get; set; }
+
+    /// <summary>
+    /// Notifica esplicita al Pattern Editor che il modello è stato modificato, così che
+    /// possa rigenerare le anteprime. Ogni modifica aggiorna subito il modello.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnElementChanged { get; set; }
+
+    private PolygonElement? Poly => Element as PolygonElement;
+
+    /// <summary>Conteggio dei vertici, per accorgersi subito di una coordinata dimenticata.</summary>
+    private string PointCountLabel =>
+        SvgPoints.TryCountPoints(Poly?.Points, out var count) ? $"{count} vertici" : "non valido";
+
+    private void Update(Action apply)
+    {
+        apply();
+        OnElementChanged.InvokeAsync();
+    }
+
+    private static string Num(double value) => InvariantNumber.Format(value);
+
+    /// <summary>Il modello memorizza l'opacità come 0..1; all'utente viene mostrata in percentuale.</summary>
+    private static string Pct(double value) => Math.Round(value * 100).ToString("0");
+
+    /// <summary>
+    /// Il colore si può scrivere a mano accanto al selettore. Mentre si digita il modello
+    /// viene aggiornato solo se il testo è già nella forma canonica #rrggbb, quella che
+    /// usa il selettore: normalizzando anche le forme abbreviate a ogni carattere, il campo
+    /// verrebbe riscritto sotto le dita di chi scrive e il cursore salterebbe a fine riga.
+    /// </summary>
+    private static void ColoreDigitato(ChangeEventArgs e, Action<string> applica)
+    {
+        var testo = e.Value?.ToString();
+
+        if (SvgColor.IsCanonical(testo))
+        {
+            applica(testo!);
+        }
+    }
+
+    /// <summary>
+    /// All'uscita dal campo si accettano anche la forma abbreviata e l'assenza del
+    /// cancelletto. In ogni caso i campi colore vengono ricostruiti, così da tornare a
+    /// mostrare il valore effettivo: un testo lasciato a metà non deve restare a schermo
+    /// facendo credere che sia stato applicato.
+    /// </summary>
+    private void ColoreConfermato(ChangeEventArgs e, Action<string> applica)
+    {
+        if (SvgColor.Normalize(e.Value?.ToString()) is { } colore)
+        {
+            applica(colore);
+        }
+
+        _revisioneColore++;
+    }
+
+    /// <summary>Identifica i campi colore: cambiandolo, Blazor li ricostruisce.</summary>
+    private int _revisioneColore;
+}

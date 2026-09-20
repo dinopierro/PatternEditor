@@ -1,0 +1,162 @@
+@namespace PatternEditor.Components
+@using global::PatternEditor.Core.Models
+@using global::PatternEditor.Services
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject TestiEditor E
+
+@*
+   Il documento SVG generato: leggerlo, copiarlo, scaricarlo.
+
+   Sta in una card propria e non più in fondo all'anteprima. Sono due cose diverse: le
+   anteprime si guardano di continuo mentre si lavora, il sorgente si apre quando si vuole
+   vedere che cosa è uscito o portarselo via. Tenerli insieme costringeva l'uno a contendere
+   spazio all'altro nella stessa colonna.
+
+   Il riquadro è pilotato da Blazor e non da <details>: copia e scarico devono restare
+   raggiungibili anche a riquadro chiuso, e dei pulsanti dentro a <summary> ne farebbero
+   scattare l'apertura a ogni clic.
+*@
+
+<div class="pe-panel pe-panel--sorgente @(_aperto ? "is-aperto" : null)">
+
+    <div class="pe-panel__head">
+        <button type="button" class="pe-panel__toggle"
+                aria-expanded="@(_aperto ? "true" : "false")"
+                title="@(_aperto ? E["editor.sorgenteChiudi"] : E["editor.sorgenteMostra"])"
+                @onclick="() => _aperto = !_aperto">
+            <span class="pe-chevron">@(_aperto ? "▾" : "▸")</span>
+            <h3 class="pe-panel__title">@E["editor.sorgente"]</h3>
+
+            @* Quanto pesa, adesso. Cambia a ogni modifica ed è l'unico posto dell'editor in
+               cui si vede che cosa costa quello che si sta disegnando: un elemento in più
+               sono duecento byte, e una trama intera sta in un paio di chilobyte. *@
+            <span class="pe-sorgente__peso">@_peso</span>
+        </button>
+
+        <div class="pe-sorgente__azioni">
+            <button type="button" class="pe-btn pe-btn--sm pe-btn--ghost" @onclick="CopyAsync">
+                @(_copied ? E["editor.copiato"] : E["editor.copia"])
+            </button>
+            @* Il blu dei pulsanti che concludono: fra i comandi dell'editor lo scarico è
+               l'unico che produce qualcosa da portarsi via, e va riconosciuto a colpo
+               d'occhio come la conferma nella barra in alto. *@
+            <button type="button" class="pe-btn pe-btn--sm pe-btn--primary" @onclick="DownloadAsync">
+                <span class="pe-btn__glyph">↓</span> @E["editor.scaricaSvg"]
+            </button>
+        </div>
+    </div>
+
+    @if (_aperto)
+    {
+        <pre class="pe-source__code"><code>@Formattato</code></pre>
+    }
+
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public Pattern Pattern { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public IPatternSvgRenderer SvgRenderer { get; set; } = default!;
+
+    /// <summary>
+    /// Il riquadro comincia <b>aperto</b>: il documento generato è parte di ciò che l'editor
+    /// mostra, non un extra da andare a cercare, e nella sua colonna non contende spazio a
+    /// nessuno. Chiudendolo restano i due pulsanti, che sono ciò per cui lo si cerca quasi
+    /// sempre.
+    /// </summary>
+    private bool _aperto = true;
+
+    /// <summary>
+    /// Il documento autonomo, quello che i due pulsanti producono.
+    ///
+    /// <para>
+    /// È il documento con l'identificativo breve del nodo <c>&lt;pattern&gt;</c>, non quello
+    /// dell'anteprima: questa card si chiama «SVG generato» e ha accanto copia e scarico, e
+    /// mostrare un markup diverso da quello che quei due pulsanti producono sarebbe una
+    /// piccola bugia che si scopre solo incollando.
+    /// </para>
+    /// </summary>
+    private string _svg = string.Empty;
+
+    /// <summary>
+    /// Lo stesso documento riformattato per la lettura a schermo, un attributo per riga.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// <para>
+    /// Si calcola <b>alla prima richiesta e solo se la card è aperta</b>, non a ogni modifica.
+    /// Riformattare significa ricostruire il documento intero, e su un pattern che incorpora
+    /// un'immagine — dove l'indirizzo <c>data:</c> vale da solo novantasei kilobyte — lo si
+    /// pagava a ogni pixel di un cursore, anche a riquadro chiuso, cioè per produrre un testo
+    /// che nessuno stava leggendo.
+    /// </para>
+    /// <para>
+    /// Il documento non formattato resta calcolato sempre: lo usano copia, scarico e il peso
+    /// qui sopra, che si vedono anche a card chiusa.
+    /// </para>
+    /// </remarks>
+    private string Formattato => _formattato ??= SvgSourceFormatter.Format(_svg);
+
+    private string? _formattato;
+
+    /// <summary>
+    /// Il peso del documento, come lo legge una persona. Si calcola una volta per modifica e
+    /// non a ogni ridisegno: il ridisegno arriva anche per ragioni che con il documento non
+    /// c'entrano niente.
+    /// </summary>
+    private string _peso = string.Empty;
+
+    private IJSObjectReference? _module;
+    private bool _copied;
+
+    protected override void OnParametersSet()
+    {
+        _svg = SvgRenderer.RenderStandaloneSvg(Pattern);
+
+        // La riformattazione aspetta: la fa <see cref="Formattato"/> se e quando serve.
+        _formattato = null;
+
+        var byteTotali = System.Text.Encoding.UTF8.GetByteCount(_svg);
+        // Il numero si scrive qui e la parola la mette il catalogo: «bytes» al plurale in
+        // inglese, «byte» invariabile in italiano, e domani chissà.
+        _peso = byteTotali < 1024
+            ? E["editor.pesoByte", byteTotali]
+            : E["editor.pesoKb", (byteTotali / 1024.0).ToString("0.#")];
+
+        // La conferma «Copiato» vale per ciò che è stato copiato in quel momento: alla prima
+        // modifica successiva il pulsante torna a proporre la copia.
+        _copied = false;
+    }
+
+    /// <summary>
+    /// Lo scarico non richiede conferma, salvataggio né chiamate API: riflette lo stato
+    /// corrente in memoria, che è esattamente quello mostrato qui sopra.
+    /// </summary>
+    private async Task DownloadAsync()
+    {
+        var nome = $"{(string.IsNullOrWhiteSpace(Pattern.Name) ? "pattern" : Pattern.Name)}.svg";
+
+        var module = await GetModuleAsync();
+        await module.InvokeVoidAsync("downloadTextFile", nome, _svg, "image/svg+xml");
+    }
+
+    private async Task CopyAsync()
+    {
+        var module = await GetModuleAsync();
+        _copied = await module.InvokeAsync<bool>("copyText", _svg);
+    }
+
+    private async Task<IJSObjectReference> GetModuleAsync() =>
+        _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./_content/PatternEditor/patternEditorInterop.js");
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+}

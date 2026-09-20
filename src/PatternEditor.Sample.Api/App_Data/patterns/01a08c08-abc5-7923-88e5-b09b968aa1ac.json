@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-abc5-7923-88e5-b09b968aa1ac",
+  "name": "Circles - 1",
+  "createdAt": "2026-09-10T15:56:14.3344556\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:14.8323185\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 40,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M40 45a5 5 0 110-10 5 5 0 010 10zM0 45a5 5 0 110-10 5 5 0 010 10zM0 5A5 5 0 110-5 5 5 0 010 5zm40 0a5 5 0 110-10 5 5 0 010 10z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abc5-7cc3-b578-7f8072a9ffcb",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M20 25a5 5 0 110-10 5 5 0 010 10z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#f44336",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abc5-7059-8cca-64da0ff93485",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

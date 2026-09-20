@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 600" width="940" height="600" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="600" fill="#ffffff"/>
+  <defs>
+    <marker id="f3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b6ef5"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="42" font-size="19" font-weight="600" fill="#1b2430">Figura 3 — Il contratto del plugin e chi lo usa</text>
+  <text x="40" y="64" font-size="13" fill="#6b7684">Ogni membro del contratto esiste perch&#233; un preciso consumatore ne ha bisogno: nulla &#232; l&#236; &#171;per completezza&#187;.</text>
+
+  <!-- contratto al centro -->
+  <rect x="330" y="150" width="286" height="298" rx="10" fill="#eaf0ff" stroke="#3b6ef5" stroke-width="1.6"/>
+  <rect x="330" y="150" width="286" height="34" rx="10" fill="#3b6ef5"/>
+  <rect x="330" y="172" width="286" height="12" fill="#3b6ef5"/>
+  <text x="473" y="173" font-size="14" font-weight="700" fill="#ffffff" text-anchor="middle">IVectorElementPlugin</text>
+  <g font-size="12.5" fill="#1b2430">
+    <text x="348" y="210">Type : string</text>
+    <text x="348" y="240">DisplayName : string</text>
+    <text x="348" y="270">IconSvg : string</text>
+    <text x="348" y="300">ElementClrType : Type</text>
+    <text x="348" y="330">EditorComponentType : Type</text>
+    <text x="348" y="360">Create()</text>
+    <text x="348" y="390">Validate(element)</text>
+    <text x="348" y="420">Render(element)</text>
+  </g>
+  <text x="473" y="440" font-size="10.5" fill="#6b7684" text-anchor="middle">IconSvg ha un'implementazione predefinita</text>
+
+  <!-- consumatori sinistra -->
+  <g font-size="12">
+    <rect x="40" y="150" width="234" height="58" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+    <text x="157" y="173" font-weight="600" fill="#1b2430" text-anchor="middle">Registro dei plugin</text>
+    <text x="157" y="192" font-size="11" fill="#6b7684" text-anchor="middle">chiave univoca del registro</text>
+
+    <rect x="40" y="238" width="234" height="58" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+    <text x="157" y="261" font-weight="600" fill="#1b2430" text-anchor="middle">Menu &#171;Aggiungi elemento&#187;</text>
+    <text x="157" y="280" font-size="11" fill="#6b7684" text-anchor="middle">etichetta e icona della voce</text>
+
+    <rect x="40" y="326" width="234" height="58" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+    <text x="157" y="349" font-weight="600" fill="#1b2430" text-anchor="middle">Serializzatore</text>
+    <text x="157" y="368" font-size="11" fill="#6b7684" text-anchor="middle">deserializzazione polimorfica</text>
+
+    <rect x="40" y="414" width="234" height="58" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+    <text x="157" y="437" font-weight="600" fill="#1b2430" text-anchor="middle">Pannello elementi</text>
+    <text x="157" y="456" font-size="11" fill="#6b7684" text-anchor="middle">istanzia l'editor via DynamicComponent</text>
+  </g>
+
+  <!-- consumatori destra -->
+  <g font-size="12">
+    <rect x="672" y="194" width="228" height="58" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+    <text x="786" y="217" font-weight="600" fill="#1b2430" text-anchor="middle">Inserimento</text>
+    <text x="786" y="236" font-size="11" fill="#6b7684" text-anchor="middle">nuovo elemento con valori validi</text>
+
+    <rect x="672" y="326" width="228" height="58" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+    <text x="786" y="349" font-weight="600" fill="#1b2430" text-anchor="middle">Validatore</text>
+    <text x="786" y="368" font-size="11" fill="#6b7684" text-anchor="middle">errori e avvisi dell'elemento</text>
+
+    <rect x="672" y="414" width="228" height="58" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+    <text x="786" y="437" font-weight="600" fill="#1b2430" text-anchor="middle">Renderer SVG</text>
+    <text x="786" y="456" font-size="11" fill="#6b7684" text-anchor="middle">markup del singolo elemento</text>
+  </g>
+
+  <!-- collegamenti -->
+  <g stroke="#3b6ef5" stroke-width="1.4" fill="none" marker-end="url(#f3)">
+    <path d="M 274 179 L 302 179 L 302 206 L 326 206"/>
+    <path d="M 274 267 L 302 267 L 302 236 L 326 236"/>
+    <path d="M 274 267 L 302 267 L 302 266 L 326 266"/>
+    <path d="M 274 355 L 306 355 L 306 296 L 326 296"/>
+    <path d="M 274 443 L 310 443 L 310 326 L 326 326"/>
+    <path d="M 620 356 L 648 356 L 648 223 L 668 223"/>
+    <path d="M 620 386 L 644 386 L 644 355 L 668 355"/>
+    <path d="M 620 416 L 640 416 L 640 443 L 668 443"/>
+  </g>
+
+  <!-- nota -->
+  <rect x="40" y="504" width="860" height="66" rx="8" fill="#fbfcfd" stroke="#e3e6ea"/>
+  <text x="58" y="527" font-size="12.5" font-weight="600" fill="#1b2430">Il plugin non conosce</text>
+  <text x="196" y="527" font-size="12.5" fill="#1b2430">database, filesystem, API, salvataggio, il contenitore dell'editor, n&#233; gli altri plugin.</text>
+  <text x="58" y="551" font-size="12.5" font-weight="600" fill="#1b2430">Il contenitore non conosce</text>
+  <text x="226" y="551" font-size="12.5" fill="#1b2430">alcun tipo concreto: risolve tutto attraverso questo contratto e il registro.</text>
+</svg>

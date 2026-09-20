@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-abf7-7100-9e22-f719da3c40ce",
+  "name": "Hearts - 9",
+  "createdAt": "2026-09-10T15:56:15.2603528\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.7950784\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 50,
+    "height": 50,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M29.688 0v1.562h3.125V0Zm-9.375 0h-3.125v1.562h3.125zm9.375 48.437V50h3.125v-1.563zm-12.5 0V50h3.125v-1.563zm12.5-3.125h-3.125v3.125h3.125zm-3.125-3.125h-3.125v3.125h3.125zm-6.25 3.125v3.125h3.125v-3.125zm28.125-12.5H50v-3.125h-1.562ZM50 20.312v-3.125h-1.562v3.125zm-4.687 9.375h3.125v-3.125h-3.125zm0-6.25h-3.125v3.125h3.125zm3.125 0v-3.125h-3.125v3.125zM0 29.687v3.125h1.563v-3.125zm1.563-12.5H0v3.125h1.563zm0 9.375v3.125h3.125v-3.125zm3.125-3.125v3.125h3.125v-3.125zm0-3.125H1.563v3.125h3.125Zm21.875-18.75v3.125h3.125V1.562Zm-3.125 3.125v3.125h3.125V4.687Zm0-3.125h-3.125v3.125h3.125z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abf7-7fec-9a9b-4e7be52a39d0",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M14.063 18.75V25h3.125v3.125h3.125v3.125h3.125v3.125h3.125V31.25h3.125v-3.125h3.125V25h3.125v-6.25h-3.125v-3.125h-6.25v3.125h-3.125v-3.125h-6.25v3.125z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abf7-7555-bedd-b5a18a9de7e9",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M37.5 40.625h3.125V37.5H37.5Zm3.125 3.125h3.125v-3.125h-3.125zm3.125 3.125h3.125V43.75H43.75ZM50 50v-3.125h-3.125V50Zm-37.5-9.375V37.5H9.375v3.125zM9.375 43.75v-3.125H6.25v3.125ZM6.25 46.875V43.75H3.125v3.125zM3.125 50v-3.125H0V50Zm37.5-37.5V9.375H37.5V12.5Zm3.125-3.125V6.25h-3.125v3.125Zm3.125-3.125V3.125H43.75V6.25Zm0-3.125H50V0h-3.125ZM12.5 12.5V9.375H9.375V12.5ZM6.25 9.375h3.125V6.25H6.25ZM3.125 6.25H6.25V3.125H3.125ZM0 3.125h3.125V0H0Z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abf7-73a4-bd27-768da5d07857",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

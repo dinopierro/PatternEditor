@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-abd4-770f-bca0-537d1a7f7842",
+  "name": "Cubes - 5",
+  "createdAt": "2026-09-10T15:56:14.5758924\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.1081361\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 30.018,
+    "height": 60,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M0 0v30.018l15.008-9.995V0H0zm15.01 20.025V60l15.008-9.994V30.018L15.01 20.025zm0 39.975L0 50.006V60h15.01z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abd4-760b-b46c-aa3c90f7559c",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 0v9.994L15.008 0H0zm15.008 0 15.01 9.994V0h-15.01zm.002 20.023L0 30.018l15.01 9.994 15.008-9.994-15.008-9.995zM0 50.006V60h15.01L0 50.006zM15.01 60h15.008v-9.994L15.01 60z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abd4-78ac-8872-34f2bdb7dff7",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

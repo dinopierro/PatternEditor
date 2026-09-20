@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac10-7253-960a-ce955ecb0304",
+  "name": "Memphis Pattern - 10",
+  "createdAt": "2026-09-10T15:56:15.7749692\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.2562170\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 83.302,
+    "height": 83.302,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m10.753 1.553 5.511 11.99 1.982-.912-5.51-11.99zm14.983 60.91L13.948 33.037l-2.732 1.094 11.788 29.428zM58.332 44.52l1.148 15.535 2.054-.152-1.148-15.535zm17.4 26.823-17.686 8.13 1.046 2.275 17.686-8.13zM54.36 37.604l9.285-14.67-2.117-1.339-9.284 14.67z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac10-7abe-aaa7-4a5cdbca9c10",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "m62.722 7.119 16.424 6.588.91-2.27-16.423-6.59zm12.063 49.746 18.952 14.142L95.235 69 76.283 54.858ZM52.537 63.14 35.341 50.307l-1.159 1.554 17.196 12.832zM23.062 31.376l4.79-22.08 2.088.452-4.79 22.08zM-8.516 56.865l18.952 14.142L11.934 69-7.018 54.858z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac10-7814-822d-0d9121388a6b",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "m42.041-4.076 5.738 19.565 2.403-.705L44.445-4.78zm29.085 46.214L96 22.484l-1.825-2.31-24.873 19.654zm-39.842-6.035 12.27-4.328.612 1.736-12.269 4.328zm18.898 61.983L44.445 78.52l-2.404.705 5.738 19.566zM10.873 20.175-14 39.828l1.825 2.31 24.873-19.654zM26.21 81.95l8.863-15.35 2.264 1.307-8.862 15.35z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac10-7436-8a02-cf4342b65928",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

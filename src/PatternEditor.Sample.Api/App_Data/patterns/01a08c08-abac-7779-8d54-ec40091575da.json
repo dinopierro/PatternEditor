@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-abac-7779-8d54-ec40091575da",
+  "name": "African Pattern - 4",
+  "createdAt": "2026-09-10T15:56:13.8772472\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:14.3126438\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 48,
+    "height": 96,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M4 0v4H0v8h4V8h4V4h4V0H4zm16 0v4h-4v4h-4v4H8v4H4v4H0v24h4v4h4v4h4v4h4v4h4v4h4v-4h4v-4h4v-4h4v-4h4v-4h4V20h-4v-4h-4v-4h-4V8h-4V4h-4V0h-4zm12 0v4h4v4h4v4h4v4h4V8h-4V4h-4V0h-8zM20 8h4v4h4v4h4v4h4v4h4v16h-4v4h-4v4h-4v4h-4v4h-4v-4h-4v-4h-4v-4H8v-4H4V24h4v-4h4v-4h4v-4h4V8zm24 40v4h-4v4h-4v4h-4v4h-4v4h-4v24h4v4h8v-4h-4v-4h-4V72h4v-4h4v-4h4v-4h4v-4h4v-8h-4zM0 52v8h4v4h4v4h4v4h4v16h-4v4H8v4h8v-4h4V68h-4v-4h-4v-4H8v-4H4v-4H0z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abac-725e-890c-bee915a036c8",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M20 20v4h-4v4h-4v8h4v4h4v4h4v-4h4v-4h4v-8h-4v-4h-4v-4h-4zm0 8h4v8h-4v-8zm24 40v4h-4v4h-4v8h4v4h4v4h4v-8h-4v-8h4v-8h-4zM0 72v16h4v-4h4v-8H4v-4H0z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abac-7c41-866c-78cd17cdc784",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

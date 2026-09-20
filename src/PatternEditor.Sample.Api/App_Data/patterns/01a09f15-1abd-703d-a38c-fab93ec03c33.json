@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a09f15-1abd-703d-a38c-fab93ec03c33",
+  "name": "deselect_all_icon",
+  "createdAt": "2026-09-14T08:43:24.0607259\u002B00:00",
+  "modifiedAt": "2026-09-14T08:43:32.7383459\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 128,
+    "height": 128,
+    "scale": 0.7,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M126,0H32a2,2,0,0,0-2,2V30H2a2,2,0,0,0-2,2v94a2,2,0,0,0,2,2H96a2,2,0,0,0,2-2V98h28a2,2,0,0,0,2-2V2A2,2,0,0,0,126,0ZM94,124H4V34H94Zm30-30H98V32a2,2,0,0,0-2-2H34V4h90Z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a09f15-1abd-7cee-b25f-5c21b9a258c9",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

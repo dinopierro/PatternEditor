@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac32-73c8-b164-3e53cf216a36",
+  "name": "Squares \u0026 Circles - 5",
+  "createdAt": "2026-09-10T15:56:16.3236768\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.9790286\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 40,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M33.265 38.2H6.735v-1A3.94 3.94 0 0 0 2.8 33.265h-1V6.735h1A3.94 3.94 0 0 0 6.735 2.8v-1h26.53v1A3.94 3.94 0 0 0 37.2 6.735h1v26.53h-1a3.94 3.94 0 0 0-3.935 3.935zm-24.614-2h22.698a5.95 5.95 0 0 1 4.851-4.85V8.65a5.951 5.951 0 0 1-4.85-4.85H8.65A5.951 5.951 0 0 1 3.8 8.65v22.7a5.95 5.95 0 0 1 4.85 4.85z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac32-76e2-a164-d87e15ac9fbe",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M29.503 33.7H10.498l-.285-.522a8.472 8.472 0 0 0-3.391-3.391l-.522-.284V10.498l.522-.284a8.474 8.474 0 0 0 3.391-3.392l.285-.522h19.004l.285.522a8.474 8.474 0 0 0 3.392 3.392l.521.284v19.005l-.521.284a8.473 8.473 0 0 0-3.392 3.391zm-17.837-2h16.669a10.465 10.465 0 0 1 3.365-3.365v-16.67A10.458 10.458 0 0 1 28.335 8.3h-16.67A10.458 10.458 0 0 1 8.3 11.666v16.669a10.464 10.464 0 0 1 3.366 3.365z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac32-751a-adeb-4ada14318d53",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M20 26.66A6.667 6.667 0 0 1 13.34 20 6.667 6.667 0 0 1 20 13.34 6.667 6.667 0 0 1 26.66 20 6.667 6.667 0 0 1 20 26.66zm0-11.32c-2.57 0-4.66 2.09-4.66 4.66 0 2.57 2.09 4.66 4.66 4.66 2.57 0 4.66-2.09 4.66-4.66 0-2.57-2.09-4.66-4.66-4.66zM2.346 0A2.348 2.348 0 0 1 0 2.346v2A4.35 4.35 0 0 0 4.346 0zm33.308 0A4.35 4.35 0 0 0 40 4.346v-2A2.349 2.349 0 0 1 37.654 0zM0 35.654v2A2.348 2.348 0 0 1 2.346 40h2A4.35 4.35 0 0 0 0 35.654zm40 0A4.35 4.35 0 0 0 35.654 40h2A2.348 2.348 0 0 1 40 37.654z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac32-757e-a02b-0a786ada5fea",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

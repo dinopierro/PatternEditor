@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-abdd-7341-b8ae-e99aa1df675a",
+  "name": "Diamonds - 7",
+  "createdAt": "2026-09-10T15:56:14.7612203\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.3325783\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 15.3,
+    "height": 31.947,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m12.675-17.219 7.65 26.1-7.65 5.7-7.65-5.7zm7.65 57.9-7.65 5.7-7.65-5.7 7.65-26.1zm-15.3-31.8-7.65 5.7-7.65-5.7 7.65-26.1zm-7.65 37.5-7.65-5.7 7.65-26.1 7.65 26.1zm15.3-31.8 7.65-5.7 7.65 5.7-7.65 26.1zm-15.3-31.8 7.65-5.7 7.65 5.7-7.65 26.1zm7.65 26.1 7.65 5.7-7.65 26.1-7.65-26.1z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abdd-7481-8cab-704ce5d00cfb",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

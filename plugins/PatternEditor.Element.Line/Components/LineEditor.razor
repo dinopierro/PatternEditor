@@ -1,0 +1,147 @@
+@namespace PatternEditor.Element.Line.Components
+@using PatternEditor.Core.Formatting
+@using PatternEditor.Core.Models
+@using PatternEditor.Element.Line
+@inject TestiEditor E
+
+@if (LineEl is not null)
+@*
+   Editor della linea.
+
+   Due estremi e il solo tratto: la linea non ha riempimento, quindi non ha nemmeno
+   l'interruttore per attivarlo. Per la stessa ragione il colore del tratto non è
+   annullabile - senza tratto non resterebbe nulla da vedere.
+
+   Ogni editor riceve l'elemento come VectorElement generico e lo riconduce al proprio tipo:
+   il contenitore che lo istanzia non conosce il tipo concreto, e passargli qualcosa di più
+   specifico obbligherebbe l'editor principale a conoscere questo assembly.
+
+   Nessun pulsante "Applica": ogni modifica aggiorna subito il modello e chiede la
+   rigenerazione delle anteprime. Vedere l'effetto mentre si regola un valore è il motivo
+   per cui questo strumento esiste, e una conferma intermedia lo annullerebbe.
+
+   L'elemento viene modificato sul posto, non sostituito: è la copia di lavoro interna
+   all'editor, e chi ha aperto il pattern la vede solo se conferma.
+*@
+
+{
+    <div class="pe-element-editor pe-line-editor">
+
+        <section class="pe-group">
+            <h4 class="pe-group__title">@E["campo.geometria"]</h4>
+            <div class="pe-grid-2">
+                <label class="pe-field">
+                    <span class="pe-field__label">X1 <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" step="1" value="@Num(LineEl.X1)"
+                           @oninput="e => Update(() => LineEl.X1 = InvariantNumber.Parse(e.Value, LineEl.X1))" />
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">Y1 <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" step="1" value="@Num(LineEl.Y1)"
+                           @oninput="e => Update(() => LineEl.Y1 = InvariantNumber.Parse(e.Value, LineEl.Y1))" />
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">X2 <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" step="1" value="@Num(LineEl.X2)"
+                           @oninput="e => Update(() => LineEl.X2 = InvariantNumber.Parse(e.Value, LineEl.X2))" />
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">Y2 <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" step="1" value="@Num(LineEl.Y2)"
+                           @oninput="e => Update(() => LineEl.Y2 = InvariantNumber.Parse(e.Value, LineEl.Y2))" />
+                </label>
+            </div>
+        </section>
+
+        <section class="pe-group">
+            <h4 class="pe-group__title">@E["campo.aspetto"]</h4>
+
+            <div class="pe-grid-2">
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.colore"]</span>
+                    <span class="pe-color">
+                        <input class="pe-color__input" type="color" value="@SvgColor.ForPicker(LineEl.Stroke)"
+                               @oninput="e => Update(() => LineEl.Stroke = SvgColor.Normalize(e.Value?.ToString()) ?? LineEl.Stroke)" />
+                        <input class="pe-color__code" type="text" spellcheck="false" autocomplete="off"
+                               maxlength="7" size="8" pattern="@SvgColor.HtmlPattern"
+                               title="@E["campo.coloreTitolo"]"
+                               @key="_revisioneColore" value="@LineEl.Stroke"
+                               @oninput="e => ColoreDigitato(e, v => Update(() => LineEl.Stroke = v))"
+                               @onchange="e => ColoreConfermato(e, v => Update(() => LineEl.Stroke = v))" />
+                    </span>
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.spessore"] <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" min="0" step="0.1" value="@Num(LineEl.StrokeWidth)"
+                           @oninput="e => Update(() => LineEl.StrokeWidth = InvariantNumber.Parse(e.Value, LineEl.StrokeWidth))" />
+                </label>
+            </div>
+
+            <label class="pe-field pe-field--slider">
+                <span class="pe-field__label">
+                    @E["campo.opacitaTratto"] <span class="pe-unit">[%]</span>
+                    <span class="pe-field__value">@Pct(LineEl.StrokeOpacity)</span>
+                </span>
+                <input class="pe-range" type="range" min="0" max="1" step="0.01" value="@Num(LineEl.StrokeOpacity)"
+                       @oninput="e => Update(() => LineEl.StrokeOpacity = InvariantNumber.Parse(e.Value, LineEl.StrokeOpacity))" />
+            </label>
+        </section>
+
+    </div>
+}
+
+@code {
+    [Parameter]
+    public VectorElement? Element { get; set; }
+
+    [Parameter]
+    public EventCallback OnElementChanged { get; set; }
+
+    private LineElement? LineEl => Element as LineElement;
+
+    private void Update(Action apply)
+    {
+        apply();
+        OnElementChanged.InvokeAsync();
+    }
+
+    private static string Num(double value) => InvariantNumber.Format(value);
+
+    /// <summary>Il modello memorizza l'opacità come 0..1; all'utente viene mostrata in percentuale.</summary>
+    private static string Pct(double value) => Math.Round(value * 100).ToString("0");
+
+    /// <summary>
+    /// Il colore si può scrivere a mano accanto al selettore. Mentre si digita il modello
+    /// viene aggiornato solo se il testo è già nella forma canonica #rrggbb, quella che
+    /// usa il selettore: normalizzando anche le forme abbreviate a ogni carattere, il campo
+    /// verrebbe riscritto sotto le dita di chi scrive e il cursore salterebbe a fine riga.
+    /// </summary>
+    private static void ColoreDigitato(ChangeEventArgs e, Action<string> applica)
+    {
+        var testo = e.Value?.ToString();
+
+        if (SvgColor.IsCanonical(testo))
+        {
+            applica(testo!);
+        }
+    }
+
+    /// <summary>
+    /// All'uscita dal campo si accettano anche la forma abbreviata e l'assenza del
+    /// cancelletto. In ogni caso i campi colore vengono ricostruiti, così da tornare a
+    /// mostrare il valore effettivo: un testo lasciato a metà non deve restare a schermo
+    /// facendo credere che sia stato applicato.
+    /// </summary>
+    private void ColoreConfermato(ChangeEventArgs e, Action<string> applica)
+    {
+        if (SvgColor.Normalize(e.Value?.ToString()) is { } colore)
+        {
+            applica(colore);
+        }
+
+        _revisioneColore++;
+    }
+
+    /// <summary>Identifica i campi colore: cambiandolo, Blazor li ricostruisce.</summary>
+    private int _revisioneColore;
+}

@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac37-7a41-ab4d-e180b509f3eb",
+  "name": "Stained Glass",
+  "createdAt": "2026-09-10T15:56:16.4238481\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.0967631\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 30,
+    "height": 30,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M7.5 22.5C6.4 23.87.27 29.67 0 30M30 0c-1.1 1.37-7.23 7.17-7.5 7.5m0 15c1.37 1.1 7.17 7.23 7.5 7.5M0 0c1.37 1.1 6.65 6.81 7.5 7.5m0 0h15v15h-15zM0 0h30v30H0z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac37-720c-82c3-db3ea4e07b6e",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

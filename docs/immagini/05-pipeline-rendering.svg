@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 640" width="940" height="640" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="640" fill="#ffffff"/>
+  <defs>
+    <marker id="f5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b7684"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="42" font-size="19" font-weight="600" fill="#1b2430">Figura 5 — Generazione dell'SVG: una sola sorgente, tre destinazioni</text>
+  <text x="40" y="64" font-size="13" fill="#6b7684">Anteprime e file scaricato usano lo stesso markup prodotto dai plugin: non esiste geometria duplicata.</text>
+
+  <!-- modello -->
+  <rect x="40" y="100" width="210" height="120" rx="8" fill="#eaf0ff" stroke="#3b6ef5"/>
+  <text x="145" y="126" font-size="13.5" font-weight="700" fill="#1b2430" text-anchor="middle">Modello in memoria</text>
+  <text x="145" y="150" font-size="11.5" fill="#6b7684" text-anchor="middle">PatternDefinition</text>
+  <text x="145" y="170" font-size="11.5" fill="#6b7684" text-anchor="middle">+ elenco ordinato</text>
+  <text x="145" y="190" font-size="11.5" fill="#6b7684" text-anchor="middle">degli elementi</text>
+  <text x="145" y="210" font-size="10.5" fill="#3b6ef5" text-anchor="middle">muta a ogni battuta</text>
+
+  <path d="M 250 160 L 296 160" stroke="#6b7684" stroke-width="1.6" fill="none" marker-end="url(#f5)"/>
+
+  <!-- per ogni elemento -->
+  <rect x="300" y="100" width="250" height="120" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+  <text x="425" y="126" font-size="13.5" font-weight="700" fill="#1b2430" text-anchor="middle">Per ogni elemento</text>
+  <text x="316" y="150" font-size="11.5" fill="#1b2430">1. registro.TryGet(type)</text>
+  <text x="316" y="172" font-size="11.5" fill="#1b2430">2. plugin.Render(elemento)</text>
+  <text x="316" y="200" font-size="10.5" fill="#d0a215">tipo senza plugin &#8594; omesso dal disegno,</text>
+  <text x="316" y="214" font-size="10.5" fill="#d0a215">ma conservato nel modello e nel JSON</text>
+
+  <path d="M 550 160 L 596 160" stroke="#6b7684" stroke-width="1.6" fill="none" marker-end="url(#f5)"/>
+
+  <!-- markup elementi -->
+  <rect x="600" y="100" width="300" height="120" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+  <text x="750" y="126" font-size="13.5" font-weight="700" fill="#1b2430" text-anchor="middle">Markup degli elementi</text>
+  <rect x="616" y="138" width="268" height="66" rx="5" fill="#ffffff" stroke="#e3e6ea"/>
+  <text x="628" y="158" font-size="10.5" font-family="Consolas, monospace" fill="#6b7684">&lt;rect x="10" y="10" ... /&gt;</text>
+  <text x="628" y="176" font-size="10.5" font-family="Consolas, monospace" fill="#6b7684">&lt;circle cx="25" cy="25" ... /&gt;</text>
+  <text x="628" y="194" font-size="10.5" font-family="Consolas, monospace" fill="#6b7684">&lt;text ...&gt;Testo&lt;/text&gt;</text>
+
+  <!-- diramazione -->
+  <path d="M 750 220 L 750 250 L 170 250 L 170 292" stroke="#6b7684" stroke-width="1.6" fill="none" marker-end="url(#f5)"/>
+  <path d="M 470 250 L 470 292" stroke="#6b7684" stroke-width="1.6" fill="none" marker-end="url(#f5)"/>
+  <path d="M 770 250 L 770 292" stroke="#6b7684" stroke-width="1.6" fill="none" marker-end="url(#f5)"/>
+
+  <!-- destinazione 1 -->
+  <rect x="40" y="296" width="260" height="188" rx="8" fill="#ffffff" stroke="#ccd3db"/>
+  <rect x="40" y="296" width="260" height="30" rx="8" fill="#f5f7fa"/>
+  <rect x="40" y="316" width="260" height="10" fill="#f5f7fa"/>
+  <text x="170" y="317" font-size="12.5" font-weight="700" fill="#1b2430" text-anchor="middle">Anteprima cella singola</text>
+  <text x="56" y="344" font-size="11" fill="#6b7684">RenderSingleCellSvg(pattern, px)</text>
+  <rect x="56" y="356" width="228" height="66" rx="5" fill="#fbfcfd" stroke="#e3e6ea"/>
+  <text x="66" y="376" font-size="10" font-family="Consolas, monospace" fill="#1b2430">&lt;svg viewBox="0 0 W H"&gt;</text>
+  <text x="66" y="392" font-size="10" font-family="Consolas, monospace" fill="#6b7684">  elementi</text>
+  <text x="66" y="408" font-size="10" font-family="Consolas, monospace" fill="#1b2430">&lt;/svg&gt;</text>
+  <text x="56" y="444" font-size="11" fill="#1b2430">Nessun nodo &lt;pattern&gt;:</text>
+  <text x="56" y="460" font-size="11" fill="#1b2430">mostra la geometria,</text>
+  <text x="56" y="476" font-size="11" fill="#1b2430">senza la trasformazione.</text>
+
+  <!-- destinazione 2 -->
+  <rect x="340" y="296" width="260" height="188" rx="8" fill="#ffffff" stroke="#3b6ef5"/>
+  <rect x="340" y="296" width="260" height="30" rx="8" fill="#eaf0ff"/>
+  <rect x="340" y="316" width="260" height="10" fill="#eaf0ff"/>
+  <text x="470" y="317" font-size="12.5" font-weight="700" fill="#1b2430" text-anchor="middle">Anteprima ripetuta</text>
+  <text x="356" y="344" font-size="11" fill="#6b7684">RenderStandaloneSvg(&#8230;, idProprio)</text>
+  <rect x="356" y="356" width="228" height="82" rx="5" fill="#fbfcfd" stroke="#e3e6ea"/>
+  <text x="366" y="374" font-size="10" font-family="Consolas, monospace" fill="#1b2430">&lt;defs&gt;&lt;pattern id="&#8230;"</text>
+  <text x="366" y="390" font-size="10" font-family="Consolas, monospace" fill="#6b7684">   patternTransform="&#8230;"&gt;</text>
+  <text x="366" y="406" font-size="10" font-family="Consolas, monospace" fill="#6b7684">   elementi</text>
+  <text x="366" y="422" font-size="10" font-family="Consolas, monospace" fill="#1b2430">&lt;/pattern&gt;&lt;/defs&gt;</text>
+  <text x="356" y="458" font-size="11" fill="#1b2430">Scala, rotazione e traslazione</text>
+  <text x="356" y="474" font-size="11" fill="#1b2430">diventano patternTransform.</text>
+
+  <!-- destinazione 3 -->
+  <rect x="640" y="296" width="260" height="188" rx="8" fill="#ffffff" stroke="#ccd3db"/>
+  <rect x="640" y="296" width="260" height="30" rx="8" fill="#f5f7fa"/>
+  <rect x="640" y="316" width="260" height="10" fill="#f5f7fa"/>
+  <text x="770" y="317" font-size="12.5" font-weight="700" fill="#1b2430" text-anchor="middle">File scaricato</text>
+  <text x="656" y="344" font-size="11" fill="#6b7684">RenderStandaloneSvg(pattern)</text>
+  <rect x="656" y="356" width="228" height="66" rx="5" fill="#fbfcfd" stroke="#e3e6ea"/>
+  <text x="666" y="376" font-size="10" font-family="Consolas, monospace" fill="#1b2430">&lt;pattern id="p" &#8230;&gt;</text>
+  <text x="666" y="394" font-size="10" font-family="Consolas, monospace" fill="#6b7684">&#8230;</text>
+  <text x="666" y="412" font-size="10" font-family="Consolas, monospace" fill="#1b2430">&lt;rect fill="url(#p)" /&gt;</text>
+  <text x="656" y="444" font-size="11" fill="#1b2430">Documento a s&#233; stante:</text>
+  <text x="656" y="460" font-size="11" fill="#1b2430">nessuna collisione possibile,</text>
+  <text x="656" y="476" font-size="11" fill="#1b2430">l'identificativo breve basta.</text>
+
+  <!-- regola id -->
+  <rect x="40" y="508" width="860" height="106" rx="8" fill="#fdf6e3" stroke="#d0a215"/>
+  <text x="60" y="534" font-size="13.5" font-weight="700" fill="#1b2430">Regola: l'identificativo del nodo &lt;pattern&gt; deve essere univoco nella pagina</text>
+  <text x="60" y="558" font-size="12" fill="#1b2430">Un riferimento <tspan font-family="Consolas, monospace">fill="url(#id)"</tspan> viene risolto sull'intero documento HTML, non all'interno del singolo &lt;svg&gt;. Due anteprime che usassero lo</text>
+  <text x="60" y="578" font-size="12" fill="#1b2430">stesso id mostrerebbero entrambe la prima definizione incontrata, e la seconda apparirebbe &#171;congelata&#187;. Nell'elenco l'id deriva dall'Id del</text>
+  <text x="60" y="598" font-size="12" fill="#1b2430">Pattern; nell'editor &#232; scelto dal componente, uno per istanza, perch&#233; lo stesso Pattern pu&#242; essere reso due volte nella stessa pagina.</text>
+</svg>

@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-abc6-724b-8caa-4db341092762",
+  "name": "Circles - 10",
+  "createdAt": "2026-09-10T15:56:14.3405552\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:14.8391591\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 25,
+    "height": 50,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M-.63 0v25h26.25V0zm13.1 6.64a5.88 5.88 0 0 1 5.97 5.86 5.9 5.9 0 0 1-5.94 5.88 5.9 5.9 0 0 1-5.94-5.88 5.89 5.89 0 0 1 5.92-5.86zm.03 23.42A7.5 7.5 0 0 0 5 37.5a7.5 7.5 0 0 0 15 0 7.5 7.5 0 0 0-7.5-7.44zm0 3.13a4.34 4.34 0 0 1 4.38 4.31 4.34 4.34 0 0 1-4.38 4.31 4.34 4.34 0 0 1-4.37-4.31c0-2.38 2-4.31 4.37-4.31z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abc6-7757-81d1-11e3781c9093",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

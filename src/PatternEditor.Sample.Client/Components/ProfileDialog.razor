@@ -1,0 +1,224 @@
+@namespace PatternEditor.Sample.Client.Components
+@using Microsoft.AspNetCore.Components.Forms
+@inject AuthClient Auth
+@inject Lingua T
+@implements IDisposable
+
+@*
+   Il profilo: come ti si vede e come entri.
+
+   Il nome utente non si cambia, ed è una scelta. È la chiave con cui si entra, compare
+   accanto a ogni pattern che hai fatto, ed è la cosa che gli altri riconoscono. Cambiarlo
+   vorrebbe dire riscrivere tutto questo in un colpo, e per un vantaggio che nessuno ha
+   chiesto.
+*@
+<div class="modal-backdrop" @onclick="Chiudi">
+    <div class="accesso accesso--largo" role="dialog" aria-modal="true"
+         aria-labelledby="profilo-titolo" @onclick:stopPropagation="true">
+
+        <h2 class="accesso__titolo" id="profilo-titolo">@T["app.account.profilo"]</h2>
+
+        @if (Auth.Utente is { } utente)
+        {
+            <div class="profilo__testa">
+                <Avatar Account="utente" Lato="64" />
+                <div>
+                    <strong class="profilo__nome">@utente.Username</strong>
+                    <span class="profilo__dal">@T["profilo.iscrittoIl", utente.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")]</span>
+                </div>
+            </div>
+
+            <section class="profilo__sezione">
+                <h3>@T["profilo.comeTiSiVede"]</h3>
+
+                <label class="accesso__campo">
+                    <span>@T["profilo.coloreIniziali"]</span>
+                    <input type="color" class="registrazione__colore" value="@_colore"
+                           @oninput="e => _colore = e.Value?.ToString() ?? _colore" />
+                    <small>@T["profilo.coloreNota"]</small>
+                </label>
+
+                <div class="profilo__foto-azioni">
+                    <label class="app-btn app-btn--piatto">
+                        @(utente.HasPhoto ? T["profilo.cambiaFoto"] : T["profilo.aggiungiFoto"])
+                        <InputFile class="vetrina__file" accept="image/png,image/jpeg,image/webp"
+                                   OnChange="CaricaFotoAsync" />
+                    </label>
+
+                    @if (utente.HasPhoto)
+                    {
+                        <button type="button" class="app-btn app-btn--piatto" @onclick="TogliFotoAsync">
+                            @T["profilo.togliFoto"]
+                        </button>
+                    }
+                </div>
+
+                <button type="button" class="app-btn app-btn--primary" disabled="@(_inCorso || _colore == utente.AvatarColor)"
+                        @onclick="SalvaColoreAsync">
+                    @T["profilo.salvaColore"]
+                </button>
+            </section>
+
+            <section class="profilo__sezione">
+                <h3>@T["profilo.password"]</h3>
+
+                <form @onsubmit="CambiaPasswordAsync" @onsubmit:preventDefault="true">
+                    @* La password attuale si chiede anche a chi è già dentro: protegge dal
+                       computer lasciato aperto, che è il caso in cui serve davvero. *@
+                    <label class="accesso__campo">
+                        <span>@T["profilo.passwordAttuale"]</span>
+                        <input type="password" class="campo__testo" autocomplete="current-password"
+                               value="@_attuale" @oninput="e => _attuale = e.Value?.ToString() ?? string.Empty" />
+                    </label>
+
+                    <label class="accesso__campo">
+                        <span>@T["profilo.passwordNuova"]</span>
+                        <input type="password" class="campo__testo" autocomplete="new-password"
+                               value="@_nuova" @oninput="e => _nuova = e.Value?.ToString() ?? string.Empty" />
+                    </label>
+
+                    <ForzaPassword Password="@_nuova" Utente="@utente.Username" />
+
+                    <p class="accesso__nota">@T["profilo.passwordNota"]</p>
+
+                    <button type="submit" class="app-btn app-btn--primary" disabled="@_inCorso">
+                        @(_inCorso ? T["profilo.attendi"] : T["profilo.cambiaPassword"])
+                    </button>
+                </form>
+            </section>
+
+            @if (_errore is { } errore)
+            {
+                <p class="accesso__errore" role="alert">@errore</p>
+            }
+
+            @if (_fatto is { } fatto)
+            {
+                <p class="accesso__fatto" role="status">@fatto</p>
+            }
+        }
+
+        <div class="accesso__azioni">
+            <button type="button" class="app-btn app-btn--piatto" @onclick="Chiudi">@T["comune.chiudi"]</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private void Ridisegna() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => T.Cambiata -= Ridisegna;
+
+    private const long FotoMassima = 2 * 1024 * 1024;
+
+    [Parameter]
+    public EventCallback OnChiudi { get; set; }
+
+    private string _colore = "#4f46e5";
+    private string _attuale = string.Empty;
+    private string _nuova = string.Empty;
+    private string? _errore;
+    private string? _fatto;
+    private bool _inCorso;
+
+    protected override void OnInitialized()
+    {
+        T.Cambiata += Ridisegna;
+
+        if (Auth.Utente is { } utente)
+        {
+            _colore = utente.AvatarColor;
+        }
+    }
+
+    private async Task SalvaColoreAsync()
+    {
+        _inCorso = true;
+        Azzera();
+
+        var esito = await Auth.CambiaColoreAsync(_colore);
+
+        _inCorso = false;
+        Riferisci(esito, T["profilo.coloreAggiornato"]);
+    }
+
+    private async Task CaricaFotoAsync(InputFileChangeEventArgs e)
+    {
+        Azzera();
+
+        var file = e.File;
+        if (file.Size > FotoMassima)
+        {
+            _errore = T["profilo.fotoTroppoGrande"];
+            return;
+        }
+
+        _inCorso = true;
+
+        // Si legge tutto in memoria invece di passare il flusso del file: la richiesta ha
+        // bisogno di conoscere la lunghezza in anticipo, e il flusso di InputFile non la sa.
+        using var origine = file.OpenReadStream(FotoMassima);
+        using var memoria = new MemoryStream();
+        await origine.CopyToAsync(memoria);
+        memoria.Position = 0;
+
+        var esito = await Auth.CaricaFotoAsync(memoria, file.ContentType);
+
+        _inCorso = false;
+        Riferisci(esito, T["profilo.fotoAggiornata"]);
+    }
+
+    private async Task TogliFotoAsync()
+    {
+        _inCorso = true;
+        Azzera();
+
+        var esito = await Auth.RimuoviFotoAsync();
+
+        _inCorso = false;
+        Riferisci(esito, T["profilo.fotoRimossa"]);
+    }
+
+    private async Task CambiaPasswordAsync()
+    {
+        if (_inCorso)
+        {
+            return;
+        }
+
+        _inCorso = true;
+        Azzera();
+
+        var esito = await Auth.CambiaPasswordAsync(_attuale, _nuova);
+
+        _inCorso = false;
+
+        if (esito.Riuscito)
+        {
+            _attuale = string.Empty;
+            _nuova = string.Empty;
+        }
+
+        Riferisci(esito, T["profilo.passwordCambiata"]);
+    }
+
+    private void Azzera()
+    {
+        _errore = null;
+        _fatto = null;
+    }
+
+    private void Riferisci(Esito esito, string quandoVaBene)
+    {
+        if (esito.Riuscito)
+        {
+            _fatto = quandoVaBene;
+        }
+        else
+        {
+            _errore = esito.Errore;
+        }
+    }
+
+    private Task Chiudi() => OnChiudi.InvokeAsync();
+}

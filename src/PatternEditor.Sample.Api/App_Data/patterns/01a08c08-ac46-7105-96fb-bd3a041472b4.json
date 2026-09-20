@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac46-7105-96fb-bd3a041472b4",
+  "name": "Triangles - 23",
+  "createdAt": "2026-09-10T15:56:16.6825208\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.3838451\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 50,
+    "height": 48,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m19.14 22.25-6.64 11.5-6.64-11.5Zm0-12-6.64 11.5-6.64-11.5Z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac46-7df4-bdd6-48ce07c473a6",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M44.14 45.75H30.86l6.64-11.5zm0 12H30.86l6.64-11.5zm0-48H30.86l6.64-11.5Z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac46-7bf9-a8a7-1d45058737fb",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

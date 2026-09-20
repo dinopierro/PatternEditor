@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac47-7a62-bddb-ec10a99963cb",
+  "name": "Triangles - 25",
+  "createdAt": "2026-09-10T15:56:16.6969540\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.4332026\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 76.02,
+    "height": 45.9,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m17.48 9.917 6.94 12.02 6.94-12.02zm27.181 0 6.94 12.02 6.94-12.02zM6.65 32.867l6.94 12.02 6.94-12.02zm48.84 0 6.94 12.02 6.94-12.02z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac47-7f4d-b734-291d33ce701d",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "m37.304 11.138-.779 1.35h2.97l-.78-1.35zm-3.702 6.413-.78 1.35h10.375l-.78-1.35zm-3.7 6.412-.78 1.35h17.776l-.78-1.35zm-3.704 6.412-.78 1.35h25.183l-.78-1.35zm-3.703 6.413-.778 1.35h32.586l-.779-1.35zm-3.702 6.413-.78 1.35h39.993l-.78-1.35z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac47-7ac3-bfd9-e4bad8990d64",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 1.012v1.35h9.458l-.78-1.35zm68.48 0-.779 1.35h8.32v-1.35zM0 7.425v1.35h13.16l-.779-1.35zm64.778 0-.78 1.35H76.02v-1.35zM0 13.837v1.35h16.863l-.78-1.35zm61.076 0-.78 1.35H76.02v-1.35zM0 20.25v1.35h20.564l-.78-1.35zm57.374 0-.78 1.35H76.02v-1.35zM0 34.088v1.35h2.054l-.779-1.35zm75.884 0-.779 1.35h.915v-1.35zM0 40.501v1.35h5.757l-.78-1.35zm72.182 0-.78 1.35h4.618V40.5z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac47-78a6-a65d-3a55b96ec96a",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

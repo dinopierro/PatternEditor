@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <!--
+    I cataloghi delle lingue sono file statici dell'applicazione, non risorse compilate:
+    stanno in wwwroot e si servono così come sono. Il test li legge dal repository invece
+    che dalla cartella di output — non c'è una cartella di output che li contenga, e
+    copiarceli significherebbe verificare la copia invece dell'originale.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PatternEditor.Sample.Client\PatternEditor.Sample.Client.csproj" />
+  </ItemGroup>
+
+</Project>

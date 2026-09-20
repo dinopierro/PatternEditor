@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 636" width="940" height="636" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="636" fill="#ffffff"/>
+
+  <defs>
+    <marker id="freccia" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b7684"/>
+    </marker>
+    <marker id="frecciaRossa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#d33a3a"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="42" font-size="19" font-weight="600" fill="#1b2430">Figura 1 — Architettura a livelli e direzione delle dipendenze</text>
+  <text x="40" y="64" font-size="13" fill="#6b7684">Ogni freccia si legge &#171;dipende da&#187;. Non esistono frecce che risalgono.</text>
+
+  <!-- Applicazioni host -->
+  <rect x="40" y="92" width="860" height="96" rx="10" fill="#fbfcfd" stroke="#e3e6ea" stroke-dasharray="5 4"/>
+  <text x="56" y="112" font-size="11" font-weight="700" fill="#6b7684" letter-spacing="1">APPLICAZIONI HOST</text>
+  <rect x="72" y="122" width="360" height="50" rx="8" fill="#eaf0ff" stroke="#3b6ef5"/>
+  <text x="252" y="145" font-size="14" font-weight="600" fill="#1b2430" text-anchor="middle">PatternEditor.Sample.Api</text>
+  <text x="252" y="162" font-size="11" fill="#6b7684" text-anchor="middle">minimal API + persistenza su file</text>
+  <rect x="508" y="122" width="360" height="50" rx="8" fill="#eaf0ff" stroke="#3b6ef5"/>
+  <text x="688" y="145" font-size="14" font-weight="600" fill="#1b2430" text-anchor="middle">PatternEditor.Sample.Client</text>
+  <text x="688" y="162" font-size="11" fill="#6b7684" text-anchor="middle">Blazor WebAssembly</text>
+
+  <!-- frecce host -> libreria / plugin -->
+  <path d="M 200 172 L 200 240" stroke="#6b7684" stroke-width="1.6" fill="none" marker-end="url(#freccia)"/>
+  <path d="M 330 172 L 620 240" stroke="#6b7684" stroke-width="1.6" fill="none" marker-end="url(#freccia)"/>
+  <path d="M 610 172 L 320 240" stroke="#6b7684" stroke-width="1.6" fill="none" marker-end="url(#freccia)"/>
+  <path d="M 740 172 L 740 240" stroke="#6b7684" stroke-width="1.6" fill="none" marker-end="url(#freccia)"/>
+
+  <!-- Libreria -->
+  <rect x="72" y="244" width="360" height="96" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+  <text x="252" y="268" font-size="14" font-weight="600" fill="#1b2430" text-anchor="middle">PatternEditor</text>
+  <text x="252" y="288" font-size="11.5" fill="#6b7684" text-anchor="middle">componente &lt;PatternEditor&gt;, pannelli,</text>
+  <text x="252" y="304" font-size="11.5" fill="#6b7684" text-anchor="middle">renderer SVG, validatore, macchina a stati,</text>
+  <text x="252" y="320" font-size="11.5" fill="#6b7684" text-anchor="middle">registrazione servizi</text>
+
+  <!-- Plugin -->
+  <rect x="508" y="244" width="360" height="96" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+  <text x="688" y="266" font-size="14" font-weight="600" fill="#1b2430" text-anchor="middle">plugins/ — un progetto per elemento</text>
+  <g font-size="10.5" fill="#1b2430" text-anchor="middle">
+    <rect x="524" y="278" width="74" height="22" rx="5" fill="#ffffff" stroke="#ccd3db"/><text x="561" y="293">Line</text>
+    <rect x="606" y="278" width="74" height="22" rx="5" fill="#ffffff" stroke="#ccd3db"/><text x="643" y="293">Rect</text>
+    <rect x="688" y="278" width="74" height="22" rx="5" fill="#ffffff" stroke="#ccd3db"/><text x="725" y="293">Circle</text>
+    <rect x="770" y="278" width="82" height="22" rx="5" fill="#ffffff" stroke="#ccd3db"/><text x="811" y="293">Ellipse</text>
+    <rect x="524" y="306" width="74" height="22" rx="5" fill="#ffffff" stroke="#ccd3db"/><text x="561" y="321">Path</text>
+    <rect x="606" y="306" width="74" height="22" rx="5" fill="#ffffff" stroke="#ccd3db"/><text x="643" y="321">Polygon</text>
+    <rect x="688" y="306" width="74" height="22" rx="5" fill="#ffffff" stroke="#ccd3db"/><text x="725" y="321">Polyline</text>
+    <rect x="770" y="306" width="82" height="22" rx="5" fill="#ffffff" stroke="#ccd3db"/><text x="811" y="321">Text · Image</text>
+  </g>
+
+  <!-- divieto reciproco -->
+  <path d="M 440 292 L 500 292" stroke="#d33a3a" stroke-width="1.6" stroke-dasharray="4 3" fill="none"/>
+  <circle cx="470" cy="292" r="11" fill="#ffffff" stroke="#d33a3a" stroke-width="1.6"/>
+  <path d="M 464 286 L 476 298 M 476 286 L 464 298" stroke="#d33a3a" stroke-width="1.6"/>
+
+  <!-- frecce verso Abstractions -->
+  <path d="M 252 340 L 252 396" stroke="#6b7684" stroke-width="1.6" fill="none" marker-end="url(#freccia)"/>
+  <path d="M 688 340 L 688 396" stroke="#6b7684" stroke-width="1.6" fill="none" marker-end="url(#freccia)"/>
+
+  <!-- Abstractions -->
+  <rect x="72" y="400" width="796" height="64" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+  <text x="470" y="424" font-size="14" font-weight="600" fill="#1b2430" text-anchor="middle">PatternEditor.Abstractions</text>
+  <text x="470" y="444" font-size="11.5" fill="#6b7684" text-anchor="middle">IVectorElementPlugin · IVectorElementPluginRegistry · IPatternSerializer</text>
+
+  <path d="M 470 464 L 470 500" stroke="#6b7684" stroke-width="1.6" fill="none" marker-end="url(#freccia)"/>
+
+  <!-- Core -->
+  <rect x="72" y="504" width="796" height="64" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+  <text x="470" y="528" font-size="14" font-weight="600" fill="#1b2430" text-anchor="middle">PatternEditor.Core</text>
+  <text x="470" y="548" font-size="11.5" fill="#6b7684" text-anchor="middle">Pattern · PatternDefinition · VectorElement · ValidationResult · formattazione</text>
+
+  <!-- legenda -->
+  <circle cx="82" cy="596" r="9" fill="#ffffff" stroke="#d33a3a" stroke-width="1.5"/>
+  <path d="M 77 591 L 87 601 M 87 591 L 77 601" stroke="#d33a3a" stroke-width="1.5"/>
+  <text x="100" y="600" font-size="12" fill="#1b2430">La libreria non referenzia alcun plugin, e i plugin non si conoscono tra loro: comunicano solo attraverso i contratti di Abstractions.</text>
+</svg>

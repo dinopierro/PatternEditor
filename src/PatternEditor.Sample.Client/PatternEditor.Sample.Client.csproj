@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>PatternEditor.Sample.Client</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PatternEditor\PatternEditor.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Line\PatternEditor.Element.Line.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Rect\PatternEditor.Element.Rect.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Circle\PatternEditor.Element.Circle.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Path\PatternEditor.Element.Path.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Image\PatternEditor.Element.Image.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Polygon\PatternEditor.Element.Polygon.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Polyline\PatternEditor.Element.Polyline.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Ellipse\PatternEditor.Element.Ellipse.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Text\PatternEditor.Element.Text.csproj" />
+  </ItemGroup>
+
+</Project>

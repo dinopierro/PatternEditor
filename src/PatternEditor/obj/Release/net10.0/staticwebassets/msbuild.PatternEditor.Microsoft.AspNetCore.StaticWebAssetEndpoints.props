@@ -1,0 +1,40 @@
+﻿<Project>
+  <ItemGroup>
+    <StaticWebAssetEndpoint Include="_content/PatternEditor/i18n/it.735qcxeupi.json">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\i18n\it.json'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"735qcxeupi"},{"Name":"integrity","Value":"sha256-Q6zkSd/luKBpAYEmtqs8rmNcJrVI3BVDbvkF4YtzwEw="},{"Name":"label","Value":"_content/PatternEditor/i18n/it.json"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"30521"},{"Name":"Content-Type","Value":"application/json"},{"Name":"ETag","Value":"\u0022Q6zkSd/luKBpAYEmtqs8rmNcJrVI3BVDbvkF4YtzwEw=\u0022"},{"Name":"Last-Modified","Value":"Fri, 18 Sep 2026 19:43:24 GMT"},{"Name":"Vary","Value":"Accept-Encoding"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/PatternEditor/i18n/it.json">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\i18n\it.json'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-Q6zkSd/luKBpAYEmtqs8rmNcJrVI3BVDbvkF4YtzwEw="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"30521"},{"Name":"Content-Type","Value":"application/json"},{"Name":"ETag","Value":"\u0022Q6zkSd/luKBpAYEmtqs8rmNcJrVI3BVDbvkF4YtzwEw=\u0022"},{"Name":"Last-Modified","Value":"Fri, 18 Sep 2026 19:43:24 GMT"},{"Name":"Vary","Value":"Accept-Encoding"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/PatternEditor/patternEditor.1wzzlqxudq.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\patternEditor.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"1wzzlqxudq"},{"Name":"integrity","Value":"sha256-cQ1qiIAGgPlJAYeN3K9dmSA9BNTDpkSh/6jLrDSeLIM="},{"Name":"label","Value":"_content/PatternEditor/patternEditor.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"73049"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022cQ1qiIAGgPlJAYeN3K9dmSA9BNTDpkSh/6jLrDSeLIM=\u0022"},{"Name":"Last-Modified","Value":"Wed, 16 Sep 2026 14:10:33 GMT"},{"Name":"Vary","Value":"Accept-Encoding"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/PatternEditor/patternEditor.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\patternEditor.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-cQ1qiIAGgPlJAYeN3K9dmSA9BNTDpkSh/6jLrDSeLIM="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"73049"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022cQ1qiIAGgPlJAYeN3K9dmSA9BNTDpkSh/6jLrDSeLIM=\u0022"},{"Name":"Last-Modified","Value":"Wed, 16 Sep 2026 14:10:33 GMT"},{"Name":"Vary","Value":"Accept-Encoding"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/PatternEditor/patternEditorInterop.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\patternEditorInterop.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-nmz9mUY2Ty3YM2hoXvz/EnK99L9NskYAApv1D9dEmbg="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"3334"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022nmz9mUY2Ty3YM2hoXvz/EnK99L9NskYAApv1D9dEmbg=\u0022"},{"Name":"Last-Modified","Value":"Mon, 14 Sep 2026 10:22:13 GMT"},{"Name":"Vary","Value":"Accept-Encoding"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/PatternEditor/patternEditorInterop.qqiamwwzql.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\patternEditorInterop.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"qqiamwwzql"},{"Name":"integrity","Value":"sha256-nmz9mUY2Ty3YM2hoXvz/EnK99L9NskYAApv1D9dEmbg="},{"Name":"label","Value":"_content/PatternEditor/patternEditorInterop.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"3334"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022nmz9mUY2Ty3YM2hoXvz/EnK99L9NskYAApv1D9dEmbg=\u0022"},{"Name":"Last-Modified","Value":"Mon, 14 Sep 2026 10:22:13 GMT"},{"Name":"Vary","Value":"Accept-Encoding"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+  </ItemGroup>
+</Project>

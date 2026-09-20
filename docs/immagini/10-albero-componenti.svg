@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 536" width="940" height="536" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="536" fill="#ffffff"/>
+  <defs><marker id="punta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b6ef5"/></marker></defs>
+  <text x="30" y="34" font-size="17" font-weight="600" fill="#1b2430">Figura 10 — L'albero dei componenti</text>
+  <text x="30" y="55" font-size="12.5" fill="#6b7684">Chi contiene chi, e che cosa si scambiano padre e figlio.</text>
+  <rect x="30.0" y="84.0" width="250.0" height="76.0" rx="8" fill="#eef3ff" stroke="#3b6ef5" stroke-width="1.5"/>
+  <text x="42.0" y="104.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">PatternsPage</text>
+  <text x="42.0" y="122.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">l'applicazione ospitante</text>
+  <text x="42.0" y="136.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">tiene l'elenco e parla con l'API</text>
+  <rect x="345.0" y="84.0" width="250.0" height="76.0" rx="8" fill="#eef3ff" stroke="#3b6ef5" stroke-width="1.5"/>
+  <text x="357.0" y="104.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">PatternEditor</text>
+  <text x="357.0" y="122.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">il componente della libreria</text>
+  <text x="357.0" y="136.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">possiede la copia in modifica</text>
+  <path d="M 280.0 122.0 L 345.0 122.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <text x="312.0" y="114.0" font-size="8.2" fill="#3b6ef5" font-weight="600" text-anchor="middle">Pattern</text>
+  <path d="M 345 142 L 280 142" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)" stroke-dasharray="5 4"/>
+  <text x="312.0" y="178.0" font-size="8.2" fill="#6b7684" font-weight="600" text-anchor="middle">OnConfirm / OnCancel</text>
+  <rect x="30.0" y="230.0" width="241.0" height="84.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="42.0" y="250.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">PatternEditorToolbar</text>
+  <text x="42.0" y="268.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">nome, Annulla,</text>
+  <text x="42.0" y="282.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">Chiudi / Conferma</text>
+  <path d="M 470 160 L 470 200 L 150 200 L 150 230" fill="none" stroke="#3b6ef5" stroke-width="1.5" marker-end="url(#punta)"/>
+  <rect x="243.0" y="230.0" width="241.0" height="84.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="255.0" y="250.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">PatternPropertiesEditor</text>
+  <text x="255.0" y="268.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">cella e</text>
+  <text x="255.0" y="282.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">trasformazione</text>
+  <path d="M 470 160 L 470 200 L 363 200 L 363 230" fill="none" stroke="#3b6ef5" stroke-width="1.5" marker-end="url(#punta)"/>
+  <rect x="456.0" y="230.0" width="241.0" height="84.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="468.0" y="250.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">PatternPreviewPanel</text>
+  <text x="468.0" y="268.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">due anteprime,</text>
+  <text x="468.0" y="282.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">sorgente, copia,</text>
+  <text x="468.0" y="296.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">scarica</text>
+  <path d="M 470 160 L 470 200 L 576 200 L 576 230" fill="none" stroke="#3b6ef5" stroke-width="1.5" marker-end="url(#punta)"/>
+  <rect x="669.0" y="230.0" width="241.0" height="84.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="681.0" y="250.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">VectorElementsPanel</text>
+  <text x="681.0" y="268.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">elenco, dettaglio,</text>
+  <text x="681.0" y="282.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">riordino, duplica,</text>
+  <text x="681.0" y="296.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">elimina</text>
+  <path d="M 470 160 L 470 200 L 789 200 L 789 230" fill="none" stroke="#3b6ef5" stroke-width="1.5" marker-end="url(#punta)"/>
+  <text x="250.0" y="192.0" font-size="8.4" fill="#6b7684" font-weight="600" text-anchor="middle">parametri in giù, EventCallback in su</text>
+  <rect x="669.0" y="350.0" width="241.0" height="72.0" rx="8" fill="#fff6ec" stroke="#c2701c" stroke-width="1.5"/>
+  <text x="681.0" y="370.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">DynamicComponent</text>
+  <text x="681.0" y="388.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">istanzia il tipo dichiarato dal</text>
+  <text x="681.0" y="402.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">plugin, senza conoscerlo</text>
+  <path d="M 789.0 314.0 L 789.0 350.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <rect x="560.0" y="452.0" width="160.0" height="60.0" rx="8" fill="#edf8f2" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="572.0" y="472.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">RectEditor</text>
+  <text x="572.0" y="490.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">plugin Rect</text>
+  <rect x="730.0" y="452.0" width="160.0" height="60.0" rx="8" fill="#edf8f2" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="742.0" y="472.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">LineEditor</text>
+  <text x="742.0" y="490.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">plugin Line</text>
+  <text x="900.0" y="500.0" font-size="14" fill="#6b7684" font-weight="700" text-anchor="middle">…</text>
+  <path d="M 789 422 L 789 436 L 640 436 L 640 452" fill="none" stroke="#3b6ef5" stroke-width="1.5" marker-end="url(#punta)"/>
+  <path d="M 789 422 L 789 436 L 810 436 L 810 452" fill="none" stroke="#3b6ef5" stroke-width="1.5" marker-end="url(#punta)"/>
+  <rect x="30.0" y="350.0" width="600.0" height="79.0" rx="6" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1.2"/>
+  <text x="40.0" y="367.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">I quattro pannelli ricevono la stessa istanza di Pattern e la modificano in casa: non ci sono copie intermedie da tenere allineate.</text>
+  <text x="40.0" y="380.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">Ogni modifica risale al PatternEditor con un EventCallback, che è il solo punto in cui si decide che qualcosa è cambiato — e quindi</text>
+  <text x="40.0" y="393.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">l'unico punto in cui si rivalida e si ridisegna.</text>
+  <text x="40.0" y="406.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start"></text>
+  <text x="40.0" y="419.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">L'ultima riga è il confine dell'estensibilità: da DynamicComponent in giù, il codice è quello dei plugin, e la libreria non lo conosce.</text>
+</svg>

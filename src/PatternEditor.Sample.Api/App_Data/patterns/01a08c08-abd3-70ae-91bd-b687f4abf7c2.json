@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-abd3-70ae-91bd-b687f4abf7c2",
+  "name": "Cubes - 3",
+  "createdAt": "2026-09-10T15:56:14.5639034\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.0839873\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 60,
+    "height": 60,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M10 50H0m60-40H50m0 40v10M10 0v10m21 30v20m0-60v20m9 10h20M0 30h20m0 10h20V20H20v10zM10 10h40v40H10zM0 0h60v60H0z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abd3-75a2-83b0-c7005c405918",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

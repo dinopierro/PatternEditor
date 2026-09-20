@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>PatternEditor.Sample.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      I pattern salvati sono dati di esecuzione, non contenuto del progetto: senza questa
+      esclusione l'SDK li tratterebbe come Content, la build ne copierebbe la versione
+      presente nel progetto sopra quella scritta a runtime e "Clean"/"Rebuild" la
+      cancellerebbe dalla cartella di output. In entrambi i casi si perdono le modifiche.
+    -->
+    <Content Remove="App_Data\**" />
+    <None Include="App_Data\**" CopyToOutputDirectory="Never" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Il client WebAssembly viene ospitato da qui: questo progetto lo referenzia, ne serve i
+      file e risponde alle sue chiamate. Una sola applicazione da pubblicare invece di due.
+
+      Il client resta un progetto a se' perche' deve esserlo: il codice che gira nel browser
+      si compila in WebAssembly, ed e' l'SDK BlazorWebAssembly a saperlo fare. Quello che
+      sparisce non e' il progetto, e' la seconda pubblicazione.
+    -->
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.0" />
+    <ProjectReference Include="..\PatternEditor.Sample.Client\PatternEditor.Sample.Client.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Registra sia la libreria (Abstractions/registry/servizi) sia i plugin concreti:
+      l'API di test è l'applicazione host responsabile di sapere quali elementi esistono.
+    -->
+    <ProjectReference Include="..\PatternEditor\PatternEditor.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Line\PatternEditor.Element.Line.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Rect\PatternEditor.Element.Rect.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Circle\PatternEditor.Element.Circle.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Path\PatternEditor.Element.Path.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Image\PatternEditor.Element.Image.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Polygon\PatternEditor.Element.Polygon.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Polyline\PatternEditor.Element.Polyline.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Ellipse\PatternEditor.Element.Ellipse.csproj" />
+    <ProjectReference Include="..\..\plugins\PatternEditor.Element.Text\PatternEditor.Element.Text.csproj" />
+  </ItemGroup>
+
+</Project>

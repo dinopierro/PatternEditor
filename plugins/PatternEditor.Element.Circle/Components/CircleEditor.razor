@@ -1,0 +1,199 @@
+@namespace PatternEditor.Element.Circle.Components
+@using PatternEditor.Core.Formatting
+@using PatternEditor.Core.Models
+@using PatternEditor.Element.Circle
+@inject TestiEditor E
+
+@if (CircleEl is not null)
+@*
+   Editor del cerchio.
+
+   I campi seguono la specifica: centro (cx, cy) e raggio (r), poi riempimento e bordo.
+   Il raggio non può essere zero - la specifica renderebbe l'elemento invisibile - e la
+   validazione lo segnala come errore, non come avviso.
+
+   Ogni editor riceve l'elemento come VectorElement generico e lo riconduce al proprio tipo:
+   il contenitore che lo istanzia non conosce il tipo concreto, e passargli qualcosa di più
+   specifico obbligherebbe l'editor principale a conoscere questo assembly.
+
+   Nessun pulsante "Applica": ogni modifica aggiorna subito il modello e chiede la
+   rigenerazione delle anteprime. Vedere l'effetto mentre si regola un valore è il motivo
+   per cui questo strumento esiste, e una conferma intermedia lo annullerebbe.
+
+   L'elemento viene modificato sul posto, non sostituito: è la copia di lavoro interna
+   all'editor, e chi ha aperto il pattern la vede solo se conferma.
+*@
+
+{
+    <div class="pe-element-editor pe-circle-editor">
+
+        <section class="pe-group">
+            <h4 class="pe-group__title">@E["campo.geometria"]</h4>
+            <div class="pe-grid-2">
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.centroX"] <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" step="1" value="@Num(CircleEl.Cx)"
+                           @oninput="e => Update(() => CircleEl.Cx = InvariantNumber.Parse(e.Value, CircleEl.Cx))" />
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.centroY"] <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" step="1" value="@Num(CircleEl.Cy)"
+                           @oninput="e => Update(() => CircleEl.Cy = InvariantNumber.Parse(e.Value, CircleEl.Cy))" />
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.raggio"] <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" min="0.01" step="1" value="@Num(CircleEl.R)"
+                           @oninput="e => Update(() => CircleEl.R = InvariantNumber.Parse(e.Value, CircleEl.R))" />
+                </label>
+            </div>
+        </section>
+
+        <section class="pe-group">
+            <div class="pe-group__head">
+                <h4 class="pe-group__title">@E["campo.riempimento"]</h4>
+                <label class="pe-switch">
+                    <input type="checkbox" checked="@(CircleEl.Fill is not null)"
+                           @onchange="e => Update(() => CircleEl.Fill = ((bool)(e.Value ?? false)) ? (CircleEl.Fill ?? DefaultFill) : null)" />
+                    <span>@E["campo.attivo"]</span>
+                </label>
+            </div>
+
+            @if (CircleEl.Fill is not null)
+            {
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.colore"]</span>
+                    <span class="pe-color">
+                        <input class="pe-color__input" type="color" value="@SvgColor.ForPicker(CircleEl.Fill)"
+                               @oninput="e => Update(() => CircleEl.Fill = SvgColor.Normalize(e.Value?.ToString()) ?? CircleEl.Fill)" />
+                        <input class="pe-color__code" type="text" spellcheck="false" autocomplete="off"
+                               maxlength="7" size="8" pattern="@SvgColor.HtmlPattern"
+                               title="@E["campo.coloreTitolo"]"
+                               @key="_revisioneColore" value="@CircleEl.Fill"
+                               @oninput="e => ColoreDigitato(e, v => Update(() => CircleEl.Fill = v))"
+                               @onchange="e => ColoreConfermato(e, v => Update(() => CircleEl.Fill = v))" />
+                    </span>
+                </label>
+                <label class="pe-field pe-field--slider">
+                    <span class="pe-field__label">
+                        @E["campo.opacita"] <span class="pe-unit">[%]</span>
+                        <span class="pe-field__value">@Pct(CircleEl.FillOpacity)</span>
+                    </span>
+                    <input class="pe-range" type="range" min="0" max="1" step="0.01" value="@Num(CircleEl.FillOpacity)"
+                           @oninput="e => Update(() => CircleEl.FillOpacity = InvariantNumber.Parse(e.Value, CircleEl.FillOpacity))" />
+                </label>
+            }
+        </section>
+
+        <section class="pe-group">
+            <div class="pe-group__head">
+                <h4 class="pe-group__title">@E["campo.bordo"]</h4>
+                <label class="pe-switch">
+                    <input type="checkbox" checked="@(CircleEl.Stroke is not null)"
+                           @onchange="e => Update(() => CircleEl.Stroke = ((bool)(e.Value ?? false)) ? (CircleEl.Stroke ?? DefaultStroke) : null)" />
+                    <span>@E["campo.attivo"]</span>
+                </label>
+            </div>
+
+            @if (CircleEl.Stroke is not null)
+            {
+                <div class="pe-grid-2">
+                    <label class="pe-field">
+                        <span class="pe-field__label">@E["campo.colore"]</span>
+                        <span class="pe-color">
+                            <input class="pe-color__input" type="color" value="@SvgColor.ForPicker(CircleEl.Stroke)"
+                                   @oninput="e => Update(() => CircleEl.Stroke = SvgColor.Normalize(e.Value?.ToString()) ?? CircleEl.Stroke)" />
+                            <input class="pe-color__code" type="text" spellcheck="false" autocomplete="off"
+                                   maxlength="7" size="8" pattern="@SvgColor.HtmlPattern"
+                                   title="@E["campo.coloreTitolo"]"
+                                   @key="_revisioneColore" value="@CircleEl.Stroke"
+                                   @oninput="e => ColoreDigitato(e, v => Update(() => CircleEl.Stroke = v))"
+                                   @onchange="e => ColoreConfermato(e, v => Update(() => CircleEl.Stroke = v))" />
+                        </span>
+                    </label>
+                    <label class="pe-field">
+                        <span class="pe-field__label">@E["campo.spessore"] <span class="pe-unit">[px]</span></span>
+                        <input class="pe-input" type="number" min="0" step="0.1" value="@Num(CircleEl.StrokeWidth)"
+                               @oninput="e => Update(() => CircleEl.StrokeWidth = InvariantNumber.Parse(e.Value, CircleEl.StrokeWidth))" />
+                    </label>
+                </div>
+                <label class="pe-field pe-field--slider">
+                    <span class="pe-field__label">
+                        @E["campo.opacita"] <span class="pe-unit">[%]</span>
+                        <span class="pe-field__value">@Pct(CircleEl.StrokeOpacity)</span>
+                    </span>
+                    <input class="pe-range" type="range" min="0" max="1" step="0.01" value="@Num(CircleEl.StrokeOpacity)"
+                           @oninput="e => Update(() => CircleEl.StrokeOpacity = InvariantNumber.Parse(e.Value, CircleEl.StrokeOpacity))" />
+                </label>
+            }
+        </section>
+
+    </div>
+}
+
+@code {
+    const string DefaultFill = "#AEFAEF";
+    const string DefaultStroke = "#000000";
+
+    /// <summary>
+    /// Elemento da modificare. Ricevuto come VectorElement per rispettare il contratto
+    /// generico usato dall'editor principale, che non conosce il tipo concreto CircleElement.
+    /// </summary>
+    [Parameter]
+    public VectorElement? Element { get; set; }
+
+    /// <summary>
+    /// Notifica esplicita al Pattern Editor che il modello è stato modificato, così che
+    /// possa rigenerare le anteprime. Ogni modifica aggiorna subito il modello: non esiste
+    /// un pulsante "Applica".
+    /// </summary>
+    [Parameter]
+    public EventCallback OnElementChanged { get; set; }
+
+    private CircleElement? CircleEl => Element as CircleElement;
+
+    private void Update(Action apply)
+    {
+        apply();
+        OnElementChanged.InvokeAsync();
+    }
+
+    private static string Num(double value) => InvariantNumber.Format(value);
+
+    /// <summary>Il modello memorizza l'opacità come 0..1; all'utente viene mostrata in percentuale.</summary>
+    private static string Pct(double value) => Math.Round(value * 100).ToString("0");
+
+    /// <summary>
+    /// Il colore si può scrivere a mano accanto al selettore. Mentre si digita il modello
+    /// viene aggiornato solo se il testo è già nella forma canonica #rrggbb, quella che
+    /// usa il selettore: normalizzando anche le forme abbreviate a ogni carattere, il campo
+    /// verrebbe riscritto sotto le dita di chi scrive e il cursore salterebbe a fine riga.
+    /// </summary>
+    private static void ColoreDigitato(ChangeEventArgs e, Action<string> applica)
+    {
+        var testo = e.Value?.ToString();
+
+        if (SvgColor.IsCanonical(testo))
+        {
+            applica(testo!);
+        }
+    }
+
+    /// <summary>
+    /// All'uscita dal campo si accettano anche la forma abbreviata e l'assenza del
+    /// cancelletto. In ogni caso i campi colore vengono ricostruiti, così da tornare a
+    /// mostrare il valore effettivo: un testo lasciato a metà non deve restare a schermo
+    /// facendo credere che sia stato applicato.
+    /// </summary>
+    private void ColoreConfermato(ChangeEventArgs e, Action<string> applica)
+    {
+        if (SvgColor.Normalize(e.Value?.ToString()) is { } colore)
+        {
+            applica(colore);
+        }
+
+        _revisioneColore++;
+    }
+
+    /// <summary>Identifica i campi colore: cambiandolo, Blazor li ricostruisce.</summary>
+    private int _revisioneColore;
+}

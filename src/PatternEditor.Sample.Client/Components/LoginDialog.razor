@@ -1,0 +1,256 @@
+@namespace PatternEditor.Sample.Client.Components
+@inject AuthClient Auth
+@inject Lingua T
+@implements IDisposable
+@inject NavigationManager Nav
+
+@*
+   Accesso e recupero, nella stessa finestra.
+
+   Il recupero non è una pagina a parte perché è lo stesso gesto interrotto: si stava
+   entrando e non si ricorda la password. Portare altrove costringerebbe a ricominciare, e
+   soprattutto a riscrivere il nome utente che si era appena digitato — che qui invece si
+   porta dietro.
+*@
+<div class="modal-backdrop" @onclick="Chiudi">
+    <div class="accesso" role="dialog" aria-modal="true" aria-labelledby="accesso-titolo"
+         @onclick:stopPropagation="true">
+
+        <h2 class="accesso__titolo" id="accesso-titolo">
+            @(_passo switch
+            {
+                Passo.Accesso => T["accesso.titolo"],
+                Passo.ChiediNome => T["accesso.titoloRecupero"],
+                Passo.Rispondi => T["accesso.titoloRecupero"],
+                _ => T["accesso.titoloNuova"],
+            })
+        </h2>
+
+        @if (_passo == Passo.Accesso)
+        {
+            <p class="accesso__testo">@T["accesso.premessa"]</p>
+
+            <form @onsubmit="AccediAsync" @onsubmit:preventDefault="true">
+                <label class="accesso__campo">
+                    <span>@T["accesso.nomeUtente"]</span>
+                    <input type="text" class="campo__testo" autocomplete="username" autofocus
+                           value="@_utente" @oninput="e => _utente = e.Value?.ToString() ?? string.Empty" />
+                </label>
+
+                <label class="accesso__campo">
+                    <span>@T["accesso.password"]</span>
+                    <input type="password" class="campo__testo" autocomplete="current-password"
+                           value="@_password" @oninput="e => _password = e.Value?.ToString() ?? string.Empty" />
+                </label>
+
+                @if (_errore is { } errore)
+                {
+                    <p class="accesso__errore" role="alert">@errore</p>
+                }
+
+                <div class="accesso__azioni">
+                    <button type="button" class="app-btn app-btn--piatto" @onclick="Chiudi">@T["comune.annulla"]</button>
+                    <button type="submit" class="app-btn app-btn--primary" disabled="@_inCorso">
+                        @(_inCorso ? T["accesso.verifica"] : T["accesso.titolo"])
+                    </button>
+                </div>
+            </form>
+
+            <div class="accesso__piede">
+                <button type="button" class="accesso__link" @onclick="() => VaiA(Passo.ChiediNome)">
+                    @T["accesso.ricorda"]
+                </button>
+                <button type="button" class="accesso__link" @onclick="Registrati">
+                    @T["accesso.registra"]
+                </button>
+            </div>
+        }
+        else if (_passo == Passo.ChiediNome)
+        {
+            <p class="accesso__testo">@T["accesso.chiediNome"]</p>
+
+            <form @onsubmit="ChiediDomandaAsync" @onsubmit:preventDefault="true">
+                <label class="accesso__campo">
+                    <span>@T["accesso.nomeUtente"]</span>
+                    <input type="text" class="campo__testo" autocomplete="username" autofocus
+                           value="@_utente" @oninput="e => _utente = e.Value?.ToString() ?? string.Empty" />
+                </label>
+
+                @if (_errore is { } errore)
+                {
+                    <p class="accesso__errore" role="alert">@errore</p>
+                }
+
+                <div class="accesso__azioni">
+                    <button type="button" class="app-btn app-btn--piatto" @onclick="() => VaiA(Passo.Accesso)">@T["accesso.indietro"]</button>
+                    <button type="submit" class="app-btn app-btn--primary" disabled="@_inCorso">
+                        @(_inCorso ? T["accesso.cerco"] : T["accesso.continua"])
+                    </button>
+                </div>
+            </form>
+        }
+        else
+        {
+            @* Domanda e nuova password stanno nella stessa schermata, e non in due.
+               Separarle vorrebbe dire accettare la risposta e poi rifiutare la password
+               perché troppo corta: a quel punto si dovrebbe tornare indietro e rispondere
+               di nuovo, consumando un altro tentativo per un errore che non c'entrava. *@
+            <p class="accesso__domanda">@_domanda</p>
+
+            <form @onsubmit="RecuperaAsync" @onsubmit:preventDefault="true">
+                <label class="accesso__campo">
+                    <span>@T["accesso.tuaRisposta"]</span>
+                    <input type="text" class="campo__testo" autocomplete="off" autofocus
+                           value="@_risposta" @oninput="e => _risposta = e.Value?.ToString() ?? string.Empty" />
+                </label>
+
+                <p class="accesso__nota">@T["accesso.rispostaNota"]</p>
+
+                <label class="accesso__campo">
+                    <span>@T["accesso.nuovaPassword"]</span>
+                    <input type="password" class="campo__testo" autocomplete="new-password"
+                           value="@_password" @oninput="e => _password = e.Value?.ToString() ?? string.Empty" />
+                </label>
+
+                <ForzaPassword Password="@_password" Utente="@_utente" />
+
+                @if (_errore is { } errore)
+                {
+                    <p class="accesso__errore" role="alert">@errore</p>
+                }
+
+                <div class="accesso__azioni">
+                    <button type="button" class="app-btn app-btn--piatto" @onclick="() => VaiA(Passo.ChiediNome)">@T["accesso.indietro"]</button>
+                    <button type="submit" class="app-btn app-btn--primary" disabled="@_inCorso">
+                        @(_inCorso ? T["accesso.verifica"] : T["accesso.cambiaEntra"])
+                    </button>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized() => T.Cambiata += Ridisegna;
+
+    private void Ridisegna() => InvokeAsync(StateHasChanged);
+
+    // La finestra nasce e muore a ogni apertura: un ascoltatore non tolto resterebbe
+    // appeso a un componente che non c'e' piu', uno per ogni volta che si e' entrati.
+    public void Dispose() => T.Cambiata -= Ridisegna;
+
+    private enum Passo
+    {
+        Accesso,
+        ChiediNome,
+        Rispondi,
+    }
+
+    [Parameter]
+    public EventCallback OnChiudi { get; set; }
+
+    private Passo _passo = Passo.Accesso;
+    private string _utente = string.Empty;
+    private string _password = string.Empty;
+    private string _risposta = string.Empty;
+    private string _domanda = string.Empty;
+    private string? _errore;
+    private bool _inCorso;
+
+    private void VaiA(Passo passo)
+    {
+        _passo = passo;
+
+        // L'errore appartiene al passo in cui è nato: portarselo dietro farebbe comparire
+        // «password non corretta» sopra una schermata che di password non parla.
+        _errore = null;
+        _password = string.Empty;
+        _risposta = string.Empty;
+    }
+
+    private async Task AccediAsync()
+    {
+        if (_inCorso)
+        {
+            return;
+        }
+
+        _inCorso = true;
+        _errore = null;
+
+        var esito = await Auth.AccediAsync(_utente.Trim(), _password);
+
+        _inCorso = false;
+
+        if (esito.Riuscito)
+        {
+            await OnChiudi.InvokeAsync();
+            return;
+        }
+
+        _errore = esito.Errore;
+
+        // La password si cancella dopo un tentativo fallito: riprovare significa riscriverla,
+        // e riscriverla è il modo in cui ci si accorge di aver sbagliato tastiera.
+        _password = string.Empty;
+    }
+
+    private async Task ChiediDomandaAsync()
+    {
+        if (_inCorso)
+        {
+            return;
+        }
+
+        _inCorso = true;
+        _errore = null;
+
+        var (domanda, errore) = await Auth.DomandaDiRecuperoAsync(_utente.Trim());
+
+        _inCorso = false;
+
+        if (domanda is null)
+        {
+            _errore = errore;
+            return;
+        }
+
+        _domanda = domanda;
+        _passo = Passo.Rispondi;
+    }
+
+    private async Task RecuperaAsync()
+    {
+        if (_inCorso)
+        {
+            return;
+        }
+
+        _inCorso = true;
+        _errore = null;
+
+        var esito = await Auth.RecuperaAsync(_utente.Trim(), _risposta, _password);
+
+        _inCorso = false;
+
+        if (esito.Riuscito)
+        {
+            await OnChiudi.InvokeAsync();
+            return;
+        }
+
+        _errore = esito.Errore;
+    }
+
+    private async Task Registrati()
+    {
+        await OnChiudi.InvokeAsync();
+
+        // Da dove si è partiti, per tornarci dopo. Senza questo, chi si registra mentre
+        // lavora nella gestione si ritroverebbe sulla presentazione.
+        var partenza = Nav.ToBaseRelativePath(Nav.Uri);
+        Nav.NavigateTo($"/registrazione?ritorno={Uri.EscapeDataString(partenza)}");
+    }
+
+    private Task Chiudi() => OnChiudi.InvokeAsync();
+}

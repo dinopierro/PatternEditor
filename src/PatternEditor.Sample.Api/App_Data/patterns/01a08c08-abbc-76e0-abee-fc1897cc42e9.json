@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-abbc-76e0-abee-fc1897cc42e9",
+  "name": "Chinese Pattern - 17",
+  "createdAt": "2026-09-10T15:56:14.1847659\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:14.6479360\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 52.123,
+    "height": 64,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M0 0v2.383h21.315v18.95h-9.493v-4.729h4.765V7.112H2.365v52.121h14.222v-9.457h-4.765V45.01h9.493v18.95H0v.028h23.68V42.656H9.458v9.493h4.728v4.728H4.73v-18.95h42.628v18.95h-9.457v-4.728h4.728v-9.494H28.408V64h23.715v-.03h-21.35V45.019h9.492v4.765h-4.728v9.457h14.222V7.12H35.537v9.493h4.728v4.729h-9.493V2.39h21.35V.009H28.409v23.695H42.63v-9.493h-4.728V9.483h9.457v18.95H4.73V9.483h9.456v4.728H9.458v9.492H23.68V.008zm4.729 30.79h42.629v4.764H4.728z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abbc-7c20-9b30-b2d3fd717ccc",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

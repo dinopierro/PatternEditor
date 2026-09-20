@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac47-743c-ad1b-2e03d5043d23",
+  "name": "Triangles - 27",
+  "createdAt": "2026-09-10T15:56:16.7044967\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.4089592\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 70.865,
+    "height": 50,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M-28.99 0h25.769v50h-25.77Zm77.307 0v31.923h12.885V50H48.317h25.77V0Z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac47-7410-95fb-40320df6028a",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M74.086 0v50h25.77H86.97V31.923h12.885V0ZM-3.22 0v50h25.769H9.663V31.923h12.885V0Z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac47-7c1c-9fd0-2d20241caf17",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "m61.202 31.923-12.884-9.477-12.888-9.754-12.88 9.616-12.887 9.615H35.43ZM-28.991 0l12.884 9.477 12.888 9.754L9.66 9.615 22.549 0H-3.22ZM74.09 19.23l12.88-9.615L99.856 0H48.317l12.884 9.477z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac47-71e1-b4fa-b1df7377b3c1",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

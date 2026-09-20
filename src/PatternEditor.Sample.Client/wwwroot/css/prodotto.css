@@ -1,0 +1,1465 @@
+/* ==========================================================================
+   PAGINA DI PRODOTTO
+
+   Una seconda lettura dello stesso strumento: non un pannello di gestione ma
+   una presentazione, dove lo scorrimento è il modo in cui si raccontano le
+   cose. La pagina di gestione resta dov'è e non viene toccata.
+
+   Tre idee reggono tutto il foglio:
+
+   1. LE SEZIONI SI AGGANCIANO. Una sezione alta tre schermate contiene un
+      pannello `sticky` alto uno: mentre si scorre, il pannello resta fermo e
+      il suo contenuto si trasforma. È l'effetto che fa sembrare la pagina un
+      filmato, e non richiede una riga di JavaScript per animare.
+
+   1-bis. I PANNELLI SI FERMANO SOTTO LA BARRA. `--pro-barra` è l'altezza
+      dell'intestazione dell'applicazione, misurata da JavaScript perché cambia
+      (sul telefono va su due righe). I pannelli agganciati si fermano lì e sono
+      alti quel che resta: fermandosi a zero scorrerebbero per l'altezza della
+      barra prima di bloccarsi -- uno scatto all'inizio -- e terrebbero il proprio
+      fondo appena sotto il bordo dello schermo.
+
+   2. IL MOVIMENTO SEGUE UNA SOLA VARIABILE. `--avanzamento` va da 0 a 1 lungo
+      la sezione, e la scrive JavaScript misurando. Da lì in poi è tutto CSS:
+      `calc()` su quella variabile decide scale, rotazioni, opacità. Nessun
+      fotogramma disegnato a mano.
+
+   3. IL PATTERN È VERO. Gli sfondi che si muovono non sono immagini: sono
+      documenti SVG generati dallo stesso renderer del componente. La pagina
+      che racconta lo strumento è fatta con lo strumento.
+   ========================================================================== */
+
+.pro {
+    /* Il palco è scuro in entrambi i temi: è un palco, non una superficie di
+       lavoro. Le sezioni di lettura invece seguono il tema dell'applicazione,
+       perché lì si legge davvero. */
+    --pro-palco: #07080c;
+    --pro-palco-alt: #0d1018;
+    --pro-inchiostro: #f2f4f8;
+    --pro-inchiostro-tenue: #9aa4b8;
+    --pro-accento: #5b8cff;
+    --pro-accento-caldo: #ff7a45;
+    --pro-accento-verde: #37d39b;
+
+    --pro-foglio: var(--app-bg);
+    --pro-testo: var(--app-text);
+    --pro-testo-tenue: var(--app-text-muted);
+
+    background: var(--pro-foglio);
+    color: var(--pro-testo);
+
+    /* La pagina di prodotto si prende tutta la larghezza: i margini del guscio
+       dell'applicazione qui sarebbero due strisce vuote ai lati di un palco.
+
+       La misura non è `100vw` ma quella vera dell'area di lettura, scritta da
+       JavaScript: `100vw` comprende la barra di scorrimento verticale, e una
+       sezione larga così ne provoca una orizzontale. Il ripiego serve al primo
+       disegno, prima che la misura arrivi. */
+    --pro-larga: var(--pro-larghezza, 100vw);
+
+    /* Il margine annulla il respiro del guscio su tutti i lati. In alto è la differenza
+       fra una presentazione che comincia attaccata alla barra e una che comincia una
+       striscia più giù, con il colore della pagina che si intravede in mezzo: il palco è
+       scuro, e quella striscia chiara si legge come un errore di montaggio. Il pixel in
+       più chiude la cucitura sotto il bordo della barra. */
+    margin: calc(-1 * var(--app-corpo-pad) - 1px)
+            calc(50% - var(--pro-larga) / 2)
+            calc(-1 * var(--app-corpo-pad));
+    width: var(--pro-larga);
+    overflow-x: clip;
+}
+
+/* ---------- tipografia ---------------------------------------------------- */
+
+.pro h2 {
+    margin: 0;
+    font-size: clamp(2rem, 5.2vw, 4.2rem);
+    font-weight: 660;
+    line-height: 1.04;
+    letter-spacing: -0.028em;
+}
+
+.pro h3 {
+    margin: 0;
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-weight: 640;
+    letter-spacing: -0.01em;
+}
+
+.pro p { margin: 0; }
+
+.pro__occhiello {
+    display: inline-block;
+    margin-bottom: 1.1rem;
+    font-size: .74rem;
+    font-weight: 680;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--pro-accento);
+}
+
+.pro__guida {
+    max-width: 34rem;
+    margin-top: 1.2rem;
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    line-height: 1.6;
+    color: var(--pro-testo-tenue);
+}
+
+.pro--scuro .pro__guida { color: var(--pro-inchiostro-tenue); }
+
+/* ---------- comparse ------------------------------------------------------ */
+
+/* Il contenuto è nel documento fin dall'inizio: qui si muove solo l'aspetto.
+   Se JavaScript non gira, la classe la mette lui stesso e non si vede nulla
+   di strano — una pagina che nasconde il testo in attesa di uno script è una
+   pagina che qualche volta resta bianca. */
+[data-rivela] {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+    transition: opacity .9s cubic-bezier(.16, 1, .3, 1),
+                transform .9s cubic-bezier(.16, 1, .3, 1);
+    transition-delay: var(--ritardo, 0ms);
+}
+
+[data-rivela].e-visibile {
+    opacity: 1;
+    transform: none;
+}
+
+/* ==========================================================================
+   1 · APERTURA
+   ========================================================================== */
+
+.pro-apertura {
+    position: relative;
+    height: 320vh;
+    background: var(--pro-palco);
+    color: var(--pro-inchiostro);
+}
+
+.pro-apertura__fermo {
+    position: sticky;
+    top: var(--pro-barra, 0px);
+    height: calc(100vh - var(--pro-barra, 0px));
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+}
+
+/*
+   Lo sfondo è un pattern vero, e si allontana mentre si scorre: all'inizio una
+   cella riempie lo schermo, alla fine se ne vedono decine. È la tesi della
+   pagina detta senza parole — una cella, infinite volte — e la si vede accadere
+   prima di leggerla.
+*/
+.pro-apertura__trama {
+    position: absolute;
+    inset: -20%;
+    opacity: calc(.20 + var(--avanzamento, 0) * .34);
+    transform: scale(calc(2.6 - var(--avanzamento, 0) * 2.15))
+               rotate(calc(var(--avanzamento, 0) * -14deg));
+    transform-origin: 52% 46%;
+    will-change: transform;
+}
+
+.pro-apertura__trama svg { width: 100%; height: 100%; }
+
+/*
+   GLI STRATI CHE SI ALTERNANO
+
+   Due nodi fissi invece di uno che cambia contenuto: il disegno nuovo si scrive
+   in quello nascosto ed è già a posto quando comincia la dissolvenza, mentre il
+   vecchio resta visibile finché non è coperto. Con un nodo solo, fra i due si
+   vedrebbe il vuoto — cioè proprio ciò che una dissolvenza serve a evitare.
+*/
+.pro-strato {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1.4s ease;
+}
+
+.pro-strato.e-sopra { opacity: 1; }
+
+/*
+   IL RESPIRO DI FONDO
+
+   Lo scorrimento muove il contenitore; questa deriva muove il disegno dentro di
+   esso, e serve a una cosa sola: che la pagina sia viva anche quando nessuno la
+   tocca — il caso più frequente di tutti, perché chi arriva prima guarda e poi
+   scorre.
+
+   Va e torna (`alternate`) invece di ripartire da capo: un ciclo che riparte è
+   uno scatto, e uno scatto ogni cinquanta secondi si nota molto più del
+   movimento che voleva nascondere. Sul contenitore c'è già una trasformazione
+   legata allo scorrimento: questa sta sull'SVG dentro, così le due non si
+   contendono la stessa proprietà.
+*/
+@keyframes pro-deriva {
+    from { transform: translate3d(-1.6%, -1.1%, 0) scale(1.04); }
+    to   { transform: translate3d(1.6%, 1.1%, 0) scale(1.09); }
+}
+
+.pro-apertura__trama .pro-strato svg,
+.pro-chiusura__trama svg {
+    animation: pro-deriva 54s ease-in-out infinite alternate;
+
+    /* Dichiarato perche' l'elemento e' grande quanto lo schermo: senza, ogni fotogramma
+       ridisegnerebbe la trama invece di spostare uno strato gia' pronto. */
+    will-change: transform;
+}
+
+/*
+   L'alone dietro il titolo. Non tocca il velo, che serve alla leggibilità e non
+   si negozia: è uno strato in mezzo, che aggiunge profondità e un movimento
+   lento senza schiarire il fondo sotto le parole.
+*/
+.pro-apertura__bagliore {
+    position: absolute;
+    inset: -12%;
+    pointer-events: none;
+    background: radial-gradient(38% 34% at 50% 44%,
+        color-mix(in srgb, var(--pro-accento) 45%, transparent), transparent 72%);
+    animation: pro-alone 23s ease-in-out infinite alternate;
+
+    /* Niente modalita' di fusione: su un palco scuro `screen` darebbe quasi lo stesso
+       risultato dell'alfa, e costerebbe la ricomposizione di uno strato grande quanto lo
+       schermo a ogni fotogramma. Una sfumatura che si sposta non vale quel prezzo. */
+    will-change: transform, opacity;
+}
+
+@keyframes pro-alone {
+    from { transform: translate3d(-7%, -3%, 0) scale(1); opacity: .32; }
+    to   { transform: translate3d(7%, 4%, 0) scale(1.28); opacity: .6; }
+}
+
+/* Una volta scura al centro: senza, il titolo bianco su una trama chiara
+   sparirebbe proprio nel momento in cui deve leggersi. */
+.pro-apertura__velo {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(58% 48% at 50% 44%, rgba(7, 8, 12, .93), rgba(7, 8, 12, .55) 55%, transparent 78%),
+        linear-gradient(to bottom, rgba(7, 8, 12, .8), transparent 26%, transparent 70%, var(--pro-palco));
+}
+
+.pro-apertura__testo {
+    position: relative;
+    text-align: center;
+    padding: 0 1.5rem;
+    max-width: 58rem;
+}
+
+.pro-apertura__titolo {
+    margin: 0;
+    font-size: clamp(2.8rem, 9vw, 7.5rem);
+    font-weight: 700;
+    line-height: .96;
+    letter-spacing: -0.04em;
+}
+
+/* Le tre parole entrano una dopo l'altra, non tutte insieme: è la differenza
+   fra una frase che arriva e un cartello che si accende. */
+.pro-apertura__parola {
+    display: inline-block;
+    opacity: 0;
+    transform: translate3d(0, .5em, 0);
+    animation: pro-sale .95s cubic-bezier(.16, 1, .3, 1) forwards;
+    animation-delay: var(--ritardo, 0ms);
+}
+
+.pro-apertura__parola--brillante {
+    background: linear-gradient(105deg, var(--pro-accento) 8%, #a78bfa 44%, var(--pro-accento-caldo) 88%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+@keyframes pro-sale {
+    to { opacity: 1; transform: none; }
+}
+
+.pro-apertura__sottotitolo {
+    margin: 2.2rem auto 0;
+    max-width: 36rem;
+    font-size: clamp(1rem, 1.7vw, 1.3rem);
+    line-height: 1.6;
+    color: var(--pro-inchiostro-tenue);
+    opacity: 0;
+    animation: pro-sale 1s cubic-bezier(.16, 1, .3, 1) .55s forwards;
+}
+
+.pro-apertura__azioni {
+    display: flex;
+    gap: .7rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2.2rem;
+    opacity: 0;
+    animation: pro-sale 1s cubic-bezier(.16, 1, .3, 1) .72s forwards;
+}
+
+/* L'invito a scorrere: senza, una schermata che non si muove sembra tutta la
+   pagina. Sparisce appena si comincia, perché a quel punto ha finito. */
+.pro-apertura__invito {
+    position: absolute;
+    bottom: 2.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    font-size: .72rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--pro-inchiostro-tenue);
+    opacity: calc(1 - var(--avanzamento, 0) * 6);
+}
+
+.pro-apertura__freccia {
+    width: 1px;
+    height: 2.2rem;
+    background: linear-gradient(to bottom, transparent, var(--pro-inchiostro-tenue));
+    animation: pro-respira 2.1s ease-in-out infinite;
+}
+
+@keyframes pro-respira {
+    0%, 100% { transform: scaleY(.55); opacity: .35; transform-origin: top; }
+    50% { transform: scaleY(1); opacity: 1; transform-origin: top; }
+}
+
+/* ---------- pulsanti della pagina ---------------------------------------- */
+
+.pro-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .8rem 1.5rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font: inherit;
+    font-size: .92rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform .16s ease, background-color .16s ease, border-color .16s ease;
+}
+
+.pro-btn:hover { transform: translateY(-2px); }
+.pro-btn:active { transform: translateY(0); }
+
+.pro-btn--pieno {
+    background: var(--pro-inchiostro);
+    color: #0b0d12;
+}
+
+.pro-btn--pieno:hover { background: #fff; }
+
+.pro-btn--vuoto {
+    border-color: rgba(255, 255, 255, .28);
+    background: rgba(255, 255, 255, .04);
+    color: var(--pro-inchiostro);
+    backdrop-filter: blur(8px);
+}
+
+.pro-btn--vuoto:hover { border-color: rgba(255, 255, 255, .6); }
+
+.pro-btn--accento {
+    background: var(--app-accent);
+    color: #fff;
+}
+
+.pro-btn--chiaro {
+    border-color: var(--app-border-strong);
+    background: var(--app-surface);
+    color: var(--pro-testo);
+}
+
+/* ==========================================================================
+   2 · UNA CELLA, INFINITE VOLTE
+   ========================================================================== */
+
+.pro-cella {
+    position: relative;
+    height: 320vh;
+    background: var(--pro-palco-alt);
+    color: var(--pro-inchiostro);
+}
+
+.pro-cella__fermo {
+    position: sticky;
+    top: var(--pro-barra, 0px);
+    height: calc(100vh - var(--pro-barra, 0px));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    gap: 2rem;
+    padding: clamp(1.5rem, 4vw, 4rem);
+}
+
+@media (min-width: 900px) {
+    .pro-cella__fermo {
+        grid-template-columns: minmax(18rem, 26rem) minmax(0, 1fr);
+        align-items: center;
+        gap: clamp(2rem, 5vw, 5rem);
+    }
+}
+
+.pro-cella__parole { max-width: 26rem; }
+
+/*
+   Il cuore della sezione: lo stesso disegno, mostrato due volte. A sinistra la
+   cella singola con la sua cornice; a destra la stessa cella ripetuta, e il
+   numero di ripetizioni cresce con l'avanzamento.
+
+   La ripetizione si ottiene rimpicciolendo la dimensione dello sfondo, non
+   moltiplicando elementi: il browser disegna la stessa tessera N volte senza
+   che il documento cresca di un nodo.
+*/
+.pro-cella__palco {
+    position: relative;
+
+    /* La forma è quella della cella, dichiarata dal markup. Un riquadro con
+       proporzioni proprie stirerebbe la tessera, e l'SVG — che la propria
+       proporzione la difende — si incornicerebbe lasciando bande bianche che
+       nella trama vera non ci sono. */
+    aspect-ratio: var(--forma, 1);
+
+    /* Il limite si mette sulla larghezza, non sull'altezza: un `max-height` su
+       un riquadro con `aspect-ratio` accorcia il lato alto senza toccare quello
+       largo, e la proporzione — cioè proprio ciò che si voleva difendere —
+       salta. Ricavando la larghezza massima dall'altezza concessa si ottiene lo
+       stesso ingombro verticale con la forma intatta. */
+    width: min(100%, calc(66vh * var(--forma, 1)));
+
+    /* La forma cambia con il pattern in scena e cambia di scatto, senza
+       transizione: e' voluto, dopo averle provate.
+
+       Una transizione su `aspect-ratio` che dipende da una variabile non si
+       interpola e resta indietro -- il riquadro conserva la forma di prima, che
+       e' molto peggio del salto che si voleva evitare. Dichiarando la variabile
+       con `@property` la transizione parte ma non avanza mai: resta «running»
+       oltre la propria durata, e il riquadro si blocca comunque sulla forma
+       vecchia.
+
+       Il salto, per fortuna, e' gia' coperto: avviene all'inizio della
+       dissolvenza fra i due strati, mentre il disegno nuovo sta ancora
+       comparendo, ed e' proprio il momento in cui l'occhio guarda il disegno e
+       non il bordo. */
+
+    margin-inline: auto;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .55);
+}
+
+.pro-cella__tessere {
+    position: absolute;
+    inset: 0;
+    /* Da 1 tessera a ~9 per lato. La radice quadrata rende la crescita più
+       regolare all'occhio: senza, la prima metà dello scorrimento sembrerebbe
+       non fare niente e la seconda troppo. */
+    --n: calc(1 + var(--avanzamento, 0) * 8);
+    background-size: calc(100% / var(--n)) calc(100% / var(--n));
+    background-position: center;
+    background-repeat: repeat;
+
+    /* Anche qui due strati alternati, per la stessa ragione dell'apertura. */
+    opacity: 0;
+    transition: opacity 1.4s ease;
+
+    /* E anche qui un andirivieni lentissimo, di una frazione di tessera. Va e
+       torna e non scorre in una direzione sola perché la dimensione della
+       tessera cambia con lo scorrimento: un ciclo tarato su una dimensione
+       salterebbe visibilmente su tutte le altre. */
+    animation: pro-tessere-deriva 19s ease-in-out infinite alternate;
+}
+
+.pro-cella__tessere.e-sopra { opacity: 1; }
+
+@keyframes pro-tessere-deriva {
+    from { background-position: 47% 53%; }
+    to   { background-position: 53% 47%; }
+}
+
+/* La griglia che scompone la trama in tessere: compare a metà percorso, dice
+   dove finisce una cella e comincia la successiva, e sparisce alla fine
+   lasciando solo il disegno. */
+.pro-cella__griglia {
+    position: absolute;
+    inset: 0;
+    --n: calc(1 + var(--avanzamento, 0) * 8);
+    background-image:
+        linear-gradient(to right, rgba(91, 140, 255, .55) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(91, 140, 255, .55) 1px, transparent 1px);
+    background-size: calc(100% / var(--n)) calc(100% / var(--n));
+    background-position: center;
+    opacity: calc(min(var(--avanzamento, 0) * 3, 1) * (1 - max(0, var(--avanzamento, 0) - .7) * 3.3));
+}
+
+.pro-cella__conteggio {
+    position: absolute;
+    right: .9rem;
+    bottom: .9rem;
+    padding: .35rem .7rem;
+    border-radius: 999px;
+    background: rgba(7, 8, 12, .75);
+    color: var(--pro-inchiostro);
+    font-size: .74rem;
+    font-variant-numeric: tabular-nums;
+    backdrop-filter: blur(6px);
+}
+
+/*
+   I punti sotto il palco: quanti pattern passano, quale si sta guardando, e come
+   fermarsi su uno. Sono comandi veri e non indicatori — una serie che scorre da
+   sola senza un modo di fermarla è una serie che si guarda col telecomando in
+   mano.
+*/
+/* La colonna del palco. Serve perché il riquadro e i suoi punti sono due cose ma
+   occupano una casella sola della griglia. */
+.pro-cella__scena { min-width: 0; }
+
+.pro-cella__punti {
+    display: flex;
+    justify-content: center;
+    gap: .45rem;
+    margin-top: 1.1rem;
+}
+
+.pro-punto {
+    width: .5rem;
+    height: .5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .26);
+    cursor: pointer;
+    transition: background .2s ease, width .35s ease, transform .2s ease;
+}
+
+.pro-punto:hover { background: rgba(255, 255, 255, .6); transform: scale(1.3); }
+
+/* Quello scelto non cambia solo colore ma forma: il colore da solo, su un punto
+   di otto pixel, lo distinguono in pochi. */
+.pro-punto.e-scelto {
+    width: 1.5rem;
+    background: var(--pro-accento);
+    transform: none;
+}
+
+.pro-punto:focus-visible {
+    outline: 2px solid var(--pro-accento);
+    outline-offset: 3px;
+}
+
+/* ==========================================================================
+   3 · NOVE TIPI DI ELEMENTO — nastro orizzontale
+   ========================================================================== */
+
+.pro-tipi {
+    position: relative;
+    height: 460vh;
+    background: var(--pro-foglio);
+}
+
+.pro-tipi__fermo {
+    position: sticky;
+    top: var(--pro-barra, 0px);
+    height: calc(100vh - var(--pro-barra, 0px));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+    overflow: hidden;
+}
+
+.pro-tipi__testa {
+    padding: 0 clamp(1.5rem, 6vw, 7rem);
+    max-width: 44rem;
+}
+
+.pro-tipi__pista { overflow: hidden; }
+
+/*
+   Il nastro scorre in orizzontale mentre la pagina scorre in verticale. Lo
+   spostamento massimo è quanto il nastro sporge davvero (--eccedenza, misurata
+   da JavaScript): una percentuale fissa manderebbe le ultime schede fuori
+   schermo su un monitor largo e le lascerebbe a metà su uno stretto.
+*/
+.pro-tipi__nastro {
+    display: flex;
+    gap: 1.2rem;
+    padding: 0 clamp(1.5rem, 6vw, 7rem);
+    width: max-content;
+    transform: translate3d(calc(var(--eccedenza, 0px) * var(--avanzamento, 0) * -1), 0, 0);
+    will-change: transform;
+}
+
+/*
+   UNA SCHEDA COME UN CAMPIONE DI CARTA DA PARATI
+
+   Nove riquadri bianchi con dentro nove figurine grigie erano nove francobolli:
+   veri, onesti, e indistinguibili l'uno dall'altro a un metro di distanza. Il
+   problema non era la disposizione ma il contenuto — la geometria predefinita di
+   un plugin è fatta per essere un punto di partenza neutro, non per essere
+   guardata.
+
+   Qui la trama diventa la scheda: occupa quasi tutta la sua altezza, ha un
+   colore suo, respira, e il nome del tipo ci sta sopra. La geometria resta
+   quella dichiarata dal plugin; a cambiare è solo il colore, che è una scelta di
+   questa pagina (vedi `Aspetti`).
+*/
+.pro-tipo {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    width: clamp(15rem, 21vw, 18.5rem);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    box-shadow: 0 12px 32px rgba(8, 12, 20, .08);
+    transition: transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s ease;
+}
+
+/* Il filo colorato in cima lega la scheda alla sua trama anche quando la trama
+   è fuori dallo schermo perché il nastro è scorso. */
+.pro-tipo::before {
+    content: "";
+    display: block;
+    height: 3px;
+    background: var(--tinta, var(--app-accent));
+}
+
+.pro-tipo:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 48px rgba(8, 12, 20, .16);
+}
+
+.pro-tipo__tela {
+    position: relative;
+    aspect-ratio: 4 / 3;
+
+    /* Un velo della stessa tinta sotto la trama: il bianco puro faceva sembrare
+       ogni campione un ritaglio, questo lo fa sembrare un materiale. */
+    background: color-mix(in srgb, var(--tinta, var(--app-accent)) 9%, #fff);
+    border-bottom: 1px solid var(--app-border);
+    overflow: hidden;
+}
+
+.pro-tipo__tela svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+
+    /* Lo stesso respiro dell'apertura, sfasato scheda per scheda dal ritardo che
+       arriva dal markup: nove tele che si muovessero all'unisono sembrerebbero
+       un'unica immagine che trema. */
+    animation: pro-deriva 38s ease-in-out infinite alternate;
+    animation-delay: var(--ritardo, 0s);
+    transition: transform .4s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* Passandoci sopra la trama si avvicina: un pattern è infinito, ingrandirlo non
+   mostra bordi — mostra solo meglio di che cosa è fatto. */
+.pro-tipo:hover .pro-tipo__tela svg { animation-play-state: paused; transform: scale(1.12); }
+
+/* Il nome sta sulla trama e non sotto: è l'etichetta del campione, e messa lì
+   lascia al corpo della scheda il solo mestiere di spiegare. */
+.pro-tipo__nome-grande {
+    position: absolute;
+    left: .85rem;
+    bottom: .75rem;
+    padding: .28rem .6rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .86);
+    backdrop-filter: blur(6px);
+    color: var(--tinta, var(--app-accent));
+    font-weight: 660;
+    font-size: .88rem;
+    letter-spacing: -.01em;
+    box-shadow: 0 2px 10px rgba(8, 12, 20, .12);
+}
+
+.pro-tipo__corpo {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .8rem 1rem .2rem;
+}
+
+.pro-tipo__icona {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--tinta, var(--app-accent)) 14%, transparent);
+    color: var(--tinta, var(--app-accent));
+    flex: none;
+}
+
+.pro-tipo__tecnico { font-size: .72rem; color: var(--pro-testo-tenue); font-family: ui-monospace, Consolas, monospace; }
+
+/* A che cosa serve, in una riga. Parla dell'uso e non della geometria: che un
+   cerchio sia tondo lo dice già l'anteprima sopra. */
+.pro-tipo__descrizione {
+    padding: 0 1rem;
+    font-size: .82rem;
+    line-height: 1.5;
+    color: var(--pro-testo-tenue);
+}
+
+/* Le opzioni regolabili. Vengono lette dal modello del plugin, non scritte a
+   mano: un elenco compilato su una pagina di presentazione invecchia al primo
+   plugin che cambia, e nessuno se ne accorge. */
+.pro-tipo__opzioni {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem;
+    padding: .9rem 1rem 1rem;
+    margin-top: auto;
+}
+
+.pro-opzione {
+    padding: .22rem .55rem;
+    border-radius: 6px;
+    background: var(--app-surface-alt);
+    border: 1px solid var(--app-border);
+    color: var(--pro-testo-tenue);
+    font-size: .7rem;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+/* Le proprietà comuni si dicono una volta sola, sotto il nastro: ripeterle su
+   nove schede le farebbe sembrare nove cose diverse invece di una regola sola. */
+.pro-tipi__comuni {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .35rem;
+    margin: 0 clamp(1.5rem, 6vw, 7rem);
+    font-size: .82rem;
+    color: var(--pro-testo-tenue);
+}
+
+.pro-tipi__comuni strong { color: var(--pro-testo); font-weight: 620; }
+
+.pro-opzione--comune {
+    background: var(--app-accent-soft);
+    border-color: color-mix(in srgb, var(--app-accent) 25%, transparent);
+    color: var(--app-accent);
+}
+
+/* La barra che dice quanto manca alla fine del nastro. */
+.pro-tipi__barra {
+    height: 2px;
+    margin: 0 clamp(1.5rem, 6vw, 7rem);
+    background: var(--app-border);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.pro-tipi__barra > span {
+    display: block;
+    height: 100%;
+    width: calc(var(--avanzamento, 0) * 100%);
+    background: var(--app-accent);
+}
+
+/* ==========================================================================
+   4 · I NUMERI
+   ========================================================================== */
+
+.pro-numeri {
+    padding: clamp(5rem, 12vw, 10rem) clamp(1.5rem, 6vw, 7rem);
+    background: var(--pro-palco);
+    color: var(--pro-inchiostro);
+}
+
+.pro-numeri__griglia {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: clamp(2rem, 5vw, 4rem);
+    max-width: 72rem;
+    margin: 3rem auto 0;
+}
+
+.pro-numero__valore {
+    display: block;
+    font-size: clamp(2.6rem, 6vw, 4.6rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(120deg, var(--pro-inchiostro), var(--pro-accento));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.pro-numero__etichetta {
+    display: block;
+    margin-top: .6rem;
+    font-size: .92rem;
+    color: var(--pro-inchiostro-tenue);
+    line-height: 1.5;
+}
+
+/* ==========================================================================
+   5 · DAL DISEGNO AL CODICE
+   ========================================================================== */
+
+.pro-codice {
+    position: relative;
+    height: 280vh;
+    background: var(--pro-palco-alt);
+    color: var(--pro-inchiostro);
+}
+
+.pro-codice__fermo {
+    position: sticky;
+    top: var(--pro-barra, 0px);
+    height: calc(100vh - var(--pro-barra, 0px));
+    display: grid;
+    align-content: center;
+    gap: 1.6rem;
+    padding: clamp(1.5rem, 4vw, 4rem);
+}
+
+@media (min-width: 900px) {
+    .pro-codice__fermo {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+        align-items: center;
+        gap: clamp(2rem, 5vw, 4rem);
+    }
+}
+
+.pro-codice__anteprima {
+    aspect-ratio: 1;
+    max-height: 62vh;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .55);
+}
+
+.pro-codice__anteprima svg { width: 100%; height: 100%; }
+
+/*
+   IL FOGLIO CHE SI SCRIVE
+
+   Non un blocco di codice che si illumina ma un file in scrittura: una barra con
+   il nome in cima, le righe che compaiono una dopo l'altra, un cursore che
+   scende, e il testo che comincia a scorrere quando il cursore tocca il fondo.
+
+   La differenza non è estetica. Prima le righe c'erano tutte e cambiavano solo
+   opacità: si vedeva un testo accendersi, non un documento nascere — e quelle
+   oltre il bordo non si vedevano affatto, perché il riquadro non si muoveva.
+*/
+.pro-codice__foglio {
+    --riga-alta: 1.75em;
+
+    /* Quante righe stanno nel riquadro. Da qui dipendono l'altezza della finestra
+       e il momento in cui il testo comincia a scorrere: un solo numero da
+       cambiare, invece di due che devono restare d'accordo. */
+    --visibili: 18;
+
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #05070c;
+    border: 1px solid rgba(255, 255, 255, .09);
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: clamp(.62rem, .9vw, .78rem);
+    line-height: 1.75;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .55);
+}
+
+.pro-codice__barra {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    padding: .55rem .9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+    background: rgba(255, 255, 255, .035);
+    font-size: .92em;
+}
+
+.pro-codice__semafori { display: inline-flex; gap: .3rem; }
+
+.pro-codice__semafori i {
+    width: .55em;
+    height: .55em;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .18);
+}
+
+.pro-codice__file { color: #cdd6e6; }
+
+/* Il peso sta a destra e in tono minore: è la battuta finale della sezione —
+   una parete intera, due chili di niente — e va letta dopo il nome, non prima. */
+.pro-codice__peso { margin-left: auto; color: #6c7a90; }
+
+.pro-codice__testo {
+    position: relative;
+
+    /* Alto quanto il file, se il file e' corto. Un riquadro fisso lascerebbe una
+       striscia vuota sotto l'ultima riga di un documento breve, e una finestra
+       di scrittura mezza vuota sembra un errore di impaginazione invece che un
+       file finito. */
+    height: calc(min(var(--visibili), var(--righe, 1)) * var(--riga-alta));
+    overflow: hidden;
+    padding: .8rem 1.2rem;
+}
+
+/*
+   Il testo scorre solo dopo che il cursore ha toccato il fondo: prima di allora
+   la finestra sta ferma e si riempie. `max()` con lo zero è quello che tiene
+   ferma la prima metà — senza, il testo comincerebbe a salire dalla prima riga.
+*/
+.pro-codice__scorre {
+    transform: translateY(calc(
+        -1 * max(0px, (var(--avanzamento, 0) * var(--righe, 1) - var(--visibili)) * var(--riga-alta))));
+}
+
+/* Le righe compaiono una dopo l'altra: l'indice arriva dal markup, il confronto
+   con l'avanzamento lo fa il CSS. */
+.pro-codice__riga {
+    display: block;
+    white-space: pre;
+    opacity: calc((var(--avanzamento, 0) * var(--righe, 30) - var(--i, 0)) * 1.4);
+}
+
+/*
+   I COLORI DELL'XML
+
+   Gli stessi di un editor, e nello stesso ordine di importanza: il nome del nodo
+   è la cosa che si cerca leggendo, il valore quella che si confronta, la
+   punteggiatura quella che si salta. Colorarli tutti allo stesso modo — come
+   faceva la versione precedente, una tinta per riga intera — rende il blocco
+   decorativo invece che leggibile.
+*/
+.pro-tok--punt { color: #5a6578; }
+.pro-tok--tag { color: #93b4ff; }
+.pro-tok--attr { color: #e3a44b; }
+.pro-tok--val { color: #7fd6ac; }
+.pro-tok--testo { color: #dfe5f0; }
+.pro-tok--commento { color: #5a6578; font-style: italic; }
+
+/*
+   Il cursore. Sta all'inizio della riga che verrà scritta e scende con lei fino
+   al fondo del riquadro, dove si ferma: da quel momento è il testo a scorrergli
+   sotto, che è come si comporta un editor vero.
+*/
+.pro-codice__cursore {
+    position: absolute;
+    left: 1.2rem;
+    top: calc(.8rem + min(var(--avanzamento, 0) * var(--righe, 1), var(--visibili)) * var(--riga-alta));
+    width: .55em;
+    height: 1.1em;
+    background: var(--pro-accento);
+    animation: pro-battito 1.06s steps(1) infinite;
+}
+
+/* A passi e non sfumato: un cursore che svanisce dolcemente sembra un difetto di
+   disegno, uno che si spegne di colpo sembra un cursore. */
+@keyframes pro-battito {
+    0%, 55% { opacity: 1; }
+    56%, 100% { opacity: 0; }
+}
+
+.pro-codice__sfumatura {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4rem;
+    background: linear-gradient(to top, #05070c, transparent);
+    pointer-events: none;
+}
+
+/* Anche in alto, e per la stessa ragione di sempre: le righe già scorse via non
+   devono tagliarsi contro il bordo, devono uscire di scena. */
+.pro-codice__sfumatura--alto {
+    top: 0;
+    bottom: auto;
+    height: 2.4rem;
+    background: linear-gradient(to bottom, #05070c, transparent);
+}
+
+/*
+   Sotto i 900px le due colonne diventano una, e i due riquadri si mettono in fila:
+   messi cosi' come stanno affiancati -- un'anteprima alta 62vh e un foglio di
+   diciotto righe -- non ci starebbero in una schermata, e il foglio finirebbe
+   sotto il bordo. Sono le due misure, e non la disposizione, a doversi stringere.
+*/
+@media (max-width: 899px) {
+    .pro-codice__anteprima { max-height: 32vh; }
+    .pro-codice__foglio { --visibili: 9; }
+}
+
+/* ==========================================================================
+   6 · L'ARCHIVIO — la parte che si usa
+   ========================================================================== */
+
+.pro-archivio {
+    padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 6vw, 7rem) clamp(5rem, 10vw, 8rem);
+    background: var(--pro-foglio);
+}
+
+.pro-archivio__testa {
+    max-width: 44rem;
+    margin-bottom: 2.4rem;
+}
+
+.pro-cerca {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    max-width: 44rem;
+    padding: .2rem .3rem .2rem 1.2rem;
+    border-radius: 999px;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border-strong);
+    box-shadow: 0 10px 30px rgba(8, 12, 20, .07);
+    transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.pro-cerca:focus-within {
+    border-color: var(--app-accent);
+    box-shadow: 0 10px 34px color-mix(in srgb, var(--app-accent) 22%, transparent);
+}
+
+.pro-cerca__lente { color: var(--pro-testo-tenue); flex: none; display: inline-flex; }
+
+.pro-cerca input {
+    flex: 1;
+    min-width: 0;
+    padding: .85rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--pro-testo);
+    font: inherit;
+    font-size: 1rem;
+}
+
+.pro-cerca input:focus { outline: none; }
+
+.pro-cerca__conteggio {
+    flex: none;
+    padding: .45rem .9rem;
+    border-radius: 999px;
+    background: var(--app-accent-soft);
+    color: var(--app-accent);
+    font-size: .8rem;
+    font-weight: 640;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Le pastiglie dei tipi: un filtro che si legge come un elenco di possibilità
+   invece che come una tendina da aprire. */
+.pro-tipi-scelta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+    margin-top: 1.1rem;
+}
+
+.pro-pastiglia {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .42rem .85rem;
+    border-radius: 999px;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    color: var(--pro-testo-tenue);
+    font: inherit;
+    font-size: .82rem;
+    cursor: pointer;
+    transition: border-color .14s ease, color .14s ease, background-color .14s ease;
+}
+
+.pro-pastiglia:hover { border-color: var(--app-border-strong); color: var(--pro-testo); }
+
+.pro-pastiglia.e-scelta {
+    background: var(--app-accent);
+    border-color: var(--app-accent);
+    color: #fff;
+}
+
+.pro-griglia {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+    gap: 1.1rem;
+    margin-top: 2.2rem;
+}
+
+.pro-scheda {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    transition: transform .22s cubic-bezier(.16, 1, .3, 1), box-shadow .22s ease;
+}
+
+.pro-scheda:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 44px rgba(8, 12, 20, .14);
+}
+
+.pro-scheda__tela {
+    position: relative;
+    aspect-ratio: 1;
+    border: 0;
+    padding: 0;
+    width: 100%;
+    display: block;
+    background: #fff;
+    cursor: pointer;
+}
+
+.pro-scheda__tela svg { width: 100%; height: 100%; display: block; }
+
+.pro-scheda__lente {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--app-accent) 82%, transparent);
+    color: #fff;
+    font-weight: 620;
+    font-size: .88rem;
+    opacity: 0;
+    transition: opacity .18s ease;
+}
+
+.pro-scheda:hover .pro-scheda__lente,
+.pro-scheda__tela:focus-visible .pro-scheda__lente { opacity: 1; }
+
+.pro-scheda__corpo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+    padding: .7rem .85rem .8rem;
+}
+
+.pro-scheda__nome {
+    font-size: .88rem;
+    font-weight: 620;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pro-scheda__misura {
+    font-size: .7rem;
+    color: var(--pro-testo-tenue);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.pro-scheda__scarica {
+    position: absolute;
+    top: .55rem;
+    right: .55rem;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid var(--app-border);
+    background: color-mix(in srgb, var(--app-surface) 88%, transparent);
+    backdrop-filter: blur(4px);
+    color: var(--pro-testo);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity .14s ease, background-color .14s ease;
+}
+
+.pro-scheda:hover .pro-scheda__scarica { opacity: 1; }
+
+.pro-scheda__scarica:hover {
+    background: var(--app-accent);
+    border-color: var(--app-accent);
+    color: #fff;
+}
+
+@media (hover: none) {
+    .pro-scheda__scarica { opacity: 1; }
+}
+
+.pro-archivio__altro {
+    display: flex;
+    justify-content: center;
+    margin-top: 2.4rem;
+}
+
+.pro-vuoto {
+    margin-top: 2.5rem;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    border-radius: 16px;
+    border: 1px dashed var(--app-border-strong);
+    color: var(--pro-testo-tenue);
+}
+
+/* ==========================================================================
+   7 · CHIUSURA
+   ========================================================================== */
+
+.pro-chiusura {
+    position: relative;
+    padding: clamp(5rem, 12vw, 9rem) clamp(1.5rem, 6vw, 7rem);
+    background: var(--pro-palco);
+    color: var(--pro-inchiostro);
+    text-align: center;
+    overflow: hidden;
+}
+
+.pro-chiusura__trama {
+    position: absolute;
+    inset: 0;
+    opacity: .18;
+}
+
+.pro-chiusura__trama svg { width: 100%; height: 100%; }
+
+.pro-chiusura__testo { position: relative; max-width: 40rem; margin: 0 auto; }
+
+.pro-chiusura__azioni {
+    display: flex;
+    gap: .7rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.pro-chiusura__nota {
+    position: relative;
+    margin-top: 3rem;
+    font-size: .78rem;
+    color: var(--pro-inchiostro-tenue);
+}
+
+/* ==========================================================================
+   MOVIMENTO RIDOTTO
+
+   Chi l'ha chiesto al sistema non trova una pagina mutilata: trova la stessa
+   pagina, ferma. Le sezioni agganciate diventano riquadri normali in colonna,
+   le trasformazioni legate allo scorrimento si fermano a un valore scelto —
+   quello in cui ogni sezione mostra il suo contenuto al meglio.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .pro-apertura,
+    .pro-cella,
+    .pro-tipi,
+    .pro-codice { height: auto; }
+
+    .pro-apertura__fermo,
+    .pro-cella__fermo,
+    .pro-tipi__fermo,
+    .pro-codice__fermo {
+        position: static;
+        height: auto;
+        min-height: 60vh;
+        padding-top: clamp(4rem, 9vw, 7rem);
+        padding-bottom: clamp(4rem, 9vw, 7rem);
+    }
+
+    .pro-apertura__trama { transform: none; opacity: .3; }
+    .pro-apertura__parola,
+    .pro-apertura__sottotitolo,
+    .pro-apertura__azioni { opacity: 1; animation: none; transform: none; }
+    .pro-apertura__invito { display: none; }
+    .pro-apertura__freccia { animation: none; }
+
+    .pro-cella__tessere,
+    .pro-cella__griglia { --n: 5; }
+    .pro-cella__griglia { opacity: .5; }
+
+    /* Il respiro di fondo si ferma, e con lui l'alternanza automatica — quella la
+       spegne la pagina, che chiede al browser la stessa preferenza (prodotto.js).
+       I punti restano: la serie c'è ancora, la si scorre a mano. */
+    .pro-apertura__trama .pro-strato svg,
+    .pro-chiusura__trama svg,
+    .pro-apertura__bagliore,
+    .pro-cella__tessere { animation: none; }
+
+    .pro-apertura__bagliore { opacity: .4; transform: none; }
+
+    .pro-strato,
+    .pro-cella__tessere { transition: none; }
+
+    .pro-tipi__pista { overflow-x: auto; }
+    .pro-tipi__nastro { transform: none; }
+    .pro-tipo__tela svg { animation: none; }
+    .pro-tipo,
+    .pro-tipo__tela svg { transition: none; }
+    .pro-tipo:hover { transform: none; }
+    .pro-tipo:hover .pro-tipo__tela svg { transform: none; }
+
+    .pro-codice__riga { opacity: 1; }
+    .pro-codice__scorre { transform: none; }
+    .pro-codice__testo { height: auto; }
+    .pro-codice__cursore { display: none; }
+
+    [data-rivela],
+    .pro-scheda { transition: none; }
+    .pro-scheda:hover { transform: none; }
+}
+
+/* ================================================ DA DOVE SI PUÒ PARTIRE ========== */
+
+/* Due strade, e non hanno lo stesso peso: la conversione da immagine prende più spazio,
+   più colore e un riquadro che mostra il prima e il dopo, perché è la cosa che nessuno si
+   aspetta di trovare qui. L'importazione di un SVG accanto, dichiarata e sobria. */
+.pro-origini {
+    padding: clamp(4rem, 9vw, 8rem) clamp(1.5rem, 6vw, 7rem);
+    background: var(--pro-foglio);
+    color: var(--pro-testo);
+}
+
+.pro-origini__testa { max-width: 44rem; }
+
+.pro-origini__griglia {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.6rem);
+    margin-top: clamp(2rem, 4vw, 3.2rem);
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 60rem) {
+    /* Due quinti e tre quinti: la proporzione dice da sola quale delle due conta di più. */
+    .pro-origini__griglia { grid-template-columns: 2fr 3fr; align-items: start; }
+}
+
+.pro-origine {
+    position: relative;
+    padding: clamp(1.4rem, 2.4vw, 2rem);
+    border: 1px solid var(--app-border);
+    border-radius: 1.1rem;
+    background: var(--app-surface, var(--pro-foglio));
+}
+
+.pro-origine h3 {
+    margin: .9rem 0 .6rem;
+    font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+    line-height: 1.25;
+}
+
+.pro-origine p { margin: 0 0 .7rem; line-height: 1.6; color: var(--pro-testo-tenue); }
+
+.pro-origine__glifo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--pro-accento) 14%, transparent);
+    color: var(--pro-accento);
+    font-size: 1.2rem;
+}
+
+.pro-origine__nota {
+    margin: 0;
+    font-size: .86rem;
+    color: var(--pro-testo-tenue);
+    opacity: .85;
+}
+
+/* --- quella che deve farsi notare ------------------------------------------------- */
+
+.pro-origine--forte {
+    border-color: color-mix(in srgb, var(--pro-accento) 45%, transparent);
+    background:
+        radial-gradient(120% 140% at 100% 0%,
+                        color-mix(in srgb, var(--pro-accento) 13%, transparent) 0%,
+                        transparent 60%),
+        var(--app-surface, var(--pro-foglio));
+    box-shadow: 0 18px 44px -28px color-mix(in srgb, var(--pro-accento) 70%, transparent);
+}
+
+.pro-origine--forte .pro-origine__glifo {
+    background: var(--pro-accento);
+    color: #fff;
+}
+
+.pro-origine--forte h3 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); }
+
+.pro-origine--forte h3 em {
+    font-style: normal;
+    color: var(--pro-accento);
+}
+
+.pro-origine__forte {
+    font-size: clamp(1rem, 1.35vw, 1.12rem);
+    color: var(--pro-testo) !important;
+}
+
+.pro-origine__bollo {
+    position: absolute;
+    top: clamp(1.4rem, 2.4vw, 2rem);
+    right: clamp(1.4rem, 2.4vw, 2rem);
+    padding: .2rem .6rem;
+    border-radius: 999px;
+    background: var(--pro-accento-caldo);
+    color: #fff;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+/* Il prima e il dopo: i punti a sinistra, le forme a destra, la freccia in mezzo. */
+.pro-origine__prova {
+    margin: 1.2rem 0;
+    color: var(--pro-accento);
+}
+
+.pro-origine__prova svg {
+    width: 100%;
+    max-width: 26rem;
+    height: auto;
+    border-radius: .7rem;
+}
+
+.pro-origine__punti {
+    margin: 0 0 .9rem;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: .45rem;
+}
+
+.pro-origine__punti li {
+    position: relative;
+    padding-left: 1.5rem;
+    line-height: 1.55;
+    color: var(--pro-testo-tenue);
+}
+
+/* La spunta è disegnata e non una lettera: una lettera cambierebbe forma con il carattere
+   di sistema, e qui le tre righe devono partire tutte dalla stessa colonna. */
+.pro-origine__punti li::before {
+    content: "";
+    position: absolute;
+    left: .25rem;
+    top: .55em;
+    width: .45rem;
+    height: .45rem;
+    border-radius: 999px;
+    background: var(--pro-accento);
+}

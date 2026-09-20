@@ -1,0 +1,264 @@
+@page "/moderazione"
+@* Le richieste di pubblicazione, e le due risposte possibili.
+
+   È una pagina a sé e non una scheda dentro la gestione: chi modera fa un lavoro diverso da
+   chi disegna — guarda cose di altri, una dopo l'altra, e le sbriga — e mescolarlo
+   all'archivio personale significherebbe non trovare né l'uno né l'altro.
+
+   Quello che qui si vede dipende dal server e non da questa pagina. L'indirizzo lo può
+   scrivere chiunque; le tre richieste che la riempiono le rifiuta l'API a chi non ha il
+   permesso, e questa pagina si limita a mostrare il rifiuto in una frase invece che in un
+   codice di stato. *@
+@using PatternEditor.Sample.Client.Components
+@inject PatternApiClient Api
+@inject AuthClient Auth
+@inject Lingua T
+@implements IDisposable
+
+<section class="moderazione">
+    <header class="moderazione__testa">
+        <h1>@T["moderazione.titolo"]</h1>
+        <p class="moderazione__guida">@T["moderazione.guida"]</p>
+    </header>
+
+    @if (!Auth.Pronto || _stato == Stato.Caricamento)
+    {
+        <div class="moderazione__attesa" aria-live="polite">
+            <span class="fantasma fantasma--titolo"></span>
+            <span class="fantasma"></span>
+        </div>
+    }
+    else if (!Auth.Autenticato)
+    {
+        <div class="vuoto">
+            <h3>@T["moderazione.serveAccesso"]</h3>
+            <p>@T["moderazione.serveAccessoTesto"]</p>
+            <button type="button" class="app-btn app-btn--primary" @onclick="Auth.ChiediAccesso">@T["app.account.accedi"]</button>
+        </div>
+    }
+    else if (_stato == Stato.Negato)
+    {
+        @* Non si dice «non esiste»: l'utente è entrato, la pagina l'ha raggiunta, e fingere
+           che non ci sia lo lascerebbe a pensare di aver sbagliato indirizzo. *@
+        <div class="vuoto">
+            <h3>@T["moderazione.negato"]</h3>
+            <p>@T["moderazione.negatoTesto"]</p>
+        </div>
+    }
+    else if (_inAttesa is { Count: 0 })
+    {
+        <div class="vuoto">
+            <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor"
+                 stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="m8 12.3 2.6 2.7L16 9.6" />
+            </svg>
+            <h3>@T["moderazione.vuoto"]</h3>
+            <p>@T["moderazione.vuotoTesto"]</p>
+        </div>
+    }
+    else if (_inAttesa is { } coda)
+    {
+        <div class="barra">
+            <div class="barra__sinistra">
+                <h2 class="barra__titolo">@T["moderazione.coda"]</h2>
+                <span class="barra__conteggio">
+                    @(coda.Count == 1 ? T["moderazione.coda.una"] : T["moderazione.coda.molte", coda.Count])
+                </span>
+            </div>
+        </div>
+
+        <div class="griglia">
+            @foreach (var p in coda)
+            {
+                @* La chiave è l'istanza, come nella gestione: due documenti con lo stesso
+                   identificativo — un file copiato a mano nella cartella — farebbero morire
+                   il rendering, e un archivio incoerente non deve poter chiudere la pagina
+                   che serve proprio a rimetterlo in ordine. *@
+                <article class="scheda" @key="p">
+                    @* L'anteprima si ingrandisce: su una scheda di trecento pixel un dettaglio
+                       inopportuno può non vedersi, e chi decide deve poter guardare bene
+                       prima di dire di sì. *@
+                    <button type="button" class="scheda__tela app-checker moderazione__tela"
+                            title="@T["moderazione.guardaGrande"]" @onclick="() => _ingrandito = p">
+                        @((MarkupString)p.PreviewSvg)
+                        <span class="scheda__lente"><span class="scheda__etichetta">@T["moderazione.ingrandisci"]</span></span>
+                    </button>
+
+                    <div class="scheda__corpo">
+                        <h3 class="scheda__nome">@(string.IsNullOrWhiteSpace(p.Name) ? T["comune.senzaNome"] : p.Name)</h3>
+
+                        <div class="scheda__autore">
+                            <Avatar Id="p.OwnerId" Nome="@(p.OwnerName ?? "?")" Lato="18"
+                                    ConFoto="p.OwnerHasPhoto" Colore="@p.OwnerColor"
+                                    Revisione="p.OwnerPhotoVersion" />
+                            <span>@(p.OwnerName ?? T["comune.senzaAutore"])</span>
+                        </div>
+
+                        <dl class="scheda__dati">
+                            <div><dt>@T["comune.cella"]</dt><dd>@Misura(p.Width) × @Misura(p.Height)</dd></div>
+                            <div><dt>@T["comune.elementiTitolo"]</dt><dd>@p.ElementCount</dd></div>
+                            <div><dt>@T["comune.peso"]</dt><dd title="@T["comune.byteSvg", p.SizeBytes]">@p.Peso</dd></div>
+                            <div><dt>@T["moderazione.richiesta"]</dt><dd title="@p.ModifiedAt.ToLocalTime().ToString("f")">@Data(p.ModifiedAt)</dd></div>
+                        </dl>
+
+                        @* Approva è il pulsante pieno perché è la risposta che si dà più
+                           spesso, non perché sia quella consigliata: rifiutare è a un clic di
+                           distanza e non chiede conferma, visto che non distrugge niente. *@
+                        <div class="moderazione__azioni">
+                            <button type="button" class="app-btn app-btn--piatto"
+                                    disabled="@(_inCorso == p.Id)" @onclick="() => DecidiAsync(p, false)">
+                                @T["moderazione.rifiuta"]
+                            </button>
+                            <button type="button" class="app-btn app-btn--primary"
+                                    disabled="@(_inCorso == p.Id)" @onclick="() => DecidiAsync(p, true)">
+                                @(_inCorso == p.Id ? "…" : T["moderazione.approva"])
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+@if (_ingrandito is { } grande)
+{
+    <div class="modal-backdrop" @onclick="() => _ingrandito = null">
+        <div class="ingrandimento" role="dialog" aria-modal="true" aria-label="@T["moderazione.anteprimaDi", grande.Name]"
+             @onclick:stopPropagation="true">
+            <div class="ingrandimento__tela app-checker">@((MarkupString)grande.PreviewSvg)</div>
+            <div class="ingrandimento__piede">
+                <span>@(string.IsNullOrWhiteSpace(grande.Name) ? T["comune.senzaNome"] : grande.Name) — @(grande.OwnerName ?? T["comune.senzaAutore"])</span>
+                <button type="button" class="app-btn app-btn--piatto" @onclick="() => _ingrandito = null">@T["comune.chiudi"]</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_avviso is { } avviso)
+{
+    <div class="avviso-errore" role="alert">
+        @avviso
+        <button type="button" class="avviso-errore__chiudi" aria-label="@T["comune.chiudi"]"
+                @onclick="() => _avviso = null">✕</button>
+    </div>
+}
+
+@code {
+    private enum Stato
+    {
+        Caricamento,
+
+        /// <summary>Il server ha detto di no: sessione assente, scaduta, o account senza permesso.</summary>
+        Negato,
+
+        Pronto,
+    }
+
+    private Stato _stato = Stato.Caricamento;
+    private List<PatternSummary>? _inAttesa;
+    private PatternSummary? _ingrandito;
+    private Guid? _inCorso;
+    private string? _avviso;
+
+    protected override void OnInitialized()
+    {
+        Auth.Cambiato += Ricarica;
+        T.Cambiata += Ridisegna;
+    }
+
+    private void Ridisegna() => InvokeAsync(StateHasChanged);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Come nella gestione: il primo rendering avviene prima che la sessione sia stata
+        // ripresa dall'archivio del browser, e chiedere la coda in quel momento darebbe un
+        // rifiuto a un utente che invece è entrato.
+        if (firstRender)
+        {
+            await CaricaAsync();
+        }
+    }
+
+    private void Ricarica() => InvokeAsync(CaricaAsync);
+
+    private async Task CaricaAsync()
+    {
+        if (!Auth.Autenticato)
+        {
+            _stato = Stato.Pronto;
+            _inAttesa = null;
+            StateHasChanged();
+            return;
+        }
+
+        var coda = await Api.GetInAttesaAsync();
+
+        // Null e lista vuota dicono due cose opposte — «non puoi» e «non c'è niente» — e
+        // confonderle mostrerebbe «tutto esaminato» a chi non ha il permesso di esaminare.
+        _stato = coda is null ? Stato.Negato : Stato.Pronto;
+        _inAttesa = coda?.ToList();
+
+        StateHasChanged();
+    }
+
+    private async Task DecidiAsync(PatternSummary p, bool approva)
+    {
+        if (_inCorso is not null)
+        {
+            return;
+        }
+
+        _inCorso = p.Id;
+        try
+        {
+            var esito = approva ? await Api.ApprovaAsync(p.Id) : await Api.RifiutaAsync(p.Id);
+
+            if (esito.Riuscito)
+            {
+                // La riga sparisce dalla coda senza ricaricarla: la coda è già in memoria, e
+                // riscaricare trecento anteprime per toglierne una sarebbe un'attesa inutile.
+                _inAttesa?.RemoveAll(x => x.Id == p.Id);
+                return;
+            }
+
+            _avviso = esito.Stato == 409
+                ? T["moderazione.nonPiuInAttesa", p.Name]
+                : T["moderazione.nonRegistrata", esito.Testo(T)];
+
+            // Un 409 significa che questa pagina sta mostrando uno stato vecchio: la si
+            // riallinea, altrimenti il prossimo clic darebbe lo stesso errore.
+            if (esito.Stato == 409)
+            {
+                await CaricaAsync();
+            }
+            else if (esito.NonAutenticato)
+            {
+                await Auth.SessioneScadutaAsync();
+                Auth.ChiediAccesso();
+            }
+        }
+        finally
+        {
+            _inCorso = null;
+        }
+    }
+
+    /// <summary>Misure e date come le scrive la gestione: le stesse cose si leggono uguali.</summary>
+    private static string Misura(double valore) => valore.ToString("0.##");
+
+    private static string Data(DateTimeOffset istante)
+    {
+        var locale = istante.ToLocalTime();
+        return locale.Year == DateTimeOffset.Now.Year
+            ? locale.ToString("dd/MM HH:mm")
+            : locale.ToString("dd/MM/yy HH:mm");
+    }
+
+    public void Dispose()
+    {
+        Auth.Cambiato -= Ricarica;
+        T.Cambiata -= Ridisegna;
+    }
+}

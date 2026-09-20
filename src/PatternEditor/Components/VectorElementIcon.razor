@@ -1,0 +1,26 @@
+@namespace PatternEditor.Components
+@using global::PatternEditor.Abstractions.Plugins
+
+@* L'icona la disegna il plugin, che è l'unico a sapere cosa rappresenta; qui viene solo
+   incorniciata in un <svg> con dimensioni e colore decisi dal foglio di stile. Il componente
+   è pubblico perché serve tanto al pannello degli elementi quanto alle applicazioni
+   ospitanti, che possono voler mostrare di cosa è composto un pattern. *@
+<svg viewBox="0 0 16 16" width="@Size" height="@Size" fill="none" stroke="currentColor"
+     stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"
+     aria-hidden="true" focusable="false">
+    @Content
+</svg>
+
+@code {
+    /// <summary>Plugin di cui mostrare l'icona. Null produce un punto interrogativo.</summary>
+    [Parameter]
+    public IVectorElementPlugin? Plugin { get; set; }
+
+    /// <summary>Lato dell'icona in pixel.</summary>
+    [Parameter]
+    public int Size { get; set; } = 16;
+
+    private MarkupString Content => new(
+        Plugin?.IconSvg
+        ?? "<path d=\"M6 6a2 2 0 1 1 2.6 1.9c-.4.2-.6.5-.6.9v.7\" /><circle cx=\"8\" cy=\"12\" r=\".6\" />");
+}

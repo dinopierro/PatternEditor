@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac25-75dd-9616-3aa469302e1f",
+  "name": "Quarter Circles - 1",
+  "createdAt": "2026-09-10T15:56:16.0902619\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.6813333\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 50,
+    "height": 50,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M0 50a25 25 0 0 0 25-25H0Zm25-25A25 25 0 0 0 50 0H25Z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac25-74ee-b18a-737aef462f32",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M25 50a25 25 0 0 0 25-25H25ZM0 25A25 25 0 0 0 25 0H0Z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac25-76c9-b9b7-d63593fd09aa",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

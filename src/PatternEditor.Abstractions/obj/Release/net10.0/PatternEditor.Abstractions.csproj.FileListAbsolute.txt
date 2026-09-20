@@ -1,0 +1,15 @@
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\bin\Release\net10.0\PatternEditor.Abstractions.deps.json
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\bin\Release\net10.0\PatternEditor.Abstractions.dll
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\bin\Release\net10.0\PatternEditor.Abstractions.pdb
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\bin\Release\net10.0\PatternEditor.Core.dll
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\bin\Release\net10.0\PatternEditor.Core.pdb
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\obj\Release\net10.0\PatternEditor.Abstractions.csproj.AssemblyReference.cache
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\obj\Release\net10.0\PatternEditor.Abstractions.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\obj\Release\net10.0\PatternEditor.Abstractions.AssemblyInfoInputs.cache
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\obj\Release\net10.0\PatternEditor.Abstractions.AssemblyInfo.cs
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\obj\Release\net10.0\PatternEditor.Abstractions.csproj.CoreCompileInputs.cache
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\obj\Release\net10.0\PatternE.43778D05.Up2Date
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\obj\Release\net10.0\PatternEditor.Abstractions.dll
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\obj\Release\net10.0\refint\PatternEditor.Abstractions.dll
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\obj\Release\net10.0\PatternEditor.Abstractions.pdb
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Abstractions\obj\Release\net10.0\ref\PatternEditor.Abstractions.dll

@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac4e-7baf-ae8d-fb12deda484d",
+  "name": "Waves - 12",
+  "createdAt": "2026-09-10T15:56:16.8274731\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.5743911\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 31.25,
+    "height": 20,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M.162 1.593c-.054 0-.108.008-.162.009v8.58c.055-.002.107-.017.163-.017 1.395 0 2.68.567 3.62 1.598l2.049 2.248a13.497 13.497 0 0 0 9.954 4.396c3.78 0 7.408-1.603 9.954-4.396l2.051-2.25a4.832 4.832 0 0 1 3.459-1.581V1.6a13.493 13.493 0 0 0-9.794 4.388l-2.05 2.25a4.844 4.844 0 0 1-3.62 1.597 4.84 4.84 0 0 1-3.619-1.598L10.118 5.99A13.498 13.498 0 0 0 .162 1.593z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac4e-741f-8131-69c9b99929b1",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "id": "01a09130-29f0-743e-8974-a99a45da4322",
+  "name": "UNI 3972 \u00B7 4.3 Materiali ausiliari",
+  "createdAt": "2026-09-11T15:57:27.9226940\u002B00:00",
+  "modifiedAt": "2026-09-11T16:00:58.7405802\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 16,
+    "height": 16,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 0,
+        "width": 16,
+        "height": 16,
+        "fill": "#ffffff",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a09133-6171-721e-a7c9-3e2fd272ae0d",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "line",
+        "x1": 0,
+        "y1": 16,
+        "x2": 16,
+        "y2": 0,
+        "stroke": "#1b2430",
+        "strokeWidth": 0.6,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a09133-6171-711b-814b-14c0bb6600aa",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

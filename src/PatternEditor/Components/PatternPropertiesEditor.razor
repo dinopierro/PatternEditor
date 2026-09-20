@@ -1,0 +1,154 @@
+@namespace PatternEditor.Components
+@using global::PatternEditor.Core.Formatting
+@using global::PatternEditor.Core.Models
+@inject TestiEditor E
+
+@*
+   Le proprietà del pattern: la cella e la sua trasformazione, e nient'altro.
+
+   Il filtro stava qui sotto e adesso ha una card propria, in un'altra colonna: sono due cose
+   che si usano in momenti diversi — la cella si regola all'inizio e poi si lascia stare, il
+   filtro si prova e si rimaneggia a lungo — e soprattutto il filtro ha bisogno di larghezza,
+   che in questa colonna non c'è.
+
+   La distinzione fra i due gruppi è quella della specifica SVG, e conviene tenerla presente
+   leggendo il codice. La CELLA è il riquadro che si ripete: larghezza e altezza sono gli
+   attributi width e height del nodo <pattern>, e gli elementi vengono disegnati nel suo
+   sistema di coordinate. La TRASFORMAZIONE è patternTransform, e si applica alla griglia
+   intera dopo che la cella è stata composta: ruotare il pattern non ruota gli elementi
+   dentro la cella, ruota il modo in cui la cella viene ripetuta sul piano.
+
+   Ogni cursore aggiorna il modello a ogni movimento e notifica l'editor: le anteprime si
+   rigenerano in tempo reale. Il valore corrente è mostrato dal solo campo numerico accanto
+   al cursore, non anche sopra l'etichetta: la stessa cifra in due posti è rumore.
+
+   La scala è esposta in percentuale (100 = dimensione reale) mentre il modello e l'attributo
+   SVG usano il fattore moltiplicativo (1.0). La conversione resta confinata qui: il modello
+   non deve conoscere il modo in cui l'interfaccia preferisce presentare un numero.
+*@
+<div class="pe-panel pe-panel--properties">
+
+    <div class="pe-panel__head">
+        <h3 class="pe-panel__title">@E["editor.proprieta"]</h3>
+    </div>
+
+    @* L'intestazione resta ferma, i controlli scorrono: è l'area che assorbe la
+       differenza di altezza fra le tre schede. *@
+    <div class="pe-panel__scroll">
+
+    <section class="pe-group">
+        <h4 class="pe-group__title">@E["editor.cella"]</h4>
+
+        <div class="pe-grid-2">
+            <label class="pe-field">
+                <span class="pe-field__label">@E["campo.larghezza"] <span class="pe-unit">[px]</span></span>
+                <input class="pe-input" type="number" min="0.01" step="1" value="@Num(Definition.Width)"
+                       @oninput="e => Change(() => Definition.Width = InvariantNumber.Parse(e.Value, Definition.Width))" />
+            </label>
+
+            <label class="pe-field">
+                <span class="pe-field__label">@E["campo.altezza"] <span class="pe-unit">[px]</span></span>
+                <input class="pe-input" type="number" min="0.01" step="1" value="@Num(Definition.Height)"
+                       @oninput="e => Change(() => Definition.Height = InvariantNumber.Parse(e.Value, Definition.Height))" />
+            </label>
+        </div>
+    </section>
+
+    <section class="pe-group">
+        <div class="pe-group__head">
+            <h4 class="pe-group__title">@E["editor.trasformazione"]</h4>
+            <button type="button" class="pe-link-btn" title="@E["editor.azzeraTitolo"]"
+                    disabled="@IsIdentityTransform" @onclick="ResetTransform">@E["editor.azzera"]</button>
+        </div>
+
+        @* Ogni cursore aggiorna il modello a ogni movimento (@oninput) e notifica subito
+           l'editor: l'anteprima si rigenera in tempo reale, senza conferme intermedie.
+           Il valore corrente è mostrato dal solo campo numerico accanto al cursore. *@
+        <div class="pe-field pe-field--slider">
+            <span class="pe-field__label">@E["editor.scala"] <span class="pe-unit">[%]</span></span>
+            <div class="pe-slider-row">
+                <input class="pe-range" type="range" min="10" max="400" step="5" value="@Num(ScalePercent)"
+                       @oninput="e => Change(() => SetScalePercent(e.Value))" />
+                <input class="pe-input pe-input--num" type="number" min="1" step="5" value="@Num(ScalePercent)"
+                       @oninput="e => Change(() => SetScalePercent(e.Value))" />
+            </div>
+        </div>
+
+        <div class="pe-field pe-field--slider">
+            <span class="pe-field__label">@E["editor.rotazione"] <span class="pe-unit">[°]</span></span>
+            <div class="pe-slider-row">
+                <input class="pe-range" type="range" min="0" max="360" step="1" value="@Num(Definition.Rotation)"
+                       @oninput="e => Change(() => Definition.Rotation = InvariantNumber.Parse(e.Value, Definition.Rotation))" />
+                <input class="pe-input pe-input--num" type="number" min="0" max="360" step="1" value="@Num(Definition.Rotation)"
+                       @oninput="e => Change(() => Definition.Rotation = InvariantNumber.Parse(e.Value, Definition.Rotation))" />
+            </div>
+        </div>
+
+        <div class="pe-field pe-field--slider">
+            <span class="pe-field__label">@E["editor.traslazioneX"] <span class="pe-unit">[px]</span></span>
+            <div class="pe-slider-row">
+                <input class="pe-range" type="range" min="@Num(-Definition.Width)" max="@Num(Definition.Width)" step="1"
+                       value="@Num(Definition.TranslateX)"
+                       @oninput="e => Change(() => Definition.TranslateX = InvariantNumber.Parse(e.Value, Definition.TranslateX))" />
+                <input class="pe-input pe-input--num" type="number" step="1" value="@Num(Definition.TranslateX)"
+                       @oninput="e => Change(() => Definition.TranslateX = InvariantNumber.Parse(e.Value, Definition.TranslateX))" />
+            </div>
+        </div>
+
+        <div class="pe-field pe-field--slider">
+            <span class="pe-field__label">@E["editor.traslazioneY"] <span class="pe-unit">[px]</span></span>
+            <div class="pe-slider-row">
+                <input class="pe-range" type="range" min="@Num(-Definition.Height)" max="@Num(Definition.Height)" step="1"
+                       value="@Num(Definition.TranslateY)"
+                       @oninput="e => Change(() => Definition.TranslateY = InvariantNumber.Parse(e.Value, Definition.TranslateY))" />
+                <input class="pe-input pe-input--num" type="number" step="1" value="@Num(Definition.TranslateY)"
+                       @oninput="e => Change(() => Definition.TranslateY = InvariantNumber.Parse(e.Value, Definition.TranslateY))" />
+            </div>
+        </div>
+    </section>
+
+    </div>
+
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public PatternDefinition Definition { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
+
+    private bool IsIdentityTransform =>
+        Definition.Scale == 1.0 && Definition.Rotation == 0 && Definition.TranslateX == 0 && Definition.TranslateY == 0;
+
+    /// <summary>
+    /// La scala è esposta all'utente in percentuale (100 = dimensione reale) mentre il
+    /// modello e l'attributo SVG patternTransform continuano a usare il fattore
+    /// moltiplicativo (1.0): la conversione resta confinata a questo editor.
+    /// </summary>
+    private double ScalePercent => Math.Round(Definition.Scale * 100, 4);
+
+    private void SetScalePercent(object? value)
+    {
+        var percent = InvariantNumber.Parse(value, ScalePercent);
+
+        // L'arrotondamento evita che 145% diventi 1.4500000000000002 nel markup SVG.
+        Definition.Scale = Math.Round(percent / 100.0, 6);
+    }
+
+    private void Change(Action apply)
+    {
+        apply();
+        OnChanged.InvokeAsync();
+    }
+
+    private void ResetTransform() => Change(() =>
+    {
+        Definition.Scale = 1.0;
+        Definition.Rotation = 0;
+        Definition.TranslateX = 0;
+        Definition.TranslateY = 0;
+    });
+
+    private static string Num(double value) => InvariantNumber.Format(value);
+}

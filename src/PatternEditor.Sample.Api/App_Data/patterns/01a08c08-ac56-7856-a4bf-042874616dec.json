@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac56-7856-a4bf-042874616dec",
+  "name": "Waves - 9",
+  "createdAt": "2026-09-10T15:56:17.2204046\u002B00:00",
+  "modifiedAt": "2026-09-10T20:38:38.4853010\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 30,
+    "height": 52,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "rect",
+        "x": 0,
+        "y": 0,
+        "width": 30,
+        "height": 52,
+        "fill": "#555e5c",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08d0a-0136-7b2a-bc23-e017f4980217",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 0v17.34L15 26a10.02 10.02 0 0 0 0 17.34L30 52V34.66L15 26a10.02 10.02 0 0 0 .3-17.16zm30 0a10.02 10.02 0 0 0 0 17.34zM0 34.66V52a10.02 10.02 0 0 0 .3-17.16Z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac56-73c1-9b2d-ee73871658e0",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 0a10 10 0 0 0 15 8.67A9.97 9.97 0 0 1 19.97 0H10A9.98 9.98 0 0 1 0 0Zm30 0v.15ZM4.98 15.98A10 10 0 0 0 0 17.32l-1.1 8.76L0 34.67A10 10 0 0 1 15 26 10 10 0 0 0 4.98 16ZM30 17.32A10 10 0 0 1 15 26a10 10 0 0 0 15 8.67l1.64-7.4zM19.97 41.98A10 10 0 0 0 15 43.32 10 10 0 0 1 10 52h9.97A10 10 0 0 1 30 52a10 10 0 0 0-10.03-10.02Z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac56-7971-8129-66771d277489",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,302 @@
+@page "/registrazione"
+@using Microsoft.AspNetCore.Components.Forms
+@using PatternEditor.Sample.Client.Components
+@inject AuthClient Auth
+@inject Lingua T
+@implements IDisposable
+@inject NavigationManager Nav
+
+<PageTitle>@T["registrazione.paginaTitolo"]</PageTitle>
+
+<section class="registrazione">
+    <div class="registrazione__foglio">
+
+        <h1 class="registrazione__titolo">@T["registrazione.titolo"]</h1>
+        <p class="registrazione__sottotitolo">
+            @T["registrazione.premessa"]
+        </p>
+
+        @* Il patto si dice PRIMA, non in fondo in grigio chiaro: da qui in poi l'utente sta
+           scegliendo qualcosa che non si può disfare, e deve saperlo mentre lo sceglie. *@
+        <div class="registrazione__patto">
+            <h2>@T["registrazione.dati.titolo"]</h2>
+            @* Le tre frasi portano del grassetto dentro, e il grassetto cade su parole
+               diverse a seconda della lingua: il catalogo tiene il markup, e qui si rende
+               come tale. È testo nostro, non di un utente. *@
+            <ul>
+                <li>@((MarkupString)T["registrazione.dati.password"])</li>
+                <li>@((MarkupString)T["registrazione.dati.risposta"])</li>
+                <li>@((MarkupString)T["registrazione.dati.recupero"])</li>
+            </ul>
+        </div>
+
+        <form @onsubmit="RegistraAsync" @onsubmit:preventDefault="true">
+
+            <div class="registrazione__gruppo">
+                <h2>@T["registrazione.accesso"]</h2>
+
+                <label class="accesso__campo">
+                    <span>@T["accesso.nomeUtente"]</span>
+                    <input type="text" class="campo__testo" autocomplete="username" autofocus
+                           maxlength="32" value="@_utente"
+                           @oninput="e => _utente = e.Value?.ToString() ?? string.Empty" />
+                    <small>@T["registrazione.nomeNota"]</small>
+                </label>
+
+                <label class="accesso__campo">
+                    <span>@T["accesso.password"]</span>
+                    <input type="password" class="campo__testo" autocomplete="new-password"
+                           value="@_password"
+                           @oninput="e => _password = e.Value?.ToString() ?? string.Empty" />
+                </label>
+
+                <ForzaPassword Password="@_password" Utente="@_utente" />
+
+                <label class="accesso__campo">
+                    <span>@T["registrazione.ripetiPassword"]</span>
+                    <input type="password" class="campo__testo" autocomplete="new-password"
+                           value="@_conferma"
+                           @oninput="e => _conferma = e.Value?.ToString() ?? string.Empty" />
+                </label>
+            </div>
+
+            <div class="registrazione__gruppo">
+                <h2>@T["registrazione.recupero"]</h2>
+
+                <label class="accesso__campo">
+                    <span>@T["registrazione.domanda"]</span>
+                    <input type="text" class="campo__testo" list="domande-suggerite" maxlength="200"
+                           placeholder="@T["registrazione.domandaTitolo"]"
+                           value="@_domanda"
+                           @oninput="e => _domanda = e.Value?.ToString() ?? string.Empty" />
+                    @* Suggerimenti e non un elenco chiuso: le domande preconfezionate hanno
+                       risposte che spesso si trovano altrove, e una domanda scritta da chi
+                       risponde è quasi sempre migliore di una scelta da un menù. *@
+                    <datalist id="domande-suggerite">
+                        @foreach (var suggerita in Suggerite)
+                        {
+                            <option value="@T[suggerita]" />
+                        }
+                    </datalist>
+                </label>
+
+                <label class="accesso__campo">
+                    <span>@T["registrazione.risposta"]</span>
+                    <input type="text" class="campo__testo" autocomplete="off" maxlength="200"
+                           value="@_risposta"
+                           @oninput="e => _risposta = e.Value?.ToString() ?? string.Empty" />
+                    <small>@T["registrazione.rispostaNota"]</small>
+                </label>
+            </div>
+
+            <div class="registrazione__gruppo">
+                <h2>@T["registrazione.aspetto"]</h2>
+
+                <div class="registrazione__aspetto">
+                    <span class="registrazione__anteprima" style="--avatar-tinta: @_colore">
+                        @if (_fotoAnteprima is { } foto)
+                        {
+                            <img src="@foto" alt="@T["registrazione.fotoAnteprima"]" />
+                        }
+                        else
+                        {
+                            @Iniziali
+                        }
+                    </span>
+
+                    <div class="registrazione__aspetto-campi">
+                        <label class="accesso__campo">
+                            <span>@T["profilo.coloreIniziali"]</span>
+                            <input type="color" class="registrazione__colore" value="@_colore"
+                                   @oninput="e => _colore = e.Value?.ToString() ?? _colore" />
+                        </label>
+
+                        <label class="app-btn app-btn--piatto registrazione__foto">
+                            @(_fotoAnteprima is null ? T["registrazione.scegliFoto"] : T["profilo.cambiaFoto"])
+                            <InputFile class="vetrina__file" accept="image/png,image/jpeg,image/webp"
+                                       OnChange="ScegliFotoAsync" />
+                        </label>
+
+                        @if (_fotoAnteprima is not null)
+                        {
+                            <button type="button" class="accesso__link" @onclick="TogliFoto">
+                                @T["profilo.togliFoto"]
+                            </button>
+                        }
+
+                        <small>@T["registrazione.fotoNota"]</small>
+                    </div>
+                </div>
+            </div>
+
+            @if (_errore is { } errore)
+            {
+                <p class="accesso__errore" role="alert">@errore</p>
+            }
+
+            <div class="registrazione__azioni">
+                <button type="button" class="app-btn app-btn--piatto" @onclick="Torna">@T["comune.annulla"]</button>
+                <button type="submit" class="app-btn app-btn--primary app-btn--grande" disabled="@_inCorso">
+                    @(_inCorso ? T["registrazione.inCorso"] : T["registrazione.crea"])
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@code {
+    /// <summary>
+    /// Le domande suggerite, come nomi di voce e non come frasi: cambiando lingua devono
+    /// cambiare anche loro, e una domanda di recupero scritta nella lingua sbagliata è
+    /// proprio quella che fra un anno non si riconosce.
+    /// </summary>
+    private void Ridisegna() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => T.Cambiata -= Ridisegna;
+
+    private static readonly string[] Suggerite =
+    [
+        "registrazione.domande.via",
+        "registrazione.domande.animale",
+        "registrazione.domande.insegnante",
+        "registrazione.domande.mare",
+        "registrazione.domande.disco",
+    ];
+
+    private const long FotoMassima = 2 * 1024 * 1024;
+
+    private string _utente = string.Empty;
+    private string _password = string.Empty;
+    private string _conferma = string.Empty;
+    private string _domanda = string.Empty;
+    private string _risposta = string.Empty;
+    private string _colore = "#4f46e5";
+
+    private string? _fotoAnteprima;
+    private byte[]? _foto;
+    private string? _fotoTipo;
+
+    private string? _errore;
+    private bool _inCorso;
+
+    private string Iniziali =>
+        _utente.Length >= 2 ? _utente[..2].ToUpperInvariant()
+        : _utente.Length == 1 ? _utente.ToUpperInvariant()
+        : "??";
+
+    protected override void OnInitialized()
+    {
+        T.Cambiata += Ridisegna;
+
+        // Chi è già dentro non ha niente da fare qui: arrivarci da un indirizzo scritto a
+        // mano non deve mostrare un modulo che creerebbe un secondo account per errore.
+        if (Auth.Autenticato)
+        {
+            Nav.NavigateTo(Destinazione);
+        }
+    }
+
+    private async Task ScegliFotoAsync(InputFileChangeEventArgs e)
+    {
+        _errore = null;
+
+        var file = e.File;
+        if (file.Size > FotoMassima)
+        {
+            _errore = T["profilo.fotoTroppoGrande"];
+            return;
+        }
+
+        using var flusso = file.OpenReadStream(FotoMassima);
+        using var memoria = new MemoryStream();
+        await flusso.CopyToAsync(memoria);
+
+        _foto = memoria.ToArray();
+        _fotoTipo = file.ContentType;
+
+        // L'anteprima è una data URI costruita qui: la foto non è ancora stata caricata da
+        // nessuna parte, e non lo sarà finché la registrazione non riesce.
+        _fotoAnteprima = $"data:{file.ContentType};base64,{Convert.ToBase64String(_foto)}";
+    }
+
+    private void TogliFoto()
+    {
+        _foto = null;
+        _fotoTipo = null;
+        _fotoAnteprima = null;
+    }
+
+    private async Task RegistraAsync()
+    {
+        if (_inCorso)
+        {
+            return;
+        }
+
+        // Le due password si confrontano qui e non sul server, perché il server la seconda
+        // non la riceve nemmeno: è un controllo su quello che si è scritto, non sui dati.
+        if (_password != _conferma)
+        {
+            _errore = T["registrazione.passwordDiverse"];
+            return;
+        }
+
+        _inCorso = true;
+        _errore = null;
+
+        var esito = await Auth.RegistraAsync(_utente.Trim(), _password, _domanda.Trim(), _risposta, _colore);
+
+        if (!esito.Riuscito)
+        {
+            _inCorso = false;
+            _errore = esito.Errore;
+            return;
+        }
+
+        // La foto va dopo: richiede il gettone, che esiste solo da adesso. Se fallisce, la
+        // registrazione resta valida — l'utente è dentro, e la foto si aggiunge dal profilo.
+        if (_foto is not null && _fotoTipo is not null)
+        {
+            using var flusso = new MemoryStream(_foto);
+            await Auth.CaricaFotoAsync(flusso, _fotoTipo);
+        }
+
+        _inCorso = false;
+        Nav.NavigateTo(Destinazione);
+    }
+
+    private void Torna() => Nav.NavigateTo(Destinazione);
+
+    /// <summary>Da dove si è arrivati, se chi ci ha mandati l'ha detto.</summary>
+    [SupplyParameterFromQuery(Name = "ritorno")]
+    public string? Ritorno { get; set; }
+
+    /// <summary>
+    /// Dove tornare finita la registrazione.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Il valore arriva dall'indirizzo, cioè da fuori, e va trattato come tale: si accetta
+    /// solo un percorso interno. Un indirizzo assoluto, o uno che comincia con due barre,
+    /// porterebbe altrove — è il redirect aperto, e si costruisce mandando a qualcuno un
+    /// collegamento alla registrazione che, appena conclusa, lo deposita su un sito che
+    /// somiglia a questo e gli richiede la password appena scelta.
+    /// </remarks>
+    private string Destinazione
+    {
+        get
+        {
+            var grezzo = Ritorno?.Trim();
+
+            if (string.IsNullOrEmpty(grezzo)
+                || grezzo.StartsWith('/')
+                || grezzo.StartsWith('\\')
+                || grezzo.Contains("://", StringComparison.Ordinal))
+            {
+                return "/";
+            }
+
+            return grezzo;
+        }
+    }
+}

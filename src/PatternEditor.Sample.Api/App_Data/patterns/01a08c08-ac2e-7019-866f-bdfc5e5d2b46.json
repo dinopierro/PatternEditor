@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac2e-7019-866f-bdfc5e5d2b46",
+  "name": "Squares - 5",
+  "createdAt": "2026-09-10T15:56:16.2710937\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.8542055\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 39.33,
+    "height": 26,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M49.17 31.83a4 4 0 0 1-4 4H33.5a4 4 0 0 1-4-4V20.17a4 4 0 0 1 4-4h11.67a4 4 0 0 1 4 4zM9.83 31.83a4 4 0 0 1-4 4H-5.83a4 4 0 0 1-4-4V20.17a4 4 0 0 1 4-4H5.83a4 4 0 0 1 4 4zM49.17 5.83a4 4 0 0 1-4 4H33.5a4 4 0 0 1-4-4V-5.83a4 4 0 0 1 4-4h11.67a4 4 0 0 1 4 4zM29.5 18.83a4 4 0 0 1-4 4H13.83a4 4 0 0 1-4-4V7.17a4 4 0 0 1 4-4H25.5a4 4 0 0 1 4 4zM9.83 5.83a4 4 0 0 1-4 4H-5.83a4 4 0 0 1-4-4V-5.83a4 4 0 0 1 4-4H5.83a4 4 0 0 1 4 4z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac2e-73fe-84d8-6f655e0cc120",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

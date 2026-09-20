@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac49-779e-b19d-8cf1a107321a",
+  "name": "Triangles - 6",
+  "createdAt": "2026-09-10T15:56:16.7411627\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.4558635\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 40,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M2.5 2.5L10 10l7.5-7.5h-15zM10 10l-7.5 7.5h15L10 10zm13.174 12.29l7.5 7.5 7.5-7.5h-15zm7.5 7.5l-7.5 7.5h15l-7.5-7.5z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac49-7357-9b2e-a036ba835b75",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M37.5 2.5L30 10l7.5 7.5zM30 10l-7.5-7.5v15zM17.5 22.5L10 30l7.5 7.5zM10 30l-7.5-7.5v15z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac49-7bb3-b8c2-62e0e15a445d",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

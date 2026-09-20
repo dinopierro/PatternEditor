@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-abdb-74c6-a133-5cfcfafa4681",
+  "name": "Diamonds - 25",
+  "createdAt": "2026-09-10T15:56:14.7241708\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.2718263\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 30,
+    "height": 30,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M13.335 10v3.332h3.332V10Zm3.332 3.332v3.334h3.334v-3.334zm0 3.334h-3.332v3.332h3.332zm-3.332 0v-3.334H9.999v3.334z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abdb-7e7c-926f-cafffe60da98",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M9.999 3.334v3.332h3.336V3.334Zm0 3.332H6.666v3.332H10ZM6.666 9.998H3.334v3.334h3.332Zm10.001-6.664v3.332H20V3.334ZM20 6.666V10h3.335V6.666ZM23.334 10v3.332h3.334V10Zm-20 6.666v3.332h3.332v-3.332zm3.332 3.332v3.334H10v-3.334zM10 23.332v3.336h3.336v-3.336Zm13.335-6.666v3.332h3.334v-3.332zm0 3.332H20v3.334h3.335zM20 23.332h-3.332v3.336H20z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abdb-7d4d-a9ed-6c550d7fe737",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

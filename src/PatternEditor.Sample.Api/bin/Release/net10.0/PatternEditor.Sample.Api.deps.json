@@ -1,0 +1,303 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "PatternEditor.Sample.Api/1.0.0": {
+        "dependencies": {
+          "Microsoft.AspNetCore.Components.WebAssembly.Server": "10.0.0",
+          "PatternEditor": "1.0.0",
+          "PatternEditor.Element.Circle": "1.0.0",
+          "PatternEditor.Element.Ellipse": "1.0.0",
+          "PatternEditor.Element.Image": "1.0.0",
+          "PatternEditor.Element.Line": "1.0.0",
+          "PatternEditor.Element.Path": "1.0.0",
+          "PatternEditor.Element.Polygon": "1.0.0",
+          "PatternEditor.Element.Polyline": "1.0.0",
+          "PatternEditor.Element.Rect": "1.0.0",
+          "PatternEditor.Element.Text": "1.0.0",
+          "PatternEditor.Sample.Client": "1.0.0"
+        },
+        "runtime": {
+          "PatternEditor.Sample.Api.dll": {}
+        }
+      },
+      "Microsoft.AspNetCore.Components.WebAssembly/10.0.0": {
+        "dependencies": {
+          "Microsoft.JSInterop.WebAssembly": "10.0.0"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.Components.WebAssembly.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.25.52411"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.Components.WebAssembly.Server/10.0.0": {
+        "dependencies": {
+          "Microsoft.AspNetCore.Components.WebAssembly": "10.0.0"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.Components.WebAssembly.Server.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.25.52411"
+          }
+        }
+      },
+      "Microsoft.JSInterop.WebAssembly/10.0.0": {
+        "runtime": {
+          "lib/net10.0/Microsoft.JSInterop.WebAssembly.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.25.52411"
+          }
+        }
+      },
+      "PatternEditor/1.0.0": {
+        "dependencies": {
+          "PatternEditor.Abstractions": "1.0.0"
+        },
+        "runtime": {
+          "PatternEditor.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PatternEditor.Abstractions/1.0.0": {
+        "dependencies": {
+          "PatternEditor.Core": "1.0.0"
+        },
+        "runtime": {
+          "PatternEditor.Abstractions.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PatternEditor.Core/1.0.0": {
+        "runtime": {
+          "PatternEditor.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PatternEditor.Element.Circle/1.0.0": {
+        "dependencies": {
+          "PatternEditor.Abstractions": "1.0.0"
+        },
+        "runtime": {
+          "PatternEditor.Element.Circle.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PatternEditor.Element.Ellipse/1.0.0": {
+        "dependencies": {
+          "PatternEditor.Abstractions": "1.0.0"
+        },
+        "runtime": {
+          "PatternEditor.Element.Ellipse.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PatternEditor.Element.Image/1.0.0": {
+        "dependencies": {
+          "PatternEditor.Abstractions": "1.0.0"
+        },
+        "runtime": {
+          "PatternEditor.Element.Image.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PatternEditor.Element.Line/1.0.0": {
+        "dependencies": {
+          "PatternEditor.Abstractions": "1.0.0"
+        },
+        "runtime": {
+          "PatternEditor.Element.Line.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PatternEditor.Element.Path/1.0.0": {
+        "dependencies": {
+          "PatternEditor.Abstractions": "1.0.0"
+        },
+        "runtime": {
+          "PatternEditor.Element.Path.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PatternEditor.Element.Polygon/1.0.0": {
+        "dependencies": {
+          "PatternEditor.Abstractions": "1.0.0"
+        },
+        "runtime": {
+          "PatternEditor.Element.Polygon.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PatternEditor.Element.Polyline/1.0.0": {
+        "dependencies": {
+          "PatternEditor.Abstractions": "1.0.0"
+        },
+        "runtime": {
+          "PatternEditor.Element.Polyline.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PatternEditor.Element.Rect/1.0.0": {
+        "dependencies": {
+          "PatternEditor.Abstractions": "1.0.0"
+        },
+        "runtime": {
+          "PatternEditor.Element.Rect.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PatternEditor.Element.Text/1.0.0": {
+        "dependencies": {
+          "PatternEditor.Abstractions": "1.0.0"
+        },
+        "runtime": {
+          "PatternEditor.Element.Text.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PatternEditor.Sample.Client/1.0.0": {
+        "dependencies": {
+          "Microsoft.AspNetCore.Components.WebAssembly": "10.0.0",
+          "PatternEditor": "1.0.0",
+          "PatternEditor.Element.Circle": "1.0.0",
+          "PatternEditor.Element.Ellipse": "1.0.0",
+          "PatternEditor.Element.Image": "1.0.0",
+          "PatternEditor.Element.Line": "1.0.0",
+          "PatternEditor.Element.Path": "1.0.0",
+          "PatternEditor.Element.Polygon": "1.0.0",
+          "PatternEditor.Element.Polyline": "1.0.0",
+          "PatternEditor.Element.Rect": "1.0.0",
+          "PatternEditor.Element.Text": "1.0.0"
+        },
+        "runtime": {
+          "PatternEditor.Sample.Client.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "PatternEditor.Sample.Api/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.AspNetCore.Components.WebAssembly/10.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ens4WMX0PBTHxRDYpS3i//VktXi+24my01qXI0P91q2rDMHcIKRN0/sdE+4kB1ZwJpHec9vYxDmmnw/JOcXCwQ==",
+      "path": "microsoft.aspnetcore.components.webassembly/10.0.0",
+      "hashPath": "microsoft.aspnetcore.components.webassembly.10.0.0.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.Components.WebAssembly.Server/10.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-GwJrz6ZyXS5WvHLS//Xaf7iU/kYlE19GT1lD1RtDm7aZG+iQPi4Qxfmxm15+4224OeNi7RAiS+8n3jG9ti7/YA==",
+      "path": "microsoft.aspnetcore.components.webassembly.server/10.0.0",
+      "hashPath": "microsoft.aspnetcore.components.webassembly.server.10.0.0.nupkg.sha512"
+    },
+    "Microsoft.JSInterop.WebAssembly/10.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-j0lrmG+7X4OZh75IzOX00nkwAEjXSgt2Ul6kjwmVkAOBzd8JC1Q/yJ/fC4jWcIXe4h22881Qq1o46p/TnSNaRQ==",
+      "path": "microsoft.jsinterop.webassembly/10.0.0",
+      "hashPath": "microsoft.jsinterop.webassembly.10.0.0.nupkg.sha512"
+    },
+    "PatternEditor/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PatternEditor.Abstractions/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PatternEditor.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PatternEditor.Element.Circle/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PatternEditor.Element.Ellipse/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PatternEditor.Element.Image/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PatternEditor.Element.Line/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PatternEditor.Element.Path/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PatternEditor.Element.Polygon/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PatternEditor.Element.Polyline/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PatternEditor.Element.Rect/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PatternEditor.Element.Text/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PatternEditor.Sample.Client/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

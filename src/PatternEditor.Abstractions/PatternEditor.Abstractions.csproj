@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>PatternEditor.Abstractions</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PatternEditor.Core\PatternEditor.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      L'inglese dell'editor viaggia dentro l'assembly, non accanto: è il ripiego, e un
+      ripiego che possa mancare non è un ripiego. Le altre lingue invece sono file veri,
+      fra le risorse statiche della libreria dei componenti, perché si aggiungono senza
+      ricompilare niente.
+    -->
+    <EmbeddedResource Include="Localization\en.json" />
+  </ItemGroup>
+
+</Project>

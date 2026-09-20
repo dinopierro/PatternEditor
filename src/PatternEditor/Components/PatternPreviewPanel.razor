@@ -1,0 +1,143 @@
+@namespace PatternEditor.Components
+@using System.Globalization
+@using global::PatternEditor.Core.Formatting
+@using global::PatternEditor.Core.Models
+@using global::PatternEditor.Services
+@inject TestiEditor E
+
+@*
+   Le due anteprime, in un corpo solo.
+
+   Erano due riquadri affiancati e ora sono uno sovrapposto all'altro, com'era già sullo
+   schermo stretto. Il motivo è che due riquadri affiancati non riescono a riempire lo spazio
+   che hanno: ciascuno dei due ha una forma propria — la cella la sua, la ripetizione quella
+   del riquadro che le tocca — e quello che avanza resta bianco sopra, sotto e in mezzo. Una
+   fascia vuota fra due immagini non dice niente, e qui ce n'erano tre.
+
+   Sovrapposte, invece, la ripetizione prende tutto: più superficie significa più tessere, e
+   sono le tessere a dire se il motivo funziona. La cella singola le sta sopra, incorniciata,
+   dove serve a posizionare gli elementi senza rubare spazio a nient'altro.
+
+   C'è anche una ragione di coerenza: sotto una certa larghezza la cella singola spariva del
+   tutto, perché affiancata non ci stava. Così non sparisce più — e l'editor mostra la stessa
+   cosa su un telefono e su un monitor.
+*@
+
+<div class="pe-panel pe-panel--preview">
+
+    <div class="pe-panel__head">
+        <h3 class="pe-panel__title">@E["editor.anteprima"]</h3>
+        <span class="pe-badge" title="@E["editor.anteprimaDimensione"]">
+            @Fmt(Pattern.Definition.Width) × @Fmt(Pattern.Definition.Height)
+        </span>
+    </div>
+
+    @*
+       Il palco. Il fondo a scacchiera sta qui e non sui due disegni: è uno solo, e serve a
+       distinguere una zona trasparente da una bianca su entrambi.
+    *@
+    <div class="pe-palco pe-checker">
+
+        <div class="pe-palco__trama">
+            @((MarkupString)_standaloneSvg)
+        </div>
+
+        @*
+           La miniatura della cella ha la FORMA della cella: il rapporto lo dichiara il markup
+           nella variabile --forma, perché il foglio di stile non può conoscerlo. Una cella
+           48 × 24 si vede larga il doppio di quanto è alta; dentro un quadrato fisso il
+           disegno ci starebbe ugualmente, ma la proporzione — una delle poche cose che questa
+           anteprima deve dire — andrebbe perduta.
+        *@
+        <figure class="pe-palco__cella pe-checker" style="--forma: @RapportoCella"
+                title="@E["editor.cellaSingola"]">
+            @((MarkupString)SvgRenderer.RenderSingleCellSvg(Pattern, ZoomedDisplaySize, $"f-{_previewPatternId}"))
+        </figure>
+
+    </div>
+
+    @* La legenda sta SOTTO il palco, non sopra: è una didascalia, e una didascalia si legge
+       dopo aver guardato. Sopra il disegno sarebbe una premessa da superare ogni volta per
+       arrivare a ciò per cui il pannello esiste.
+
+       Le due voci sono incolonnate e non affiancate: così ciascuna dispone della riga intera
+       e non si spezza a metà frase su due colonne strette. *@
+    <p class="pe-legenda">
+        @* Il testo sta tutto dentro un proprio contenitore, e non sciolto accanto al segno:
+           in un contenitore flessibile ogni pezzo di testo diventa un elemento a sé, e
+           «Nel riquadro» finirebbe in una colonnina stretta con il resto della frase di
+           fianco invece che di seguito. *@
+        <span class="pe-legenda__voce pe-legenda__voce--cella">
+            <span class="pe-legenda__segno" aria-hidden="true"></span>
+            <span class="pe-legenda__testo">
+                @* Il grassetto cade su parole diverse a seconda della lingua: il catalogo
+                   tiene il markup e qui si rende come tale. È testo nostro, non di un
+                   utente. *@
+                @((MarkupString)E["editor.legendaCella"])
+            </span>
+        </span>
+        <span class="pe-legenda__voce pe-legenda__voce--trama">
+            <span class="pe-legenda__segno" aria-hidden="true"></span>
+            <span class="pe-legenda__testo">
+                @((MarkupString)E["editor.legendaTrama"])
+            </span>
+        </span>
+    </p>
+
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public Pattern Pattern { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public IPatternSvgRenderer SvgRenderer { get; set; } = default!;
+
+    /// <summary>
+    /// Ingombro grafico (px) con cui viene generata la cella singola. Non è la misura a
+    /// schermo — quella la decide il foglio di stile, che sa quanto è grande il palco — ma
+    /// la risoluzione del documento generato.
+    /// </summary>
+    [Parameter]
+    public double ZoomedDisplaySize { get; set; } = 260;
+
+    /// <summary>
+    /// La forma della cella come numero singolo (larghezza diviso altezza), per la cornice
+    /// della miniatura.
+    ///
+    /// <para>
+    /// Si chiede al renderer invece di ricavarla qui: la cornice e il disegno che contiene
+    /// devono avere la stessa forma, e due calcoli separati sono due cose che divergono. È
+    /// anche il modo in cui il caso limite — un lato nullo o negativo, che il validatore
+    /// segnala — resta trattato in un punto solo.
+    /// </para>
+    /// </summary>
+    private string RapportoCella
+    {
+        get
+        {
+            var (larghezza, altezza) = SvgRenderer.SingleCellDisplaySize(Pattern, ZoomedDisplaySize);
+            return InvariantNumber.Format(Math.Round(larghezza / altezza, 4));
+        }
+    }
+
+    private string _standaloneSvg = string.Empty;
+
+    /// <summary>
+    /// Identificativo del nodo &lt;pattern&gt; usato da questa anteprima, univoco per istanza
+    /// del componente. Senza di esso l'anteprima collide con quella dello stesso
+    /// Pattern eventualmente già presente nella pagina host (es. la riga dell'elenco
+    /// dietro la modal): entrambe mostrerebbero la prima definizione trovata nel documento.
+    /// </summary>
+    private readonly string _previewPatternId = $"pe-preview-{Guid.NewGuid():N}";
+
+    protected override void OnParametersSet()
+    {
+        // Generato una sola volta per render, e usato dalla sola anteprima ripetuta: il
+        // riquadro del sorgente vive in una card propria e si genera il documento autonomo.
+        _standaloneSvg = SvgRenderer.RenderStandaloneSvg(Pattern, "100%", "100%", _previewPatternId);
+    }
+
+    private static string Fmt(double value) =>
+        value.ToString("0.###", CultureInfo.InvariantCulture);
+}

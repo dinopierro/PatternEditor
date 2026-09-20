@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac2f-7290-a8db-c570b070625a",
+  "name": "Squares - 6",
+  "createdAt": "2026-09-10T15:56:16.2771884\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.8850649\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 40,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m34.582 5.417.001-10.722h10.722V5.415zm18.014-18.014v25.305H27.293v-25.304zM19.999 20 20-19.888h39.888V20zM-5.305 5.417V-5.304l10.722-.001V5.416zm18.013-18.014V12.71l-25.304-.001v-25.304zM-19.888 20v-39.888H20V20zm54.47 25.305.002-10.722h10.721v10.722zm18.014-18.014.001 25.306H27.292V27.291zM20 59.888V20h39.888v39.888zM-5.304 34.584H5.417v10.721H-5.305zm18.013 18.013h-25.305V27.291H12.71zM-19.888 20H20v39.888h-39.888z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac2f-7172-8861-120836736675",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

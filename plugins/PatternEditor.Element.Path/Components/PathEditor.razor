@@ -1,0 +1,192 @@
+@namespace PatternEditor.Element.Path.Components
+@using PatternEditor.Core.Formatting
+@using PatternEditor.Core.Models
+@using PatternEditor.Element.Path
+@inject TestiEditor E
+
+@if (PathEl is not null)
+@*
+   Editor del tracciato.
+
+   Il campo principale è il comando "d" della specifica, che si scrive o si incolla. Non
+   viene interpretato ne' riscritto: ciò che si incolla è ciò che finisce nel documento.
+   L'aiuto in calce ricorda i comandi disponibili, perché nessuno li ricorda tutti.
+
+   Ogni editor riceve l'elemento come VectorElement generico e lo riconduce al proprio tipo:
+   il contenitore che lo istanzia non conosce il tipo concreto, e passargli qualcosa di più
+   specifico obbligherebbe l'editor principale a conoscere questo assembly.
+
+   Nessun pulsante "Applica": ogni modifica aggiorna subito il modello e chiede la
+   rigenerazione delle anteprime. Vedere l'effetto mentre si regola un valore è il motivo
+   per cui questo strumento esiste, e una conferma intermedia lo annullerebbe.
+
+   L'elemento viene modificato sul posto, non sostituito: è la copia di lavoro interna
+   all'editor, e chi ha aperto il pattern la vede solo se conferma.
+*@
+
+{
+    <div class="pe-element-editor pe-path-editor">
+
+        <section class="pe-group">
+            <h4 class="pe-group__title">@E["campo.tracciato"]</h4>
+            <label class="pe-field">
+                <span class="pe-field__label">@E["campo.comando"] <span class="pe-unit">[@E["campo.comandoUnita"]]</span></span>
+                <textarea class="pe-input pe-textarea" rows="3" spellcheck="false"
+                          placeholder="M 0 25 L 25 0 L 50 25"
+                          @oninput="e => Update(() => PathEl.D = e.Value?.ToString() ?? string.Empty)">@PathEl.D</textarea>
+            </label>
+            @* La nota porta dentro del codice a monospazio, e in un'altra lingua le
+               lettere dei comandi restano ma le parole attorno no: il catalogo tiene il
+               markup e qui si rende come tale. È testo nostro, non di un utente. *@
+            <p class="pe-hint">@((MarkupString)E["campo.comandoNota"])</p>
+        </section>
+
+        <section class="pe-group">
+            <div class="pe-group__head">
+                <h4 class="pe-group__title">@E["campo.riempimento"]</h4>
+                <label class="pe-switch">
+                    <input type="checkbox" checked="@(PathEl.Fill is not null)"
+                           @onchange="e => Update(() => PathEl.Fill = ((bool)(e.Value ?? false)) ? (PathEl.Fill ?? DefaultFill) : null)" />
+                    <span>@E["campo.attivo"]</span>
+                </label>
+            </div>
+
+            @if (PathEl.Fill is not null)
+            {
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.colore"]</span>
+                    <span class="pe-color">
+                        <input class="pe-color__input" type="color" value="@SvgColor.ForPicker(PathEl.Fill)"
+                               @oninput="e => Update(() => PathEl.Fill = SvgColor.Normalize(e.Value?.ToString()) ?? PathEl.Fill)" />
+                        <input class="pe-color__code" type="text" spellcheck="false" autocomplete="off"
+                               maxlength="7" size="8" pattern="@SvgColor.HtmlPattern"
+                               title="@E["campo.coloreTitolo"]"
+                               @key="_revisioneColore" value="@PathEl.Fill"
+                               @oninput="e => ColoreDigitato(e, v => Update(() => PathEl.Fill = v))"
+                               @onchange="e => ColoreConfermato(e, v => Update(() => PathEl.Fill = v))" />
+                    </span>
+                </label>
+                <label class="pe-field pe-field--slider">
+                    <span class="pe-field__label">
+                        @E["campo.opacita"] <span class="pe-unit">[%]</span>
+                        <span class="pe-field__value">@Pct(PathEl.FillOpacity)</span>
+                    </span>
+                    <input class="pe-range" type="range" min="0" max="1" step="0.01" value="@Num(PathEl.FillOpacity)"
+                           @oninput="e => Update(() => PathEl.FillOpacity = InvariantNumber.Parse(e.Value, PathEl.FillOpacity))" />
+                </label>
+            }
+        </section>
+
+        <section class="pe-group">
+            <div class="pe-group__head">
+                <h4 class="pe-group__title">@E["campo.tratto"]</h4>
+                <label class="pe-switch">
+                    <input type="checkbox" checked="@(PathEl.Stroke is not null)"
+                           @onchange="e => Update(() => PathEl.Stroke = ((bool)(e.Value ?? false)) ? (PathEl.Stroke ?? DefaultStroke) : null)" />
+                    <span>@E["campo.attivo"]</span>
+                </label>
+            </div>
+
+            @if (PathEl.Stroke is not null)
+            {
+                <div class="pe-grid-2">
+                    <label class="pe-field">
+                        <span class="pe-field__label">@E["campo.colore"]</span>
+                        <span class="pe-color">
+                            <input class="pe-color__input" type="color" value="@SvgColor.ForPicker(PathEl.Stroke)"
+                                   @oninput="e => Update(() => PathEl.Stroke = SvgColor.Normalize(e.Value?.ToString()) ?? PathEl.Stroke)" />
+                            <input class="pe-color__code" type="text" spellcheck="false" autocomplete="off"
+                                   maxlength="7" size="8" pattern="@SvgColor.HtmlPattern"
+                                   title="@E["campo.coloreTitolo"]"
+                                   @key="_revisioneColore" value="@PathEl.Stroke"
+                                   @oninput="e => ColoreDigitato(e, v => Update(() => PathEl.Stroke = v))"
+                                   @onchange="e => ColoreConfermato(e, v => Update(() => PathEl.Stroke = v))" />
+                        </span>
+                    </label>
+                    <label class="pe-field">
+                        <span class="pe-field__label">@E["campo.spessore"] <span class="pe-unit">[px]</span></span>
+                        <input class="pe-input" type="number" min="0" step="0.1" value="@Num(PathEl.StrokeWidth)"
+                               @oninput="e => Update(() => PathEl.StrokeWidth = InvariantNumber.Parse(e.Value, PathEl.StrokeWidth))" />
+                    </label>
+                </div>
+                <label class="pe-field pe-field--slider">
+                    <span class="pe-field__label">
+                        @E["campo.opacita"] <span class="pe-unit">[%]</span>
+                        <span class="pe-field__value">@Pct(PathEl.StrokeOpacity)</span>
+                    </span>
+                    <input class="pe-range" type="range" min="0" max="1" step="0.01" value="@Num(PathEl.StrokeOpacity)"
+                           @oninput="e => Update(() => PathEl.StrokeOpacity = InvariantNumber.Parse(e.Value, PathEl.StrokeOpacity))" />
+                </label>
+            }
+        </section>
+
+    </div>
+}
+
+@code {
+    const string DefaultFill = "#AEFAEF";
+    const string DefaultStroke = "#000000";
+
+    /// <summary>
+    /// Elemento da modificare. Ricevuto come VectorElement per rispettare il contratto
+    /// generico usato dall'editor principale, che non conosce il tipo concreto PathElement.
+    /// </summary>
+    [Parameter]
+    public VectorElement? Element { get; set; }
+
+    /// <summary>
+    /// Notifica esplicita al Pattern Editor che il modello è stato modificato, così che
+    /// possa rigenerare le anteprime. Ogni modifica aggiorna subito il modello: non esiste
+    /// un pulsante "Applica".
+    /// </summary>
+    [Parameter]
+    public EventCallback OnElementChanged { get; set; }
+
+    private PathElement? PathEl => Element as PathElement;
+
+    private void Update(Action apply)
+    {
+        apply();
+        OnElementChanged.InvokeAsync();
+    }
+
+    private static string Num(double value) => InvariantNumber.Format(value);
+
+    /// <summary>Il modello memorizza l'opacità come 0..1; all'utente viene mostrata in percentuale.</summary>
+    private static string Pct(double value) => Math.Round(value * 100).ToString("0");
+
+    /// <summary>
+    /// Il colore si può scrivere a mano accanto al selettore. Mentre si digita il modello
+    /// viene aggiornato solo se il testo è già nella forma canonica #rrggbb, quella che
+    /// usa il selettore: normalizzando anche le forme abbreviate a ogni carattere, il campo
+    /// verrebbe riscritto sotto le dita di chi scrive e il cursore salterebbe a fine riga.
+    /// </summary>
+    private static void ColoreDigitato(ChangeEventArgs e, Action<string> applica)
+    {
+        var testo = e.Value?.ToString();
+
+        if (SvgColor.IsCanonical(testo))
+        {
+            applica(testo!);
+        }
+    }
+
+    /// <summary>
+    /// All'uscita dal campo si accettano anche la forma abbreviata e l'assenza del
+    /// cancelletto. In ogni caso i campi colore vengono ricostruiti, così da tornare a
+    /// mostrare il valore effettivo: un testo lasciato a metà non deve restare a schermo
+    /// facendo credere che sia stato applicato.
+    /// </summary>
+    private void ColoreConfermato(ChangeEventArgs e, Action<string> applica)
+    {
+        if (SvgColor.Normalize(e.Value?.ToString()) is { } colore)
+        {
+            applica(colore);
+        }
+
+        _revisioneColore++;
+    }
+
+    /// <summary>Identifica i campi colore: cambiandolo, Blazor li ricostruisce.</summary>
+    private int _revisioneColore;
+}

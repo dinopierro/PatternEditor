@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac1c-7471-aef1-ccb6a675df59",
+  "name": "Octagons - 1",
+  "createdAt": "2026-09-10T15:56:15.9589330\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.5167702\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 40,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M10 4.124L4.155 9.987-4.124 10l-5.863-5.845L-10-4.124l5.845-5.863L4.124-10l5.863 5.845zm40 40l-5.845 5.863-8.279.013-5.863-5.845L30 35.876l5.845-5.863L44.124 30l5.863 5.845zm-40 0l-5.845 5.863-8.279.013-5.863-5.845-.013-8.279 5.845-5.863L4.124 30l5.863 5.845zm40-40l-5.845 5.863-8.279.013-5.863-5.845L30-4.124l5.845-5.863L44.124-10l5.863 5.845z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac1c-7eee-89fa-5530235b3c84",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M30 24.124l-5.845 5.863-8.279.013-5.863-5.845L10 15.876l5.845-5.863L24.124 10l5.863 5.845z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#f44336",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac1c-75ae-ab2f-a123059f8c37",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

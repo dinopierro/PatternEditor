@@ -1,0 +1,121 @@
+@namespace PatternEditor.Sample.Client.Components
+@inject AuthClient Auth
+
+@*
+   Il cerchio che rappresenta un utente: la sua foto, oppure le prime due lettere del nome
+   su un colore suo.
+
+   Il colore non è casuale ma ricavato dal nome: lo stesso utente ha sempre lo stesso
+   cerchio, su qualunque macchina e dopo qualunque riavvio. Un colore davvero casuale
+   renderebbe l'avatar irriconoscibile ogni volta, che è l'opposto di ciò che serve — e
+   infatti si può cambiare dal profilo, ma allora è una scelta, e le scelte si ricordano.
+*@
+<span class="avatar @(Classe)" style="--avatar-tinta: @Tinta; --avatar-lato: @(Lato)px"
+      title="@Titolo" aria-hidden="@(string.IsNullOrEmpty(Titolo) ? "true" : "false")">
+    @if (ConFoto && Id is { } id)
+    {
+        @* La foto copre le iniziali invece di sostituirle nel markup: se non si carica —
+           tolta nel frattempo, rete lenta — resta sotto il cerchio colorato invece di un
+           riquadro vuoto con l'icona dell'immagine rotta. *@
+        <span class="avatar__iniziali">@Iniziali</span>
+        @* La chiave comprende la revisione: cambiandola Blazor sostituisce l'immagine invece
+           di riusare quella che ha già, che con una sorgente diversa resterebbe a schermo
+           finché il browser non finisce di scaricare la nuova. *@
+        <img class="avatar__foto" src="@Auth.UrlFoto(id, Revisione)" alt="" loading="lazy"
+             @key="(id, Revisione)" />
+    }
+    else
+    {
+        <span class="avatar__iniziali">@Iniziali</span>
+    }
+</span>
+
+@code {
+    /// <summary>L'utente, quando si disegna quello che ha fatto l'accesso.</summary>
+    [Parameter]
+    public Account? Account { get; set; }
+
+    /// <summary>
+    /// In alternativa: identificativo, nome e colore presi da un'altra fonte — per esempio
+    /// l'autore di un pattern, che arriva dall'elenco e non è chi sta guardando.
+    /// </summary>
+    [Parameter]
+    public Guid? Id { get; set; }
+
+    [Parameter]
+    public string? Nome { get; set; }
+
+    [Parameter]
+    public bool ConFoto { get; set; }
+
+    /// <summary>
+    /// Quante volte la foto è cambiata. Entra nell'indirizzo dell'immagine: è ciò che fa
+    /// vedere subito una foto nuova invece di quella rimasta in cache.
+    /// </summary>
+    [Parameter]
+    public int Revisione { get; set; }
+
+    /// <summary>
+    /// Il colore scelto dall'utente. Senza, se ne ricava uno dal nome: lo stesso conto che
+    /// fa il server quando nessuno ne ha scelto uno.
+    /// </summary>
+    [Parameter]
+    public string? Colore { get; set; }
+
+    [Parameter]
+    public int Lato { get; set; } = 34;
+
+    [Parameter]
+    public string? Titolo { get; set; }
+
+    /// <summary>Classe aggiuntiva, per le varianti di contorno.</summary>
+    [Parameter]
+    public string? Classe { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        // L'account, quando c'è, detta tutto: è la fonte più fresca che esista, perché è
+        // quella che l'utente ha appena modificato. I dati che arrivano da un elenco
+        // scaricato prima sono per forza più vecchi di così.
+        _colore = Account is not null ? Account.AvatarColor : Colore;
+
+        if (Account is not null)
+        {
+            Id = Account.Id;
+            Nome = Account.Username;
+            ConFoto = Account.HasPhoto;
+            Revisione = Account.PhotoVersion;
+        }
+    }
+
+    private string? _colore;
+
+    /// <summary>Il colore effettivo del cerchio: quello scelto, o quello ricavato dal nome.</summary>
+    private string Tinta => _colore ?? ColoreDa(Nome ?? "?");
+
+    private string Iniziali
+    {
+        get
+        {
+            var nome = Nome ?? "?";
+            return nome.Length >= 2 ? nome[..2].ToUpperInvariant() : nome.ToUpperInvariant();
+        }
+    }
+
+    /// <summary>
+    /// Lo stesso conto che fa il server quando registra un utente senza colore scelto.
+    /// Serve qui per gli autori di cui si conosce solo il nome — nell'elenco dei pattern
+    /// non viaggia il colore di ciascun autore, e chiederlo per riga costerebbe una
+    /// richiesta a testa per un cerchio da venti pixel.
+    /// </summary>
+    private static string ColoreDa(string nome)
+    {
+        var somma = 0;
+        foreach (var c in nome.ToLowerInvariant())
+        {
+            somma = (somma * 31 + c) % 360;
+        }
+
+        return $"hsl({somma} 62% 48%)";
+    }
+}

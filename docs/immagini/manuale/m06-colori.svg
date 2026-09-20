@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 570" width="940" height="570" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="570" fill="#ffffff"/>
+  <text x="30" y="34" font-size="17" font-weight="600" fill="#1b2430">Figura 6 — Riempimento, bordo e opacità</text>
+  <text x="30" y="55" font-size="12.5" fill="#6b7684">Tre opacità distinte, e uno spessore che allarga la figura.</text>
+  <text x="30" y="92" font-size="11" fill="#1b2430" font-weight="650" text-anchor="start">Solo riempimento</text>
+  <text x="30" y="108" font-size="9.5" fill="#6b7684" font-weight="400" text-anchor="start">bordo spento</text>
+  <rect x="30" y="118" width="190" height="150" rx="4" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1"/>
+  <circle cx="125" cy="193" r="55" fill="#dc1822" stroke="none" stroke-width="3"/>
+  <text x="260" y="92" font-size="11" fill="#1b2430" font-weight="650" text-anchor="start">Solo bordo</text>
+  <text x="260" y="108" font-size="9.5" fill="#6b7684" font-weight="400" text-anchor="start">riempimento spento</text>
+  <rect x="260" y="118" width="190" height="150" rx="4" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1"/>
+  <circle cx="355" cy="193" r="55" fill="none" stroke="#1b2430" stroke-width="3"/>
+  <text x="490" y="92" font-size="11" fill="#1b2430" font-weight="650" text-anchor="start">Entrambi</text>
+  <text x="490" y="108" font-size="9.5" fill="#6b7684" font-weight="400" text-anchor="start">bordo spesso 8</text>
+  <rect x="490" y="118" width="190" height="150" rx="4" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1"/>
+  <circle cx="585" cy="193" r="55" fill="#dc1822" stroke="#1b2430" stroke-width="8"/>
+  <text x="730" y="92" font-size="11" fill="#1b2430" font-weight="650" text-anchor="start">Lo spessore sta a cavallo</text>
+  <rect x="730" y="118" width="180" height="150" rx="4" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1"/>
+  <circle cx="820" cy="193" r="46" fill="none" stroke="#1b2430" stroke-width="18" opacity=".35"/>
+  <circle cx="820" cy="193" r="46" fill="none" stroke="#3b6ef5" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="820" y="258" font-size="9" fill="#6b7684" font-weight="400" text-anchor="middle">metà dentro, metà fuori</text>
+  <rect x="30" y="300" width="880" height="250" rx="8" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1"/>
+  <text x="52" y="330" font-size="12" fill="#1b2430" font-weight="650" text-anchor="start">Le tre opacità non sono la stessa cosa.</text>
+  <text x="52" y="352" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">Opacità del riempimento    rende trasparente il solo colore interno; il bordo resta pieno.</text>
+  <text x="52" y="374" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">Opacità del bordo               rende trasparente il solo contorno; il riempimento resta pieno.</text>
+  <text x="52" y="396" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">Opacità complessiva          sbiadisce l'elemento già composto, come un tutt'uno. È diversa dalle</text>
+  <text x="52" y="418" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">                                             altre due: con le prime, dove bordo e riempimento si sovrappongono,</text>
+  <text x="52" y="440" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">                                             si vede il riempimento attraverso il bordo; con questa no.</text>
+  <text x="52" y="484" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">Lo spessore del bordo è misurato a cavallo del contorno: metà cade dentro la figura e metà fuori.</text>
+  <text x="52" y="506" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">Un cerchio di raggio 50 con bordo spesso 20 occupa dunque un'area di raggio 60.</text>
+
+</svg>

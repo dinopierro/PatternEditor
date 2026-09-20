@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac22-7d59-97c6-ccffc5bf4e6b",
+  "name": "Plus - 2",
+  "createdAt": "2026-09-10T15:56:16.0588055\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.6383223\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 20,
+    "height": 20,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M10-6V6M10 14v12M26 10H14M6 10H-6",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac22-7368-82e0-8dfcd4686d0e",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

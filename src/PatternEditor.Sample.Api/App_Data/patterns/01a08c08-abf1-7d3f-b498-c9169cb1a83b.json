@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-abf1-7d3f-b498-c9169cb1a83b",
+  "name": "Greek Key",
+  "createdAt": "2026-09-10T15:56:15.1480122\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.7014987\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 62,
+    "height": 68,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M41.845 51.072h3.465v-7.035h-7.076v13.999H52.18V37.21H31.117m0 27.79V37.21M20.389 51.07h-3.466v-7.034H24v13.999H10.055V37.21h21.062m10.728-20.283h3.465v7.035h-7.076V9.964H52.18V30.79H31.117m0-27.789v27.79M20.389 16.927h-3.466v7.035H24V9.964H10.055V30.79h21.062M3 3h56v62H3.126z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abf1-71df-a45f-b3f8b0fd5e11",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

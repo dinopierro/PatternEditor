@@ -1,0 +1,56 @@
+@namespace PatternEditor.Sample.Client.Components
+@inject Lingua Lingua
+@implements IDisposable
+
+@*
+    Il manuale in PDF, nella lingua in cui si sta leggendo l'applicazione.
+
+    È un collegamento e non un pulsante, ed è la scelta giusta: un collegamento si apre in
+    un'altra scheda con il tasto centrale, si copia con il tasto destro, si trascina sul
+    desktop. Un pulsante che scarica via JavaScript non fa niente di tutto questo, e non
+    guadagna nulla in cambio.
+
+    Il file cambia con la lingua, e con la lingua cambia anche il nome con cui arriva sul
+    disco: chi legge in inglese si ritrova «User manual», non «Manuale utente». Per questo
+    l'attributo download porta un nome esplicito invece di lasciar decidere al server.
+*@
+
+<a class="app-manuale" href="@Indirizzo" download="@NomeDelFile" target="_blank"
+   rel="noopener" title="@Lingua["app.manuale.titolo"]">
+    <span class="app-manuale__glifo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3h8l4 4v14H6z" />
+            <path d="M14 3v4h4" />
+            <path d="M12 11v6" />
+            <path d="M9.5 14.5 12 17l2.5-2.5" />
+        </svg>
+    </span>
+    <span class="app-manuale__testo">@Lingua["app.manuale"]</span>
+</a>
+
+@code {
+    private bool _inglese;
+
+    protected override void OnInitialized()
+    {
+        Lingua.Cambiata += Aggiorna;
+        _inglese = !Lingua.Corrente.StartsWith("it", StringComparison.OrdinalIgnoreCase);
+    }
+
+    // Il manuale italiano c'è, gli altri no: finché non esistono, chi legge in una lingua
+    // qualsiasi riceve quello inglese, che è la lingua in cui la libreria parla di suo.
+    private string NomeDelFile => _inglese
+        ? "User manual - Pattern Editor SVG.pdf"
+        : "Manuale utente - Pattern Editor SVG.pdf";
+
+    private string Indirizzo => "manuale/" + Uri.EscapeDataString(NomeDelFile);
+
+    private void Aggiorna()
+    {
+        _inglese = !Lingua.Corrente.StartsWith("it", StringComparison.OrdinalIgnoreCase);
+        StateHasChanged();
+    }
+
+    public void Dispose() => Lingua.Cambiata -= Aggiorna;
+}

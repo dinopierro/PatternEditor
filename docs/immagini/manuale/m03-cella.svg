@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 580" width="940" height="580" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="580" fill="#ffffff"/>
+  <text x="30" y="34" font-size="17" font-weight="600" fill="#1b2430">Figura 3 — Che cos'è la cella</text>
+  <text x="30" y="55" font-size="12.5" fill="#6b7684">Il pattern è una piastrella ripetuta all'infinito: si disegna la piastrella.</text>
+  <text x="30" y="90" font-size="9.5" fill="#6b7684" font-weight="700" text-anchor="start">LA CELLA — quello che disegni</text>
+  <rect x="30" y="100" width="200" height="200" rx="4" fill="#fbfcfd" stroke="#3b6ef5" stroke-width="1.6"/>
+  <circle cx="130" cy="200" r="60" fill="#dc1822" opacity=".85"/>
+  <line x1="30" y1="310" x2="230" y2="310" stroke="#6b7684" stroke-width="1"/>
+  <text x="130" y="326" font-size="10" fill="#6b7684" font-weight="400" text-anchor="middle">larghezza = 100</text>
+  <line x1="18" y1="100" x2="18" y2="300" stroke="#6b7684" stroke-width="1"/>
+  <text x="0" y="0" font-size="10" fill="#6b7684" text-anchor="middle" transform="translate(10,200) rotate(-90)">altezza = 100</text>
+  <text x="280" y="200" font-size="12" fill="#3b6ef5" font-weight="600" text-anchor="start">si ripete →</text>
+  <text x="400" y="90" font-size="9.5" fill="#6b7684" font-weight="700" text-anchor="start">IL RISULTATO — quello che ottieni</text>
+  <rect x="400" y="100" width="400" height="200" rx="4" fill="#fbfcfd" stroke="#ccd3db" stroke-width="1"/>
+  <circle cx="450" cy="150" r="60" fill="#dc1822" opacity=".85"/>
+  <circle cx="550" cy="150" r="60" fill="#dc1822" opacity=".85"/>
+  <circle cx="650" cy="150" r="60" fill="#dc1822" opacity=".85"/>
+  <circle cx="750" cy="150" r="60" fill="#dc1822" opacity=".85"/>
+  <circle cx="450" cy="250" r="60" fill="#dc1822" opacity=".85"/>
+  <circle cx="550" cy="250" r="60" fill="#dc1822" opacity=".85"/>
+  <circle cx="650" cy="250" r="60" fill="#dc1822" opacity=".85"/>
+  <circle cx="750" cy="250" r="60" fill="#dc1822" opacity=".85"/>
+  <rect x="400" y="100" width="100" height="100" fill="none" stroke="#3b6ef5" stroke-width="1.6" stroke-dasharray="5 3"/>
+  <text x="450" y="118" font-size="9" fill="#3b6ef5" font-weight="600" text-anchor="middle">la cella</text>
+  <rect x="30" y="350" width="880" height="210" rx="8" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1"/>
+  <text x="52" y="378" font-size="12" fill="#1b2430" font-weight="650" text-anchor="start">Il bordo della cella non è un muro.</text>
+  <text x="52" y="399" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">Un elemento può sporgere fuori dalla cella, e non viene tagliato: ricompare dal lato opposto della</text>
+  <text x="52" y="420" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">piastrella accanto. È così che si costruiscono i motivi continui, quelli in cui non si vede la griglia.</text>
+  <text x="52" y="462" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">Nella figura il cerchio ha centro al centro della cella e raggio 60 in una cella da 100: sborda da tutti</text>
+  <text x="52" y="483" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">e quattro i lati, e nel risultato i cerchi si toccano invece di restare isolati.</text>
+  <text x="52" y="525" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">Cambiare la dimensione della cella non ingrandisce gli elementi: cambia quanto spazio c'è fra una</text>
+  <text x="52" y="546" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">ripetizione e l'altra. Per ingrandire il motivo si usa la scala.</text>
+
+</svg>

@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac4a-7080-ab04-75628c980055",
+  "name": "Triangles - 9",
+  "createdAt": "2026-09-10T15:56:16.7620790\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.4869577\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 40,
+    "height": 80,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M40 20L20 40h11.36L40 31.36V60zM0 31.36L8.64 40H20L0 20v40zM8.64 0L0 8.64V20L20 0zM20 0l20 20V8.64L31.36 0zm20 20H28.64L20 28.64 11.36 20H0l20 20zm-28.64 0h17.28L20 11.36z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac4a-7f67-b1eb-acfa4a5ed571",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M40 40h-8.64L40 48.64zm-20 0L0 60h11.36L20 51.36 28.64 60H40zm8.64 20H11.36L20 68.64zM0 71.36V80h8.64zM8.64 80H0h20zM20 80h20-8.64zm11.36 0H40v-8.64zM0 48.64L8.64 40H0z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac4a-7aa1-9c94-82ccd412ce4d",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

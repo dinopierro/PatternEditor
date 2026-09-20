@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-abcf-7f02-8642-8dc91a5834ff",
+  "name": "Concentric Circles - 2",
+  "createdAt": "2026-09-10T15:56:14.4879235\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.0045189\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 36,
+    "height": 36,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M3.445 3.624a5 5 0 01-6.89 0m8.973 4.709a10 10 0 01-11.056 0m2.083 24.043a5 5 0 016.89 0m-8.973-4.709a10 10 0 0111.056 0M39.444 3.624a5 5 0 01-6.889 0m8.973 4.709a10 10 0 01-11.056 0m2.082 24.043a5 5 0 016.891 0m-8.973-4.709a10 10 0 0111.056 0m-20.082-6.043a5 5 0 01-6.891 0m0-7.247a5 5 0 016.89 0m2.083 11.956a10 10 0 01-11.056.001m0-16.666a10 10 0 0111.056-.001",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abcf-775d-8371-c38a8fd58361",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M21.624-3.445a5 5 0 010 6.89m-7.247 0a5 5 0 010-6.89m11.956-2.083a10 10 0 01.001 11.056m-16.666 0a10 10 0 01-.002-11.056m11.958 38.083a5 5 0 010 6.89m-7.247 0a5 5 0 01-.001-6.89m11.956-2.083a10 10 0 01.002 11.056m-16.666 0a10 10 0 01-.002-11.056M3.624 14.555a5 5 0 010 6.891m4.71-8.974a10 10 0 01-.001 11.056m24.042-2.082a5 5 0 01.001-6.891m-4.71 8.974a10 10 0 010-11.056",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#f44336",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abcf-7564-911f-b9b3d2d1238a",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Core\bin\Release\net10.0\PatternEditor.Core.deps.json
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Core\bin\Release\net10.0\PatternEditor.Core.dll
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Core\bin\Release\net10.0\PatternEditor.Core.pdb
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Core\obj\Release\net10.0\PatternEditor.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Core\obj\Release\net10.0\PatternEditor.Core.AssemblyInfoInputs.cache
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Core\obj\Release\net10.0\PatternEditor.Core.AssemblyInfo.cs
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Core\obj\Release\net10.0\PatternEditor.Core.csproj.CoreCompileInputs.cache
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Core\obj\Release\net10.0\PatternEditor.Core.dll
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Core\obj\Release\net10.0\refint\PatternEditor.Core.dll
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Core\obj\Release\net10.0\PatternEditor.Core.pdb
+C:\Users\d.pierro\Downloads\PatternSVGEditor\PatternEditor\src\PatternEditor.Core\obj\Release\net10.0\ref\PatternEditor.Core.dll

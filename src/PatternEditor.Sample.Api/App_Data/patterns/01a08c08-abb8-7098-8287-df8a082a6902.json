@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-abb8-7098-8287-df8a082a6902",
+  "name": "Chevron - 7",
+  "createdAt": "2026-09-10T15:56:14.1300935\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:14.5909132\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 60,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M40 9.975V0h10v9.975H40m-20 0V0h10v9.975H20m30 9.975V9.975h10v9.975H50m-40-.1V9.877h10v9.975H10M0 29.925V19.95h10v9.975H0M30 40v-9.975h10V40H30",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abb8-7969-a128-b69117ab3fe5",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M50 10.075V.1h10v9.976H50m-40-.1V0h10v9.975H10M0 20.05v-9.975h10v9.975H0M40 40v-9.975h10V40H40m-10-9.975V20.05h10v9.975H30M20 40v-9.975h10V40H20",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abb8-7914-922e-320f01cf44a6",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 9.975V0h10v9.975H0m40 20.05V20.05h10v9.975H40M30 20.05v-9.975h10v9.975H30m-10 9.975V20.05h10v9.975H20M50 40v-9.975h10V40H50m-40-.1v-9.975h10V39.9H10",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abb8-79df-babb-798767f043f5",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

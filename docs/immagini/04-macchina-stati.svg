@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 520" width="940" height="520" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="520" fill="#ffffff"/>
+  <defs>
+    <marker id="f4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b7684"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="42" font-size="19" font-weight="600" fill="#1b2430">Figura 4 — Ciclo di vita di una sessione di modifica</text>
+  <text x="40" y="64" font-size="13" fill="#6b7684">La macchina a stati non dipende da Blazor: &#232; una classe verificabile con test puri.</text>
+
+  <!-- stati -->
+  <g text-anchor="middle">
+    <rect x="48" y="196" width="120" height="52" rx="26" fill="#f5f7fa" stroke="#6b7684" stroke-width="1.6"/>
+    <text x="108" y="228" font-size="13.5" font-weight="600" fill="#1b2430">Closed</text>
+
+    <rect x="238" y="118" width="132" height="52" rx="10" fill="#eaf0ff" stroke="#3b6ef5"/>
+    <text x="304" y="150" font-size="13.5" font-weight="600" fill="#1b2430">Creating</text>
+
+    <rect x="238" y="274" width="132" height="52" rx="10" fill="#eaf0ff" stroke="#3b6ef5"/>
+    <text x="304" y="306" font-size="13.5" font-weight="600" fill="#1b2430">Editing</text>
+
+    <rect x="438" y="196" width="132" height="52" rx="10" fill="#eaf0ff" stroke="#3b6ef5"/>
+    <text x="504" y="222" font-size="13.5" font-weight="600" fill="#1b2430">Dirty</text>
+    <text x="504" y="238" font-size="10" fill="#6b7684">modifiche non salvate</text>
+
+    <rect x="638" y="196" width="132" height="52" rx="10" fill="#fdf6e3" stroke="#d0a215"/>
+    <text x="704" y="228" font-size="13.5" font-weight="600" fill="#1b2430">Confirming</text>
+
+    <rect x="638" y="82" width="132" height="52" rx="10" fill="#fdeceb" stroke="#d33a3a"/>
+    <text x="704" y="108" font-size="13.5" font-weight="600" fill="#1b2430">Invalid</text>
+    <text x="704" y="124" font-size="10" fill="#6b7684">l'editor resta aperto</text>
+
+    <rect x="812" y="196" width="112" height="52" rx="26" fill="#eef8f0" stroke="#2e7d4f" stroke-width="1.6"/>
+    <text x="868" y="228" font-size="13.5" font-weight="600" fill="#1b2430">Confirmed</text>
+
+    <rect x="438" y="392" width="132" height="52" rx="26" fill="#f5f7fa" stroke="#6b7684" stroke-width="1.6"/>
+    <text x="504" y="424" font-size="13.5" font-weight="600" fill="#1b2430">Cancelled</text>
+  </g>
+
+  <!-- transizioni -->
+  <g stroke="#6b7684" stroke-width="1.5" fill="none" marker-end="url(#f4)">
+    <path d="M 130 196 L 130 144 L 234 144"/>
+    <path d="M 130 248 L 130 300 L 234 300"/>
+    <path d="M 370 144 L 404 144 L 404 210 L 434 210"/>
+    <path d="M 370 300 L 404 300 L 404 234 L 434 234"/>
+    <path d="M 570 222 L 634 222"/>
+    <path d="M 704 196 L 704 138"/>
+    <path d="M 770 222 L 808 222"/>
+    <path d="M 504 248 L 504 388"/>
+    <path d="M 638 108 L 560 108 L 560 192"/>
+  </g>
+
+  <g font-size="11.5" fill="#1b2430">
+    <text x="150" y="136">OpenNew()</text>
+    <text x="150" y="318">OpenExisting()</text>
+    <text x="382" y="180" text-anchor="middle">prima modifica</text>
+    <text x="602" y="214" text-anchor="middle">Conferma</text>
+    <text x="716" y="170">dati</text>
+    <text x="716" y="184">non validi</text>
+    <text x="790" y="214" text-anchor="middle">dati</text>
+    <text x="790" y="240" text-anchor="middle">validi</text>
+    <text x="518" y="330">Annulla</text>
+    <text x="574" y="150">nuova</text>
+    <text x="574" y="164">modifica</text>
+  </g>
+
+  <!-- note -->
+  <rect x="40" y="466" width="860" height="40" rx="8" fill="#fbfcfd" stroke="#e3e6ea"/>
+  <text x="58" y="491" font-size="12.5" fill="#1b2430">Da <tspan font-weight="600">Cancelled</tspan> e <tspan font-weight="600">Confirmed</tspan> non si torna indietro: la sessione &#232; chiusa. Solo la conferma con dati validi propaga il Pattern all'applicazione host.</text>
+</svg>

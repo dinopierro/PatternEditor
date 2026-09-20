@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac21-74cb-9659-50735edabee5",
+  "name": "Plaid Pattern - 7",
+  "createdAt": "2026-09-10T15:56:16.0387512\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.6170314\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 40,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M22.222 4.444h4.445V0h-4.445zm0 8.89h4.445V8.888h-4.445zm-4.444-4.445h4.444V4.444h-4.444zm-4.445-4.445h4.445V0h-4.445zm0 8.89h4.445V8.888h-4.445zm22.223 4.444H40v-4.445h-4.444zm0 8.889H40v-4.445h-4.444zm-4.445-4.445h4.445v-4.444H31.11zm-4.444-4.444h4.444v-4.445h-4.444zm0 8.889h4.444v-4.445h-4.444zM40 0H26.667v13.333H40zm0 26.667H26.667V40H40ZM13.333 0H0v13.333h13.333z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac21-764c-be21-dba1c15cef9e",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M13.333 13.333H8.89v4.445h4.444zm0 8.89H8.89v4.444h4.444zM8.89 17.777H4.444v4.444H8.89Zm-4.445-4.445H0v4.445h4.444zm0 8.89H0v4.444h4.444zm22.223 8.888h-4.445v4.445h4.445zm-4.445-4.444h-4.444v4.444h4.444zm0 8.889h-4.444V40h4.444zm-4.444-4.445h-4.445v4.445h4.445zM0 40h13.333V26.667H0ZM13.333 4.444H8.89V8.89h4.444zM8.89 0H4.444v4.444H8.89zm0 8.889H4.444v4.444H8.89ZM4.444 4.444H0V8.89h4.444Zm31.112 26.667H40v-4.444h-4.444zm0 8.889H40v-4.444h-4.444zm-4.445-4.444h4.445V31.11H31.11zm-4.444-4.445h4.444v-4.444h-4.444zm0 8.889h4.444v-4.444h-4.444z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac21-77ea-bb9b-83b3be3edaee",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac33-7c2a-9459-edd44f6dd5ce",
+  "name": "Squares \u0026 Diamonds - 2",
+  "createdAt": "2026-09-10T15:56:16.3372605\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.0007586\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 45,
+    "height": 45,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m3.741 0 7.51 7.511L18.76 0zm22.503 0-1.872 1.872h18.76L41.258 0zm16.887 1.872V20.63L45 18.762V3.742zm0 18.758h-18.76l9.38 9.38zm-18.76 0V1.872l-3.74 3.74v.002l-5.64 5.636 5.64 5.64v.001zM0 3.741v15.02l7.511-7.51zm29.4 3.16.001 8.7h8.7V6.9zm-18.15 8.09-5.636 5.64H5.61l-3.738 3.74h18.756l-3.74-3.74zm-9.378 9.38H1.87L0 26.243v15.015l1.872 1.872zm0 18.758L3.743 45H18.76l1.87-1.87zm18.758 0 9.38-9.378-9.38-9.38zM45 26.242l-7.51 7.51L45 41.258zM6.902 29.4v8.7h8.7v-8.7zm26.85 8.092L26.241 45H41.26z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac33-7e81-882b-c93638c3602f",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

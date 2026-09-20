@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac34-740b-a26a-7eb5e6b0f0c5",
+  "name": "Squares \u0026 Plus - 1",
+  "createdAt": "2026-09-10T15:56:16.3497906\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.0127535\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 40,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M30 25c-1.108 0-2 .892-2 2v1h-1c-1.108 0-2 .892-2 2s.892 2 2 2h1v1c0 1.108.892 2 2 2s2-.892 2-2v-1h1c1.108 0 2-.892 2-2s-.892-2-2-2h-1v-1c0-1.108-.892-2-2-2zM10 5c-1.108 0-2 .892-2 2v1H7c-1.108 0-2 .892-2 2s.892 2 2 2h1v1c0 1.108.892 2 2 2s2-.892 2-2v-1h1c1.108 0 2-.892 2-2s-.892-2-2-2h-1V7c0-1.108-.892-2-2-2zm10 15h20v20H20zM0 0h20v20H0z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac34-728a-84ba-48677ac08c96",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M10 25c-1.108 0-2 .892-2 2v1H7c-1.108 0-2 .892-2 2s.892 2 2 2h1v1c0 1.108.892 2 2 2s2-.892 2-2v-1h1c1.108 0 2-.892 2-2s-.892-2-2-2h-1v-1c0-1.108-.892-2-2-2zM30 5c-1.108 0-2 .892-2 2v1h-1c-1.108 0-2 .892-2 2s.892 2 2 2h1v1c0 1.108.892 2 2 2s2-.892 2-2v-1h1c1.108 0 2-.892 2-2s-.892-2-2-2h-1V7c0-1.108-.892-2-2-2z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac34-737e-88f2-4f0c2541c6a3",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

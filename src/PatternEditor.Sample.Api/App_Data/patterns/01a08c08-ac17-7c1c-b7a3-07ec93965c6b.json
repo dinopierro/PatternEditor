@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac17-7c1c-b7a3-07ec93965c6b",
+  "name": "New Pattern - 14",
+  "createdAt": "2026-09-10T15:56:15.8783724\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.4152937\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 25,
+    "height": 25,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M0 0v12.5A12.5 12.5 0 0112.486 0H0zm0 12.5a12.5 12.5 0 000 .014A12.5 12.5 0 0012.5 25v-6.25a6.25 6.25 0 01-6.25-6.25H0zm6.25 0h6.25V6.25a6.25 6.25 0 00-6.25 6.25zm6.25-6.25a6.25 6.25 0 016.25 6.25H25a12.5 12.5 0 000-.014A12.5 12.5 0 0012.5 0v6.25zM25 12.5A12.5 12.5 0 0112.514 25H25V12.5zm-6.25 0H12.5v6.25a6.25 6.25 0 006.25-6.25z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac17-7d59-8dc8-57fd34a850ee",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-abd8-7e62-9360-55ed213ad409",
+  "name": "Diamonds - 18",
+  "createdAt": "2026-09-10T15:56:14.6605706\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.2163554\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 36,
+    "height": 36,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M36.056 18 18 36.056-.056 18 18-.056z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abd8-72c8-8721-467b911d1702",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M-4.186 18.056h8.372M13.758 0h8.372m-4.186-4.186v8.372m13.87 13.87h8.372M0 13.87v8.372m36-8.372v8.372M13.758 36h8.372m-4.186-4.186v8.372",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#f44336",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abd8-7abc-91de-d9749283c68a",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

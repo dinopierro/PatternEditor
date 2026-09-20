@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-abb8-7b0d-a60e-fd8d2a6779a5",
+  "name": "Chevron - 5",
+  "createdAt": "2026-09-10T15:56:14.1239369\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:14.5978824\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 65.5,
+    "height": 55.2,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m4.6 6.7 28.1 22 28.1-22L52.4.2l-19.7 15L13 .2z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abb8-76e4-b91f-6a269507e131",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 0v6.7L8.54 0H0zm56.92 0 8.48 6.7.1-.08V0h-8.58zM6.3 36.2 0 41.1v14.1h8.54l10.96-8.6L6.3 36.2zm52.8 0L45.9 46.6l10.96 8.6h8.64V41.02l-.1.08-6.3-4.9z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abb8-7252-a889-d50d51e34d75",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 6.7v20.7l32.7 25.9 32.7-25.9.1.08V6.78l-.1-.08-32.7 25.6z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abb8-7465-9b8d-49a8a14fbbeb",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

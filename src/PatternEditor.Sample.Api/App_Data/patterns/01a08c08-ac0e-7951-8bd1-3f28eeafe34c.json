@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac0e-7951-8bd1-3f28eeafe34c",
+  "name": "Lines - 4",
+  "createdAt": "2026-09-10T15:56:15.7422042\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.2199706\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 52.9,
+    "height": 58.33,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m26.26 21.89 13.21 3.25 13.22-3.25M-.17-4v66.33m26.43-11.96 13.21 3.25 13.22-3.25M26.26 19.44l13.21 3.25 13.22-3.25M-.17 7.89l13.21 3.25 13.22-3.25M39.47-4v66.33M52.69-4v66.33M26.26 47.92l13.21 3.25 13.22-3.25M-.17 36.37l13.21 3.25 13.22-3.25M-.17 5.44l13.21 3.25 13.22-3.25M13.04-4v66.33M26.26-4v66.33M-.17 33.92l13.21 3.25 13.22-3.25",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac0e-774b-a9ea-d21a639be20c",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

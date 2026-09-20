@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac2f-73fd-8497-f93f20efff0e",
+  "name": "Squares - 7",
+  "createdAt": "2026-09-10T15:56:16.2841855\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.9004598\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 60,
+    "height": 60,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M30 0v6H0v54h3V9h27v21h3V0Zm9 6v3h21V6ZM9 36v3h21v21h3V39h27v-3z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac2f-7b62-b302-9f9c5f502d8d",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M33 0v30h3V0ZM0 3v3h30V3Zm39 0v3h21V3ZM3 9v51h3V9Zm6 24v3h51v-3zm24 6v21h3V39Z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac2f-7426-823a-63fccdaccc8f",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 0v3h30V0Zm36 0v30H9V9H6v51h3V33h51v-3H39V3h21V0H39Zm0 39v21h3V39Z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac2f-7602-9076-a56d81669c2f",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

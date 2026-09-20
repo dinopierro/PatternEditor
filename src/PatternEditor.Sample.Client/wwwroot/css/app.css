@@ -1,0 +1,1946 @@
+/* ==========================================================================
+   Portale di dimostrazione. Lo stile del componente PatternEditor arriva dalla
+   libreria (_content/PatternEditor/patternEditor.css): qui c'è solo quello
+   delle pagine che lo ospitano.
+
+   TEMA CHIARO E SCURO - tre stati, come nella libreria:
+
+     nessun attributo         segue il sistema operativo
+     data-theme="light"       chiaro imposto dall'utente
+     data-theme="dark"        scuro imposto dall'utente
+
+   L'attributo sta sull'elemento radice, messo da js/tema.js e, in anticipo,
+   dallo script in index.html. Lo stesso tema viene passato al componente come
+   parametro: la modal non deve restare chiara mentre la pagina sotto è scura.
+   ========================================================================== */
+
+:root {
+    --app-bg: #f4f6f9;
+    --app-surface: #ffffff;
+    --app-surface-alt: #fbfcfd;
+    --app-border: #e3e6ea;
+    --app-border-strong: #cbd2da;
+    --app-text: #1b2430;
+    --app-text-muted: #6b7684;
+    --app-accent: #3b6ef5;
+    --app-accent-soft: #eaf0ff;
+    --app-danger: #d33a3a;
+    --app-danger-weak: #fdeceb;
+
+    /* Gli stati di pubblicazione. Non riusano l'accento e il rosso: quelli vogliono dire
+       «premi qui» e «attento», mentre questi descrivono una situazione e basta. L'ambra
+       dice attesa senza dire pericolo, il verde dice concluso senza dire riuscito. */
+    --app-attesa: #b06a00;
+    --app-attesa-weak: #fdf3e2;
+    --app-ok: #1f7a4d;
+    --app-ok-weak: #e8f6ee;
+
+    --app-checker-a: #ffffff;
+    --app-checker-b: #eceef1;
+    /* Il respiro intorno al contenuto. È una variabile e non un numero scritto due volte
+       perché la pagina di presentazione deve annullarlo esattamente, per partire attaccata
+       alla barra in alto invece che una striscia più in basso: due numeri che devono
+       restare uguali prima o poi non lo restano. */
+    --app-corpo-pad: 1.5rem;
+
+    --app-radius: 12px;
+    --app-radius-lg: 18px;
+    --app-shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 1px 3px rgba(16, 24, 40, .06);
+    --app-shadow-lg: 0 12px 32px rgba(16, 24, 40, .12);
+    --app-fantasma: linear-gradient(90deg, #eef1f5 25%, #e4e9ef 37%, #eef1f5 63%);
+    color-scheme: light;
+}
+
+/* Scuro di sistema: non si applica se l'utente ha scelto il chiaro. */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --app-bg: #0f1216;
+        --app-surface: #161a20;
+        --app-surface-alt: #1b212a;
+        --app-border: #2a323c;
+        --app-border-strong: #3a4450;
+        --app-text: #e7ebf0;
+        --app-text-muted: #98a3b1;
+        --app-accent: #5b87ff;
+        --app-accent-soft: #1e2a45;
+        --app-danger: #ff7b72;
+    --app-danger-weak: #3a2020;
+        --app-attesa: #e3a44b;
+        --app-attesa-weak: #3a2c15;
+        --app-ok: #63c795;
+        --app-ok-weak: #16301f;
+        --app-checker-a: #2a2f36;
+        --app-checker-b: #21262c;
+        --app-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+        --app-shadow-lg: 0 12px 32px rgba(0, 0, 0, .55);
+        --app-fantasma: linear-gradient(90deg, #1c222a 25%, #232a34 37%, #1c222a 63%);
+        color-scheme: dark;
+    }
+}
+
+/* Scuro scelto dall'utente: vince sempre. */
+:root[data-theme="dark"] {
+    --app-bg: #0f1216;
+    --app-surface: #161a20;
+    --app-surface-alt: #1b212a;
+    --app-border: #2a323c;
+    --app-border-strong: #3a4450;
+    --app-text: #e7ebf0;
+    --app-text-muted: #98a3b1;
+    --app-accent: #5b87ff;
+    --app-accent-soft: #1e2a45;
+    --app-danger: #ff7b72;
+    --app-danger-weak: #3a2020;
+    --app-attesa: #e3a44b;
+    --app-attesa-weak: #3a2c15;
+    --app-ok: #63c795;
+    --app-ok-weak: #16301f;
+    --app-checker-a: #2a2f36;
+    --app-checker-b: #21262c;
+    --app-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+    --app-shadow-lg: 0 12px 32px rgba(0, 0, 0, .55);
+    --app-fantasma: linear-gradient(90deg, #1c222a 25%, #232a34 37%, #1c222a 63%);
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--app-bg);
+    color: var(--app-text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* ---------- intestazione -------------------------------------------------- */
+
+.app-shell > header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: baseline;
+    gap: .6rem;
+    padding: .8rem 1.5rem;
+    background: color-mix(in srgb, var(--app-surface) 88%, transparent);
+    backdrop-filter: saturate(180%) blur(10px);
+    border-bottom: 1px solid var(--app-border);
+}
+
+.app-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--app-accent) 12%, transparent);
+    color: var(--app-accent);
+    align-self: center;
+}
+
+.app-shell > header .app-subtitle { font-size: .78rem; color: var(--app-text-muted); }
+
+/* Il marchio: icona e nome, un solo bersaglio cliccabile che riporta alla home. */
+.app-marchio {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    align-self: center;
+    border-radius: 10px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.app-marchio__nome { font-size: 1.05rem; font-weight: 650; white-space: nowrap; }
+.app-marchio:hover .app-marchio__nome { color: var(--app-accent); }
+
+.app-marchio:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 25%, transparent);
+}
+
+/* Le due sezioni. Una pillola con dentro le voci: l'indicazione di dove ci si trova
+   sta nella voce accesa, non in un titolo da leggere. */
+.app-nav {
+    display: inline-flex;
+    align-items: center;
+    align-self: center;
+    gap: .15rem;
+    margin-left: 1rem;
+    padding: .2rem;
+    border: 1px solid var(--app-border);
+    border-radius: 999px;
+    background: var(--app-bg);
+}
+
+.app-nav__voce {
+    padding: .3rem .85rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    color: var(--app-text-muted);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color .12s ease, background-color .12s ease;
+}
+
+.app-nav__voce:hover { color: var(--app-text); }
+
+.app-nav__voce.active {
+    background: color-mix(in srgb, var(--app-accent) 14%, transparent);
+    color: var(--app-accent);
+    font-weight: 620;
+}
+
+.app-nav__voce:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 25%, transparent);
+}
+
+/* Selettore del tema, all'estremità dell'intestazione. */
+.app-tema {
+    margin-left: auto;
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .35rem .7rem .35rem .5rem;
+    border: 1px solid var(--app-border-strong);
+    border-radius: 999px;
+    background: var(--app-bg);
+    color: var(--app-text);
+    font: inherit;
+    font-size: .78rem;
+    cursor: pointer;
+    transition: border-color .12s ease, background-color .12s ease;
+}
+
+.app-tema:hover { border-color: var(--app-accent); }
+
+.app-tema:focus-visible {
+    outline: none;
+    border-color: var(--app-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 25%, transparent);
+}
+
+.app-tema__icona {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--app-accent) 14%, transparent);
+    color: var(--app-accent);
+}
+
+main {
+    padding: var(--app-corpo-pad);
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+/* ---------- pulsanti ------------------------------------------------------ */
+
+.app-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .45rem .9rem;
+    border: 1px solid var(--app-border-strong);
+    border-radius: 8px;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color .12s ease, border-color .12s ease, transform .06s ease;
+}
+
+.app-btn:hover:not(:disabled) { border-color: var(--app-text-muted); }
+.app-btn:active:not(:disabled) { transform: translateY(1px); }
+.app-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.app-btn:focus-visible {
+    outline: none;
+    border-color: var(--app-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 25%, transparent);
+}
+
+.app-btn--primary {
+    background: var(--app-accent);
+    border-color: var(--app-accent);
+    color: #fff;
+}
+
+.app-btn--primary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--app-accent) 86%, black);
+    border-color: color-mix(in srgb, var(--app-accent) 86%, black);
+}
+
+.app-btn--grande { padding: .65rem 1.3rem; font-size: .92rem; border-radius: 10px; }
+
+.app-btn--danger:not(:disabled) {
+    color: var(--app-danger);
+    border-color: color-mix(in srgb, var(--app-danger) 45%, transparent);
+}
+
+.app-btn--danger:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--app-danger) 10%, transparent);
+}
+
+/* Un pulsante che accompagna un'etichetta e non deve competere con lei. */
+.app-btn--minuto { padding: .2rem .5rem; font-size: .75rem; border-radius: 6px; }
+
+.app-btn--piatto { background: transparent; border-color: transparent; color: var(--app-text-muted); }
+.app-btn--piatto:hover:not(:disabled) { background: var(--app-surface); border-color: var(--app-border); }
+
+.app-btn__glyph { font-size: 1.05em; line-height: 1; }
+
+/* ---------- vetrina ------------------------------------------------------- */
+
+/*
+   Quattro strati, dal fondo alla superficie:
+     1. cielo   - aurora di gradienti, uno dei quali segue il puntatore
+     2. lontano - pattern grande, lento, poco opaco
+     3. vicino  - pattern più fitto e veloce: la differenza fa la profondità
+     4. velo    - sfumatura che spegne tutto sotto al testo, per la leggibilità
+   I due pattern sono generati dal componente: è il prodotto che dimostra sé stesso.
+*/
+.vetrina {
+    --px: 76%;
+    --py: 26%;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius-lg);
+    background: var(--app-surface);
+    box-shadow: var(--app-shadow);
+    margin-bottom: 1.6rem;
+}
+
+.vetrina__cielo {
+    position: absolute;
+    inset: -30%;
+    pointer-events: none;
+    background:
+        radial-gradient(36% 46% at var(--px) var(--py), color-mix(in srgb, var(--app-accent) 40%, transparent), transparent 68%),
+        radial-gradient(30% 42% at 8% 96%, color-mix(in srgb, #7c5cff 32%, transparent), transparent 70%),
+        radial-gradient(32% 40% at 96% 4%, color-mix(in srgb, #14b8a6 24%, transparent), transparent 70%);
+    filter: blur(26px);
+    animation: aurora 26s ease-in-out infinite alternate;
+}
+
+.vetrina__trama {
+    position: absolute;
+    inset: -28%;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.vetrina__trama svg { display: block; width: 100%; height: 100%; }
+
+/*
+   Il respiro non torna mai indietro di scatto: va e viene (alternate) su tempi lunghi,
+   così l'inversione non si percepisce. Ruotare spezzerebbe la continuità della trama,
+   quindi la rotazione sta nel pattern e qui si muovono solo scala e posizione.
+*/
+.vetrina__trama--lontano {
+    opacity: .2;
+    animation: respiro-lontano 74s ease-in-out infinite alternate;
+}
+
+.vetrina__trama--vicino {
+    opacity: .5;
+    animation: respiro-vicino 46s ease-in-out infinite alternate;
+}
+
+@keyframes respiro-lontano {
+    from { transform: scale(1.10) translate3d(-2%, 1%, 0); }
+    to   { transform: scale(1.26) translate3d(3%, -2%, 0); }
+}
+
+@keyframes respiro-vicino {
+    from { transform: scale(1.04) translate3d(2%, -1%, 0); }
+    to   { transform: scale(1.18) translate3d(-3%, 2%, 0); }
+}
+
+@keyframes aurora {
+    from { transform: translate3d(-2%, -1%, 0) scale(1); }
+    to   { transform: translate3d(2%, 2%, 0) scale(1.08); }
+}
+
+.vetrina__velo {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(100deg,
+        var(--app-surface) 4%,
+        color-mix(in srgb, var(--app-surface) 82%, transparent) 38%,
+        transparent 72%);
+}
+
+.vetrina__testo {
+    position: relative;
+    padding: 3.6rem 2.2rem;
+    max-width: 46rem;
+}
+
+/* Il nome del formato prende il gradiente: un accento solo, sulla parola che conta. */
+.vetrina__brillante {
+    background: linear-gradient(92deg, var(--app-accent), #7c5cff 52%, #14b8a6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Comparsa: sale e appare. Il ritardo lo decide il markup, elemento per elemento. */
+@keyframes sale {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.sale {
+    animation: sale .62s cubic-bezier(.22, 1, .36, 1) backwards;
+    animation-delay: var(--ritardo, 0ms);
+}
+
+.vetrina__occhiello {
+    display: inline-block;
+    margin-bottom: .8rem;
+    padding: .2rem .6rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--app-accent) 14%, transparent);
+    color: var(--app-accent);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+}
+
+.vetrina h1 {
+    margin: 0 0 .7rem;
+    font-size: clamp(1.9rem, 4vw, 2.9rem);
+    font-weight: 680;
+    letter-spacing: -.02em;
+    line-height: 1.1;
+}
+
+.vetrina p {
+    margin: 0 0 1.6rem;
+    max-width: 34rem;
+    font-size: 1rem;
+    color: var(--app-text-muted);
+}
+
+.vetrina__azioni { display: flex; align-items: center; gap: 1.4rem; flex-wrap: wrap; }
+
+.vetrina__numeri { display: flex; gap: 1.2rem; font-size: .82rem; color: var(--app-text-muted); }
+.vetrina__numeri strong { color: var(--app-text); font-size: 1.05rem; font-weight: 650; }
+
+/* ---------- barra dei comandi --------------------------------------------- */
+
+.barra {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.barra__sinistra { display: flex; align-items: center; gap: .7rem; min-height: 2.4rem; }
+.barra__titolo { margin: 0; font-size: 1.15rem; font-weight: 650; }
+.barra__conteggio { font-size: .8rem; color: var(--app-text-muted); }
+
+.barra__selezione {
+    padding: .25rem .6rem;
+    border-radius: 999px;
+    background: var(--app-accent-soft);
+    color: var(--app-accent);
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+.barra__destra { display: flex; gap: .8rem; flex-wrap: wrap; }
+
+.campo { display: flex; flex-direction: column; gap: .2rem; }
+
+.campo > span {
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--app-text-muted);
+}
+
+.campo__scelta {
+    padding: .4rem .6rem;
+    border: 1px solid var(--app-border-strong);
+    border-radius: 8px;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    font-size: .82rem;
+    cursor: pointer;
+}
+
+/* Il campo di ricerca: stessa veste delle tendine accanto, perché è la stessa barra. */
+.campo__testo {
+    padding: .4rem .6rem;
+    border: 1px solid var(--app-border-strong);
+    border-radius: 8px;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    font-size: .82rem;
+    min-width: 13rem;
+}
+
+.campo__testo::placeholder { color: var(--app-text-muted); }
+
+.campo__testo:focus-visible,
+.campo__scelta:focus-visible {
+    outline: none;
+    border-color: var(--app-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 25%, transparent);
+}
+
+/* ---------- griglia delle schede ------------------------------------------ */
+
+/*
+   auto-fill e non auto-fit: con poche schede queste restano della loro dimensione
+   naturale invece di allargarsi a riempire la riga, che con una o due farebbe
+   apparire enorme un'anteprima piccola.
+*/
+.griglia {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.1rem;
+}
+
+.scheda {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius);
+    background: var(--app-surface);
+    box-shadow: var(--app-shadow);
+    overflow: hidden;
+    transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+}
+
+.scheda:hover { transform: translateY(-3px); box-shadow: var(--app-shadow-lg); }
+
+.scheda.is-selezionata {
+    border-color: var(--app-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-accent) 35%, transparent), var(--app-shadow);
+}
+
+/*
+   METÀ dell'altezza di prima (era 4/3): una fascia bassa e larga. Un pattern si
+   ripete all'infinito, quindi non ha una "inquadratura giusta" da rispettare - una
+   striscia ne dice quanto un quadrato - e la scheda ci guadagna in compattezza:
+   nella stessa schermata ne entrano quasi il doppio.
+*/
+.scheda__tela {
+    position: relative;
+    aspect-ratio: 8 / 3;
+    overflow: hidden;
+    cursor: pointer;
+    border-bottom: 1px solid var(--app-border);
+}
+
+.scheda__tela svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transition: transform .7s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* L'anteprima si avvicina appena: il pattern è infinito, ingrandirlo non mostra bordi. */
+.scheda:hover .scheda__tela svg { transform: scale(1.09); }
+
+/* Sipario che sale dal basso, con l'etichetta come pastiglia: copre meno del disegno. */
+.scheda__lente {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: .6rem;
+    background: linear-gradient(to top,
+        color-mix(in srgb, var(--app-accent) 88%, transparent) 0%,
+        color-mix(in srgb, var(--app-accent) 34%, transparent) 55%,
+        transparent 92%);
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    opacity: 0;
+    transition: opacity .2s ease;
+}
+
+/*
+   La pastiglia CONTIENE l'etichetta, non le sta sopra: backdrop-filter sfoca ciò che
+   sta dietro all'elemento, quindi un riquadro sovrapposto al testo sfocherebbe il testo
+   stesso. Contenendolo, sfoca solo il pattern e la scritta resta nitida.
+*/
+.scheda__etichetta {
+    padding: .34rem 1.1rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .2);
+    border: 1px solid rgba(255, 255, 255, .45);
+    backdrop-filter: blur(4px);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+}
+
+.scheda:hover .scheda__lente { opacity: 1; }
+
+.scheda__spunta {
+    position: absolute;
+    top: .55rem;
+    left: .55rem;
+    display: inline-flex;
+    padding: .25rem;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--app-surface) 85%, transparent);
+    border: 1px solid var(--app-border);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity .14s ease;
+    cursor: pointer;
+}
+
+.scheda:hover .scheda__spunta,
+.scheda:focus-within .scheda__spunta,
+.scheda.is-selezionata .scheda__spunta { opacity: 1; }
+
+.scheda__spunta input { accent-color: var(--app-accent); cursor: pointer; margin: 0; }
+
+/* Duplica: stessa veste della spunta, angolo opposto. Compare al passaggio del mouse e
+   quando riceve il fuoco da tastiera, così non è raggiungibile solo col mouse. */
+/* I comandi dell'anteprima, in fila nell'angolo opposto alla spunta. Compaiono al
+   passaggio del puntatore: su quattrocento schede, otto pulsanti sempre accesi sarebbero
+   rumore, e quello che conta guardando un elenco è il disegno. */
+.scheda__strumenti {
+    position: absolute;
+    top: .55rem;
+    right: .55rem;
+    z-index: 2;
+    display: flex;
+    gap: .3rem;
+}
+
+.scheda__strumento {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--app-surface) 85%, transparent);
+    border: 1px solid var(--app-border);
+    backdrop-filter: blur(4px);
+    color: var(--app-text);
+    font-size: .9rem;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity .14s ease, background .14s ease, border-color .14s ease;
+    cursor: pointer;
+}
+
+.scheda:hover .scheda__strumento,
+.scheda:focus-within .scheda__strumento { opacity: 1; }
+
+.scheda__strumento:hover:not(:disabled) {
+    background: var(--app-accent);
+    border-color: var(--app-accent);
+    color: #fff;
+}
+
+.scheda__strumento:disabled { cursor: progress; opacity: 1; }
+
+/* Sul tocco non esiste il passaggio del puntatore: se restassero invisibili non li
+   troverebbe nessuno. */
+@media (hover: none) {
+    .scheda__strumento { opacity: 1; }
+}
+
+.scheda__corpo { display: flex; flex-direction: column; gap: .55rem; padding: .8rem .9rem .9rem; }
+
+.scheda__nome {
+    margin: 0;
+    font-size: .95rem;
+    font-weight: 620;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.scheda__composizione { display: flex; align-items: center; gap: .28rem; flex-wrap: wrap; }
+
+.pastiglia {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 5px;
+    background: var(--app-surface-alt);
+    border: 1px solid var(--app-border);
+    color: var(--app-accent);
+}
+
+.scheda__conta { margin-left: .2rem; font-size: .74rem; color: var(--app-text-muted); }
+
+/* Le voci vanno a capo se non ci stanno: con tre date su una scheda stretta, l'alternativa
+   sarebbe il testo che sborda dal bordo. */
+/* Tre voci su una riga sola. La scheda piu' stretta che la griglia produce e' larga 280px,
+   e le date abbreviate ci stanno con un margine: l'a capo resta come rete di sicurezza, non
+   come comportamento previsto. */
+.scheda__dati {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem .8rem;
+    margin: 0;
+    font-size: .72rem;
+}
+
+.scheda__dati > div { white-space: nowrap; }
+
+.scheda__dati dt {
+    color: var(--app-text-muted);
+    font-size: .66rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.scheda__dati dd {
+    margin: 0;
+    font-size: .69rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.01em;
+}
+
+/* Scacchiera sotto le anteprime: rende visibili le zone trasparenti. */
+.app-checker {
+    background-color: var(--app-checker-a);
+    background-image:
+        linear-gradient(45deg, var(--app-checker-b) 25%, transparent 25%, transparent 75%, var(--app-checker-b) 75%),
+        linear-gradient(45deg, var(--app-checker-b) 25%, transparent 25%, transparent 75%, var(--app-checker-b) 75%);
+    background-size: 14px 14px;
+    background-position: 0 0, 7px 7px;
+}
+
+/* ---------- attesa e stato vuoto ------------------------------------------ */
+
+.scheda--attesa { pointer-events: none; }
+
+.scheda--attesa .scheda__tela {
+    background: var(--app-fantasma);
+    background-size: 400% 100%;
+    animation: scorrimento 1.4s ease-in-out infinite;
+}
+
+.fantasma {
+    display: block;
+    height: .7rem;
+    border-radius: 4px;
+    background: var(--app-fantasma);
+    background-size: 400% 100%;
+    animation: scorrimento 1.4s ease-in-out infinite;
+}
+
+.fantasma--titolo { height: 1rem; width: 65%; }
+
+@keyframes scorrimento {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+}
+
+/*
+   Chi ha chiesto meno animazioni al sistema le vede sparire tutte: niente respiro della
+   trama, niente comparse, niente finestra che cresce. La pagina resta identica, ferma.
+*/
+@media (prefers-reduced-motion: reduce) {
+    .scheda,
+    .scheda__lente,
+    .scheda__spunta,
+    .scheda__strumento,
+    .scheda__tela svg { transition: none; }
+
+    .fantasma,
+    .scheda--attesa .scheda__tela,
+    .vetrina__cielo,
+    .vetrina__trama,
+    .sale,
+    .modal-backdrop,
+    .modal-content { animation: none; }
+
+    .scheda:hover { transform: none; }
+    .scheda:hover .scheda__tela svg { transform: none; }
+}
+
+.vuoto {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .7rem;
+    padding: 4rem 1rem;
+    text-align: center;
+    color: var(--app-text-muted);
+    border: 1px dashed var(--app-border-strong);
+    border-radius: var(--app-radius-lg);
+}
+
+.vuoto h3 { margin: .4rem 0 0; font-size: 1.05rem; color: var(--app-text); }
+.vuoto p { margin: 0 0 .6rem; max-width: 26rem; }
+
+/* ---------- impaginazione -------------------------------------------------- */
+
+.impaginazione {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    margin-top: 1.6rem;
+    flex-wrap: wrap;
+}
+
+.impaginazione__numeri { display: flex; gap: .25rem; }
+
+.impaginazione__numero {
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 .5rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--app-text);
+    font: inherit;
+    font-size: .82rem;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+}
+
+.impaginazione__numero:hover { background: var(--app-surface); border-color: var(--app-border); }
+
+.impaginazione__numero.is-corrente {
+    background: var(--app-accent);
+    border-color: var(--app-accent);
+    color: #fff;
+    font-weight: 600;
+}
+
+.impaginazione__salto { padding: 0 .2rem; color: var(--app-text-muted); align-self: center; }
+
+/* ---------- modal --------------------------------------------------------- */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 16, 23, .55);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    z-index: 1000;
+    animation: velo-entra .26s ease both;
+}
+
+/*
+   La finestra nasce dal punto in cui si è cliccato: js/movimento.js scrive le coordinate
+   della scheda in --origine-x/--origine-y, e la traslazione iniziale porta il centro della
+   finestra lì. Senza, crescerebbe sempre dal centro dello schermo e si perderebbe il
+   legame con la scheda toccata. In mancanza delle variabili si ricade sul centro.
+*/
+/*
+   L'editor non è una finestra: è una schermata, e si prende tutto lo schermo a qualunque
+   larghezza.
+
+   Lo era già sul telefono, mentre sul desktop restava una finestra con un margine tutto
+   attorno. Il margine non era gratis: costava a ogni colonna una fetta di quello spazio, e
+   la colonna dei comandi — quella che con i filtri ha molte più cose dentro — era la prima
+   a risentirne. Una cosa che occupa il novanta per cento dello schermo non ha alcun
+   vantaggio a non occuparlo tutto: il velo dietro non lo vede nessuno, e i pochi pixel
+   restituiti si vedono eccome.
+
+   L'altezza è in dvh e non in vh perché la barra del browser mobile compare e scompare
+   mentre si scorre: con vh il piede dell'editor finirebbe sotto di essa.
+*/
+.modal-backdrop { padding: 0; }
+
+.modal-content {
+    width: 100%;
+    height: 100dvh;
+    max-height: none;
+    display: flex;
+    overflow: hidden;
+    border-radius: 0;
+    animation: finestra-entra .46s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+/* A tutto schermo il bordo arrotondato dell'editor non incornicia niente: seguirebbe i
+   quattro lati della finestra a un pixel di distanza, che è il modo in cui una cosa
+   sembra montata storta. Il componente resta com'è; a togliergli la cornice è chi lo
+   ospita, che è l'unico a sapere dove lo sta mettendo. */
+.modal-content > .pe-editor {
+    flex: 1 1 auto;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+}
+
+/* ---------- conferma e avviso di errore ----------------------------------- */
+
+.conferma {
+    width: min(30rem, 100%);
+    padding: 1.4rem 1.5rem 1.2rem;
+    border-radius: 14px;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    box-shadow: 0 24px 60px rgba(8, 12, 20, .35);
+    animation: finestra-entra .3s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.conferma__titolo {
+    margin: 0 0 .5rem;
+    font-size: 1.1rem;
+    font-weight: 650;
+    color: var(--app-text);
+}
+
+.conferma__testo {
+    margin: 0 0 1.2rem;
+    font-size: .9rem;
+    line-height: 1.5;
+    color: var(--app-text-muted);
+}
+
+.conferma__azioni {
+    display: flex;
+    justify-content: flex-end;
+    gap: .6rem;
+}
+
+/*
+   L'elenco di ciò che l'importazione ha lasciato fuori. Scorre invece di allungare la
+   finestra: un documento disordinato può produrre una decina di motivi, e una finestra
+   alta quanto la pagina nasconde i propri pulsanti.
+*/
+.conferma__elenco {
+    margin: 0 0 1.1rem 0;
+    padding-left: 1.1rem;
+    max-height: 30vh;
+    overflow-y: auto;
+    font-size: .85rem;
+    line-height: 1.5;
+    color: var(--app-text-muted);
+}
+
+.conferma__elenco li + li { margin-top: .3rem; }
+
+/*
+   Il confronto fra il disegno di partenza e la ricostruzione.
+
+   Tre riquadri della stessa misura, in fila, ciascuno con la cella RIPETUTA: una trama si
+   giudica ripetuta, e su una tessera sola l'occhio perdona errori che su una parete si vedono
+   tutti. La ripetizione la fa lo sfondo, che è anche il modo di mostrarla senza scalare
+   l'immagine — un ingrandimento inventerebbe dei pixel proprio dove si sta cercando un
+   difetto.
+*/
+.confronto {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .55rem;
+    margin: 0 0 .8rem;
+}
+
+.confronto__voce {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    min-width: 0;
+}
+
+.confronto__nome {
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--app-text-muted);
+}
+
+.confronto__riquadro {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    border: 1px solid var(--app-border);
+    overflow: hidden;
+    background-color: #fff;
+}
+
+/*
+   image-rendering e background-repeat vanno insieme: i punti si mostrano come sono, netti,
+   perché il confronto serve proprio a guardare il singolo pixel che non torna.
+*/
+.confronto__riquadro--punti {
+    background-repeat: repeat;
+    image-rendering: pixelated;
+}
+
+.confronto__riquadro > svg { display: block; width: 100%; height: 100%; }
+
+.confronto__misura {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .2rem .6rem;
+    margin: 0 0 1.1rem;
+    font-size: .85rem;
+    color: var(--app-text-muted);
+}
+
+.confronto__voto--bene  { color: #2f8f5b; }
+.confronto__voto--cosi  { color: #c2701c; }
+.confronto__voto--male  { color: #d64545; }
+
+.confronto__legenda { font-size: .78rem; }
+
+/* Sullo schermo stretto i tre riquadri stanno in colonna: affiancati sarebbero francobolli. */
+@media (max-width: 34rem) {
+    .confronto { grid-template-columns: 1fr; }
+}
+
+/*
+   Il pulsante di importazione. Il campo per il file è steso invisibile sopra l'etichetta:
+   conserva il comportamento nativo — dialogo del sistema, tabulatore, Invio — e l'etichetta
+   gli dà l'aspetto degli altri pulsanti.
+*/
+.vetrina__importa {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.vetrina__importa.is-attesa { opacity: .6; cursor: progress; }
+
+.vetrina__file {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Il fuoco arriva al campo nascosto: l'anello va disegnato sull'etichetta, che è la cosa
+   che si vede. Senza, chi naviga da tastiera non sa dove si trova. */
+.vetrina__importa:focus-within {
+    outline: 2px solid var(--app-accent);
+    outline-offset: 2px;
+}
+
+/* L'errore non ruba il fuoco e non blocca: dice cosa non ha funzionato e si toglie. */
+.avviso-errore {
+    position: fixed;
+    left: 50%;
+    bottom: 1.5rem;
+    z-index: 1100;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    max-width: min(34rem, calc(100vw - 2rem));
+    padding: .75rem .75rem .75rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--app-danger);
+    background: var(--app-danger-weak);
+    color: var(--app-danger);
+    font-size: .88rem;
+    line-height: 1.45;
+    box-shadow: 0 12px 32px rgba(8, 12, 20, .25);
+    animation: finestra-entra .26s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.avviso-errore__chiudi {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font-size: .9rem;
+    cursor: pointer;
+}
+
+.avviso-errore__chiudi:hover { background: color-mix(in srgb, var(--app-danger) 15%, transparent); }
+
+@keyframes velo-entra {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes finestra-entra {
+    from {
+        opacity: 0;
+        transform:
+            translate(calc(var(--origine-x, 50vw) - 50vw), calc(var(--origine-y, 50vh) - 50vh))
+            scale(.72);
+    }
+    to { opacity: 1; transform: none; }
+}
+
+#blazor-error-ui {
+    display: none;
+    background: #f8d7da;
+    color: #58151c;
+    padding: .6rem 1rem;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 2000;
+}
+
+/* ==========================================================================
+   UTENTI: avatar, accesso, registrazione, profilo.
+
+   L'accesso è una funzione dell'applicazione ospite e non del componente: sta
+   quindi qui e non nel foglio della libreria, che di utenti non sa niente.
+   ========================================================================== */
+
+/* ---------- il cerchio ---------------------------------------------------- */
+
+.avatar {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: var(--avatar-lato, 34px);
+    height: var(--avatar-lato, 34px);
+    border-radius: 50%;
+    background: var(--avatar-tinta, var(--app-accent));
+    color: #fff;
+    overflow: hidden;
+    user-select: none;
+}
+
+.avatar__iniziali {
+    /* Le iniziali si scalano con il cerchio: una misura fissa sarebbe minuscola
+       nel profilo e straripante nelle schede. */
+    font-size: calc(var(--avatar-lato, 34px) * .4);
+    font-weight: 650;
+    letter-spacing: .02em;
+    line-height: 1;
+}
+
+/* La foto copre le iniziali invece di sostituirle: se non si carica — tolta nel
+   frattempo, rete lenta — resta sotto il cerchio colorato invece di un riquadro
+   vuoto con l'icona dell'immagine rotta. */
+.avatar__foto {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ---------- l'angolo dell'utente nell'intestazione ------------------------ */
+
+.app-utente {
+    position: relative;
+    align-self: center;
+    margin-left: .35rem;
+}
+
+.app-utente__accedi {
+    align-self: center;
+    margin-left: .35rem;
+}
+
+/* Finché non si sa chi c'è, si tiene il posto e non si dice niente: mostrare
+   «Accedi» e sostituirlo un attimo dopo con l'avatar fa sembrare che la sessione
+   sia stata persa e poi ritrovata. */
+.app-utente__attesa {
+    display: inline-block;
+    align-self: center;
+    margin-left: .35rem;
+    width: 5.5rem;
+    height: 1.9rem;
+}
+
+.app-utente__bottone {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .25rem .5rem .25rem .25rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--app-text);
+    font: inherit;
+    font-size: .82rem;
+    cursor: pointer;
+    transition: background-color .12s ease, border-color .12s ease;
+}
+
+.app-utente__bottone:hover { background: var(--app-surface); border-color: var(--app-border); }
+
+.app-utente__bottone:focus-visible {
+    outline: none;
+    border-color: var(--app-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 25%, transparent);
+}
+
+.app-utente__nome {
+    font-weight: 600;
+    max-width: 9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-utente__freccia { font-size: .6rem; color: var(--app-text-muted); }
+
+/* Superficie trasparente a tutto schermo: un clic fuori chiude il menù, senza
+   gestori globali in JavaScript. */
+.app-utente__fondo { position: fixed; inset: 0; z-index: 60; }
+
+.app-utente__menu {
+    position: absolute;
+    top: calc(100% + .4rem);
+    right: 0;
+    z-index: 61;
+    min-width: 11rem;
+    padding: .3rem;
+    border: 1px solid var(--app-border);
+    border-radius: 10px;
+    background: var(--app-surface);
+    box-shadow: 0 16px 40px rgba(8, 12, 20, .18);
+}
+
+.app-utente__voce {
+    display: block;
+    width: 100%;
+    padding: .45rem .6rem;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--app-text);
+    font: inherit;
+    font-size: .82rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.app-utente__voce:hover { background: var(--app-accent-soft); }
+.app-utente__voce--esci { color: var(--app-danger); }
+.app-utente__voce--esci:hover { background: var(--app-danger-weak); }
+
+/* ---------- finestra di accesso ------------------------------------------- */
+
+.accesso {
+    width: min(26rem, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.5rem 1.6rem 1.3rem;
+    border-radius: 14px;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    box-shadow: 0 24px 60px rgba(8, 12, 20, .35);
+    animation: finestra-entra .3s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.accesso--largo { width: min(34rem, 100%); }
+
+.accesso__titolo { margin: 0 0 .5rem; font-size: 1.05rem; font-weight: 650; }
+
+.accesso__testo {
+    margin: 0 0 1rem;
+    font-size: .84rem;
+    line-height: 1.55;
+    color: var(--app-text-muted);
+}
+
+.accesso__campo { display: flex; flex-direction: column; gap: .25rem; margin-bottom: .85rem; }
+
+.accesso__campo > span {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .03em;
+    color: var(--app-text-muted);
+}
+
+.accesso__campo > small { font-size: .7rem; line-height: 1.5; color: var(--app-text-muted); }
+
+/* I campi di una finestra occupano la riga: la larghezza minima che serve alla
+   barra dei filtri, qui, li lascerebbe a metà del foglio. */
+.accesso__campo .campo__testo { min-width: 0; width: 100%; padding: .5rem .65rem; font-size: .88rem; }
+
+.accesso__errore {
+    margin: 0 0 .85rem;
+    padding: .55rem .7rem;
+    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--app-danger) 35%, transparent);
+    background: var(--app-danger-weak);
+    color: var(--app-danger);
+    font-size: .8rem;
+    line-height: 1.5;
+}
+
+.accesso__fatto {
+    margin: 0 0 .85rem;
+    padding: .55rem .7rem;
+    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--app-accent) 30%, transparent);
+    background: var(--app-accent-soft);
+    color: var(--app-accent);
+    font-size: .8rem;
+}
+
+.accesso__nota {
+    margin: -.4rem 0 .9rem;
+    font-size: .72rem;
+    line-height: 1.55;
+    color: var(--app-text-muted);
+}
+
+.accesso__domanda {
+    margin: 0 0 1rem;
+    padding: .7rem .8rem;
+    border-radius: 10px;
+    background: var(--app-surface-alt);
+    border: 1px solid var(--app-border);
+    font-size: .9rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.accesso__azioni { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .2rem; }
+
+.accesso__piede {
+    display: flex;
+    justify-content: space-between;
+    gap: .6rem;
+    margin-top: 1rem;
+    padding-top: .8rem;
+    border-top: 1px solid var(--app-border);
+}
+
+.accesso__link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--app-accent);
+    font: inherit;
+    font-size: .8rem;
+    text-decoration: underline;
+    text-underline-offset: .18em;
+    cursor: pointer;
+}
+
+.accesso__link:hover { text-decoration-thickness: 2px; }
+
+/* ---------- quanto manca a una password accettabile ----------------------- */
+
+.forza { margin: -.5rem 0 .9rem; }
+
+.forza__barra {
+    height: 4px;
+    border-radius: 999px;
+    background: var(--app-border);
+    overflow: hidden;
+}
+
+.forza__barra > span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    transition: width .2s ease, background-color .2s ease;
+}
+
+.forza.is-corta .forza__barra > span { background: var(--app-danger); }
+.forza.is-media .forza__barra > span { background: #d59a1f; }
+.forza.is-buona .forza__barra > span { background: #2e9e63; }
+
+.forza__testo { margin: .3rem 0 0; font-size: .72rem; line-height: 1.5; color: var(--app-text-muted); }
+.forza.is-buona .forza__testo { color: #2e9e63; }
+
+/* ---------- registrazione ------------------------------------------------- */
+
+.registrazione { padding: 1.6rem 1.5rem 3rem; }
+
+.registrazione__foglio {
+    width: min(38rem, 100%);
+    margin: 0 auto;
+    padding: 1.8rem 1.9rem 1.6rem;
+    border-radius: 16px;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+}
+
+.registrazione__titolo { margin: 0 0 .4rem; font-size: 1.35rem; font-weight: 650; }
+
+.registrazione__sottotitolo {
+    margin: 0 0 1.3rem;
+    font-size: .86rem;
+    line-height: 1.6;
+    color: var(--app-text-muted);
+}
+
+/* Il patto si dice prima e si vede: da qui in poi si sceglie qualcosa che non si
+   può disfare, e in grigio chiaro in fondo non lo leggerebbe nessuno. */
+.registrazione__patto {
+    margin-bottom: 1.6rem;
+    padding: 1rem 1.1rem;
+    border-radius: 12px;
+    background: var(--app-accent-soft);
+    border: 1px solid color-mix(in srgb, var(--app-accent) 25%, transparent);
+}
+
+.registrazione__patto h2 { margin: 0 0 .5rem; font-size: .82rem; font-weight: 650; }
+.registrazione__patto ul { margin: 0; padding-left: 1.1rem; }
+.registrazione__patto li { font-size: .8rem; line-height: 1.6; }
+.registrazione__patto li + li { margin-top: .4rem; }
+
+.registrazione__gruppo { margin-bottom: 1.5rem; }
+
+.registrazione__gruppo > h2 {
+    margin: 0 0 .8rem;
+    padding-bottom: .4rem;
+    border-bottom: 1px dashed var(--app-border);
+    font-size: .74rem;
+    font-weight: 650;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--app-text-muted);
+}
+
+.registrazione__aspetto { display: flex; gap: 1.2rem; align-items: flex-start; flex-wrap: wrap; }
+
+.registrazione__anteprima {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    background: var(--avatar-tinta, var(--app-accent));
+    color: #fff;
+    font-size: 1.7rem;
+    font-weight: 650;
+    overflow: hidden;
+}
+
+.registrazione__anteprima img { width: 100%; height: 100%; object-fit: cover; }
+
+.registrazione__aspetto-campi {
+    flex: 1 1 14rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    align-items: flex-start;
+}
+
+.registrazione__aspetto-campi > small { font-size: .7rem; color: var(--app-text-muted); }
+
+.registrazione__colore {
+    width: 3.2rem;
+    height: 2rem;
+    padding: 2px;
+    border: 1px solid var(--app-border-strong);
+    border-radius: 8px;
+    background: var(--app-surface);
+    cursor: pointer;
+}
+
+/* Il campo per il file è nascosto sotto l'etichetta, come nella vetrina: il
+   pulsante ha l'aspetto degli altri e conserva tutto quello che il campo nativo
+   sa già fare. */
+.registrazione__foto { position: relative; overflow: hidden; cursor: pointer; }
+
+.registrazione__azioni {
+    display: flex;
+    justify-content: flex-end;
+    gap: .6rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--app-border);
+}
+
+/* ---------- profilo ------------------------------------------------------- */
+
+.profilo__testa { display: flex; align-items: center; gap: .9rem; margin-bottom: 1.2rem; }
+.profilo__nome { display: block; font-size: 1.05rem; font-weight: 650; }
+.profilo__dal { font-size: .76rem; color: var(--app-text-muted); }
+
+.profilo__sezione { margin-bottom: 1.4rem; padding-top: 1rem; border-top: 1px dashed var(--app-border); }
+
+.profilo__sezione > h3 {
+    margin: 0 0 .8rem;
+    font-size: .74rem;
+    font-weight: 650;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--app-text-muted);
+}
+
+.profilo__foto-azioni { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .9rem; }
+.profilo__foto-azioni > label { position: relative; overflow: hidden; cursor: pointer; }
+
+/* ---------- autore sulle schede ------------------------------------------- */
+
+.scheda__autore {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    margin: -.15rem 0 .5rem;
+    font-size: .74rem;
+    color: var(--app-text-muted);
+}
+
+/* «senza autore» non è un nome: si scrive in corsivo per non farlo leggere come tale. */
+.scheda__autore--senza { font-style: italic; opacity: .75; }
+
+.scheda__tuo {
+    padding: .05rem .35rem;
+    border-radius: 999px;
+    background: var(--app-accent-soft);
+    color: var(--app-accent);
+    font-size: .64rem;
+    font-weight: 650;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+/* Al posto della spunta, su ciò che non si può eliminare. Occupa lo stesso
+   angolo per non far ballare le schede fra un caso e l'altro. */
+.scheda__lucchetto {
+    position: absolute;
+    top: .5rem;
+    left: .5rem;
+    z-index: 2;
+    font-size: .78rem;
+    opacity: .55;
+}
+
+/* ---------- salvataggio rifiutato ----------------------------------------- */
+
+.avviso-permesso {
+    position: absolute;
+    top: 1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    max-width: min(34rem, 90vw);
+    padding: .6rem .7rem .6rem .9rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--app-danger) 40%, transparent);
+    background: var(--app-danger-weak);
+    color: var(--app-danger);
+    font-size: .82rem;
+    line-height: 1.5;
+    box-shadow: 0 12px 32px rgba(8, 12, 20, .25);
+}
+
+@media (max-width: 640px) {
+    .app-utente__nome { display: none; }
+
+    /* Su uno schermo stretto la riga non ci sta tutta. Si tolgono le parole che non
+       servono a orientarsi — il sottotitolo e l'etichetta del tema — e ciò che resta
+       va su due righe: marchio e comandi sopra, le due sezioni sotto, larghe quanto
+       la finestra. Comprimere tutto su una riga sola spezzerebbe il nome
+       dell'applicazione su tre righe e spingerebbe l'utente fuori dallo schermo. */
+    .app-shell > header {
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .45rem;
+        padding: .6rem .9rem;
+    }
+
+    .app-shell > header .app-subtitle { display: none; }
+    .app-tema__testo { display: none; }
+    .app-tema { padding: .35rem; }
+    .app-manuale__testo { display: none; }
+    .app-manuale { padding: .35rem; }
+    .app-marchio__nome { font-size: .95rem; }
+
+    .app-nav {
+        order: 3;
+        flex-basis: 100%;
+        margin-left: 0;
+        justify-content: center;
+    }
+
+    .app-nav__voce { flex: 1; padding: .35rem .6rem; text-align: center; }
+    .registrazione { padding: 1rem .8rem 2.5rem; }
+    .registrazione__foglio { padding: 1.2rem 1.1rem 1rem; }
+}
+
+
+/* ==========================================================================
+   STATO DI PUBBLICAZIONE E MODERAZIONE
+   ========================================================================== */
+
+/* La riga dello stato sta sopra l'autore: prima che cosa succede al pattern, poi di chi è.
+   Le due parti vanno a capo insieme quando la scheda è stretta, perché il comando senza la
+   pastiglia accanto non direbbe da quale stato si parte. */
+.scheda__stato {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .35rem .5rem;
+    margin: -.1rem 0 .5rem;
+}
+
+.stato {
+    padding: .1rem .45rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font-size: .66rem;
+    font-weight: 650;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.stato--privato {
+    background: color-mix(in srgb, var(--app-text-muted) 12%, transparent);
+    border-color: color-mix(in srgb, var(--app-text-muted) 35%, transparent);
+    color: var(--app-text-muted);
+}
+
+.stato--attesa {
+    background: var(--app-attesa-weak);
+    border-color: color-mix(in srgb, var(--app-attesa) 45%, transparent);
+    color: var(--app-attesa);
+}
+
+.stato--pubblico {
+    background: var(--app-ok-weak);
+    border-color: color-mix(in srgb, var(--app-ok) 40%, transparent);
+    color: var(--app-ok);
+}
+
+/* Il comando è un testo e non un pulsante pieno: sta dentro una scheda che ne ha già due
+   (duplica, scarica) e un terzo con un fondo colorato sposterebbe l'attenzione dal disegno,
+   che è la cosa per cui la scheda esiste. */
+.stato__azione {
+    padding: .05rem .1rem;
+    border: 0;
+    background: none;
+    color: var(--app-accent);
+    font: inherit;
+    font-size: .72rem;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: border-color .14s ease, opacity .14s ease;
+}
+
+.stato__azione:hover:not(:disabled) { border-bottom-color: currentColor; }
+.stato__azione:disabled { opacity: .55; cursor: default; }
+
+/* ---------- pagina di moderazione ------------------------------------------ */
+
+.moderazione__testa { margin: 0 0 1.4rem; }
+
+.moderazione__testa h1 {
+    margin: 0 0 .35rem;
+    font-size: 1.5rem;
+    letter-spacing: -.01em;
+}
+
+.moderazione__guida {
+    margin: 0;
+    max-width: 46rem;
+    color: var(--app-text-muted);
+    font-size: .88rem;
+    line-height: 1.5;
+}
+
+.moderazione__attesa {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+    padding: 2rem 0;
+}
+
+/* L'anteprima qui è un <button> e non un <div>: si apre con Invio e si raggiunge col
+   tabulatore, cosa che un div cliccabile non fa. Servono le tre righe che tolgono
+   l'aspetto di pulsante. */
+.moderazione__tela {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--app-border);
+    background: none;
+}
+
+/* Le due risposte stanno in fondo alla scheda e non sull'anteprima: un clic involontario su
+   «approva» pubblica qualcosa, e i comandi che non si annullano non vanno dove il dito passa
+   per caso. */
+.moderazione__azioni {
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+    margin-top: .8rem;
+    padding-top: .7rem;
+    border-top: 1px solid var(--app-border);
+}
+
+/* ---------- ingrandimento dell'anteprima ----------------------------------- */
+
+/* L'altezza è **definita** e non un massimo, ed è la riga che fa funzionare tutto il resto.
+
+   L'SVG dell'anteprima è `width="100%" height="100%"` e non ha un viewBox: non possiede una
+   forma propria, e la prende da chi lo contiene. Dentro un contenitore di altezza indefinita
+   — `max-height` non lo è: dice fin dove, non quanto — quel 100% non si risolve, e l'elemento
+   ripiega sull'altezza predefinita degli elementi sostituiti, 150px. Il riquadro restava alto
+   com'era e il disegno occupava la sua striscia in cima, con sotto mezza finestra vuota.
+
+   Sulla scheda dell'elenco il problema non si vede perché lì l'altezza è definita da
+   `aspect-ratio: 8 / 3`. È il tipo di differenza che si nota solo mettendo lo stesso SVG in
+   due contenitori diversi. */
+.ingrandimento {
+    display: flex;
+    flex-direction: column;
+    width: min(92vw, 820px);
+    height: min(88vh, 760px);
+    border-radius: var(--app-radius-lg);
+    background: var(--app-surface);
+    box-shadow: var(--app-shadow-lg);
+    overflow: hidden;
+}
+
+/* L'altezza la comanda la finestra e non il rapporto della tela: un pattern si ripete, e
+   mostrarne una fetta più alta o più bassa non lo altera. */
+/* Tutta l'altezza che avanza dopo il piede. `min-height: 0` è necessario perché un elemento
+   flessibile non scende sotto la propria altezza minima automatica, e senza quella riga il
+   riquadro sfonderebbe il fondo della finestra invece di adattarsi. Qui non c'è il rischio
+   consueto — contenuto schiacciato che esce dal box — perché il contenuto è un solo elemento
+   fuori dal flusso. */
+.ingrandimento__tela {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* Fuori dal flusso e ancorato ai quattro lati: così l'SVG riempie il riquadro per
+   costruzione, senza dipendere dalla risoluzione di una percentuale. */
+.ingrandimento__tela svg {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.ingrandimento__piede {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .7rem .9rem;
+    border-top: 1px solid var(--app-border);
+    font-size: .85rem;
+    color: var(--app-text-muted);
+}
+
+/* Un avviso che racconta invece di segnalare un guasto. Stessa forma e stesso posto: chi ha
+   imparato dove si leggono i messaggi non deve impararlo una seconda volta. */
+.avviso-errore--nota {
+    border-color: color-mix(in srgb, var(--app-accent) 35%, transparent);
+    background: var(--app-accent-soft);
+    color: var(--app-text);
+}
+
+.avviso-errore--nota .avviso-errore__chiudi:hover {
+    background: color-mix(in srgb, var(--app-accent) 15%, transparent);
+}
+
+/* ==========================================================================
+   SELETTORE DELLA LINGUA
+
+   Accanto al tema, e con la sua stessa forma: sono le due scelte che riguardano
+   come si vede l'applicazione e non che cosa ci si fa dentro. Il pulsante mostra
+   il codice della lingua e non una bandiera — una bandiera e' un paese, non una
+   lingua, e ce ne sono di parlate in venti paesi diversi.
+   ========================================================================== */
+
+/* L'intestazione allinea i propri figli sulla linea di base del testo: senza
+   `align-self`, il selettore si appoggerebbe alla base delle parole invece che al
+   centro della riga, e accanto al pulsante del tema si vedrebbe storto di qualche
+   pixel -- che e' quanto basta perche' due pulsanti gemelli sembrino due cose
+   diverse. */
+.app-lingua {
+    position: relative;
+    align-self: center;
+}
+
+/* Le misure sono quelle di `.app-tema`, dichiarate una seconda volta e non
+   condivise: i due pulsanti si somigliano oggi ma non sono la stessa cosa, e un
+   selettore che cambiasse forma perche' qualcuno ha ritoccato il tema sarebbe
+   peggio di due elenchi da tenere d'accordo. */
+.app-lingua__bottone {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .35rem .7rem .35rem .5rem;
+    border: 1px solid var(--app-border-strong);
+    border-radius: 999px;
+    background: var(--app-bg);
+    color: var(--app-text);
+    font: inherit;
+    font-size: .78rem;
+    cursor: pointer;
+    transition: border-color .12s ease, background-color .12s ease;
+}
+
+.app-lingua__bottone:hover { border-color: var(--app-accent); }
+
+.app-lingua__bottone:focus-visible {
+    outline: none;
+    border-color: var(--app-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 25%, transparent);
+}
+
+/* Il globo dentro la sua pastiglia, come l'icona del tema: e' il dettaglio che fa
+   leggere i due comandi come una coppia invece che come due pulsanti capitati
+   vicini. */
+.app-lingua__glifo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--app-accent) 14%, transparent);
+    color: var(--app-accent);
+}
+
+/* Le due lettere in cifre tabulari: cambiando lingua il pulsante non cambia larghezza,
+   e la barra non si riassesta sotto il puntatore proprio mentre lo si usa. */
+.app-lingua__codice {
+    font-variant-numeric: tabular-nums;
+    font-weight: 620;
+    letter-spacing: .03em;
+}
+
+.app-lingua__menu {
+    position: absolute;
+    top: calc(100% + .5rem);
+    right: 0;
+    z-index: 60;
+    min-width: 11rem;
+    padding: .3rem;
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius);
+    background: var(--app-surface);
+    box-shadow: var(--app-shadow-lg);
+}
+
+.app-lingua__menu .app-utente__voce {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .8rem;
+}
+
+.app-lingua__menu .app-utente__voce.e-scelta { color: var(--app-accent); font-weight: 620; }
+
+.app-lingua__spunta { font-size: .8rem; }
+
+/* La scelta dei colori vive dentro l'anteprima, sotto la misura di somiglianza: deve
+   leggersi come un'impostazione e non come un comando. */
+.vetrina__colori {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: 0 .85rem;
+    border: 1px solid var(--app-bordo, #d9dde3);
+    border-radius: .6rem;
+    background: var(--app-sfondo-tenue, #fbfcfd);
+    color: var(--app-testo-tenue, #5b6472);
+    font-size: .9rem;
+    white-space: nowrap;
+}
+
+.vetrina__colori select {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.vetrina__colori select:disabled {
+    cursor: default;
+    opacity: .5;
+}
+
+/* La riga che permette di rifare la conversione senza uscire dall'anteprima. */
+.confronto__regola {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin: .25rem 0 0;
+    flex-wrap: wrap;
+}
+
+/* Il collegamento al manuale, accanto al selettore della lingua.
+
+   Le misure sono quelle di `.app-tema` e `.app-lingua__bottone`, dichiarate una terza volta
+   e non condivise, per la stessa ragione per cui le altre due sono gia' separate: i tre
+   comandi si somigliano oggi ma non sono la stessa cosa, e una classe comune legherebbe il
+   giorno in cui uno dei tre deve cambiare. */
+.app-manuale {
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .35rem .7rem .35rem .5rem;
+    border: 1px solid var(--app-border-strong);
+    border-radius: 999px;
+    background: var(--app-bg);
+    color: var(--app-text);
+    font: inherit;
+    font-size: .78rem;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: border-color .12s ease, background-color .12s ease;
+}
+
+.app-manuale:hover { border-color: var(--app-accent); }
+
+.app-manuale:focus-visible {
+    outline: none;
+    border-color: var(--app-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 25%, transparent);
+}
+
+/* Il foglio dentro la sua pastiglia, come il sole del tema e il globo della lingua: e' il
+   dettaglio che li fa leggere come una famiglia sola invece che come tre pulsanti diversi. */
+.app-manuale__glifo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--app-accent) 14%, transparent);
+    color: var(--app-accent);
+}

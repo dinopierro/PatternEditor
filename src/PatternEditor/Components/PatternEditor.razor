@@ -1,0 +1,710 @@
+@namespace PatternEditor.Components
+@using global::PatternEditor.Abstractions.Serialization
+@using global::PatternEditor.Core.Formatting
+@using global::PatternEditor.Core.Models
+@using global::PatternEditor.Core.Validation
+@using global::PatternEditor.Services
+@using global::PatternEditor.State
+@inject IPatternFactory PatternFactory
+@inject IPatternSerializer PatternSerializer
+@inject IPatternValidator PatternValidator
+@inject IPatternSvgRenderer SvgRenderer
+@inject IJSRuntime JS
+@inject TestiEditor E
+@implements IAsyncDisposable
+
+<div class="pe-editor" data-pe-theme="@ThemeAttribute" data-pe-scheda="@_scheda">
+
+    <PatternEditorToolbar Pattern="_editingPattern"
+                           OnChanged="HandleModelChanged"
+                           ReadOnly="ReadOnly"
+                           PuoAnnullare="_storia.PuoAnnullare"
+                           PuoRipetere="_storia.PuoRipetere"
+                           OnUndo="Annulla"
+                           OnRedo="Ripeti"
+                           OnConfirm="ConfirmAsync"
+                           OnCancel="CancelAsync" />
+
+    @if (_validationResult is { IsValid: false })
+    {
+        <div class="pe-editor__errors" role="alert">
+            <strong>@E["editor.correggiErrori"]</strong>
+            <ul>
+                @foreach (var error in _validationResult.Errors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </div>
+    }
+
+    @* Gli avvisi non impediscono la conferma: segnalano scelte legittime ma con una
+       conseguenza che l'utente potrebbe non aspettarsi (un carattere che chi apre l'SVG
+       potrebbe non avere, un'immagine incorporata che appesantisce il documento). *@
+    @if (_validationResult is { Warnings.Count: > 0 })
+    {
+        <div class="pe-editor__warnings">
+            <strong>@E["editor.daTenerePresente"]</strong>
+            <ul>
+                @foreach (var warning in _validationResult.Warnings)
+                {
+                    <li>@warning</li>
+                }
+            </ul>
+        </div>
+    }
+
+    @*
+       Da qui in giù la disposizione per schermo stretto. Il markup è sempre presente ed è
+       il CSS a mostrarlo: nessun riconoscimento del dispositivo, nessuna seconda versione
+       dei componenti, una pagina sola che si dispone in due modi.
+
+       L'anteprima ancorata è una seconda resa dello stesso pattern, non una copia del
+       pannello: sullo schermo stretto deve restare ferma sopra i comandi, e un elemento
+       non può stare in due punti dell'impaginazione. Averne due nella stessa pagina è
+       sicuro perché ogni resa genera un identificativo di nodo <pattern> tutto suo.
+    *@
+    <div class="pe-mobile-preview pe-checker" aria-hidden="true">
+        @((MarkupString)SvgRenderer.RenderStandaloneSvg(_editingPattern, "100%", "100%", _mobilePatternId))
+
+        @* La cella singola, in miniatura e incorniciata, sovrapposta alla ripetizione.
+
+           Sullo schermo stretto le due anteprime non stanno affiancate, ma servono a due
+           domande diverse e servono entrambe: la ripetizione dice se il motivo funziona,
+           la cella dice dove sono gli elementi mentre li si sposta. Toglierla del tutto
+           costringeva a immaginarsela.
+
+           Sta sopra la ripetizione e non accanto per la stessa ragione della barra: una
+           fascia propria costerebbe altezza al foglio dei comandi, mentre qui copre una
+           porzione di un disegno che si ripete identico poco più in là. *@
+        @* La cornice segue la forma della cella. Il markup dichiara il rapporto e basta: i
+           limiti di ingombro li mette il foglio di stile, che è l'unico a sapere quanto
+           spazio c'è. *@
+        <div class="pe-mobile-cella pe-checker"
+             style="--forma: @RapportoCella; aspect-ratio: @RapportoCella;"
+             title="@E["editor.cellaSingola"]">
+            @((MarkupString)SvgRenderer.RenderSingleCellSvg(_editingPattern, 120, $"f-{_mobilePatternId}"))
+        </div>
+    </div>
+
+    @* Le tre colonne diventano tre schede: stessi pannelli, uno alla volta. *@
+    <div class="pe-schede" role="tablist" aria-label="@E["editor.sezioni"]">
+        @foreach (var scheda in Schede)
+        {
+            <button type="button" class="pe-scheda" role="tab"
+                    aria-selected="@(_scheda == scheda.Chiave ? "true" : "false")"
+                    @onclick="() => _scheda = scheda.Chiave">@E[scheda.Testo]</button>
+        }
+    </div>
+
+    @*
+       Cinque card in tre colonne, e le prime due colonne ne contengono due ciascuna.
+
+       Le coppie sono dichiarate nel markup e non solo disegnate dal foglio di stile, perché
+       fra le due card di una colonna c'è un rapporto: si spartiscono la stessa altezza. Chiusa
+       quella in basso, quella in alto si prende lo spazio e la spinge in fondo; aperta, le
+       parti si invertono. Una spartizione del genere ha bisogno di un contenitore comune —
+       senza, le righe sarebbero le stesse per tutte le colonne, e chiudere il sorgente
+       lascerebbe un vuoto anche sotto i filtri, che invece sono aperti.
+
+       Sullo schermo stretto i contenitori si sciolgono e le card tornano una pila, con una
+       scheda per volta: la struttura del documento resta la stessa a tutte le larghezze.
+    *@
+    <div class="pe-editor__body">
+
+        <div class="pe-colonna">
+            <PatternPropertiesEditor Definition="_editingPattern.Definition"
+                                      OnChanged="HandleModelChanged" />
+
+            <PatternSourcePanel Pattern="_editingPattern"
+                                 SvgRenderer="SvgRenderer" />
+        </div>
+
+        <div class="pe-colonna">
+            <PatternPreviewPanel Pattern="_editingPattern"
+                                  SvgRenderer="SvgRenderer" />
+
+            <PatternFilterEditor Definition="_editingPattern.Definition"
+                                  OnChanged="HandleModelChanged" />
+        </div>
+
+        <VectorElementsPanel Definition="_editingPattern.Definition"
+                              OnChanged="HandleModelChanged" />
+
+    </div>
+
+    @* In fondo i dati di servizio: chi è questo pattern, da quando esiste, e se ci sono
+       modifiche non ancora confermate. Sono informazioni da consultare, non comandi. *@
+    <div class="pe-editor__footer">
+        <span class="pe-meta__voce" title="@E["editor.idTitolo"]">
+            <span class="pe-uuid__label">UUIDv7</span>
+            <code>@_editingPattern.Id</code>
+        </span>
+        <span class="pe-meta__voce" title="@E["editor.creatoTitolo"]">
+            @E["editor.creato"] <strong>@Local(_editingPattern.CreatedAt)</strong>
+        </span>
+        <span class="pe-meta__voce" title="@E["editor.modificatoTitolo"]">
+            @E["editor.modificato"] <strong>@Local(_editingPattern.ModifiedAt)</strong>
+        </span>
+        <span class="pe-state" title="@E["editor.statoTitolo"]">@StateLabel</span>
+    </div>
+
+</div>
+
+@code {
+    /// <summary>
+    /// Pattern != null → editing di un pattern esistente. Pattern == null → creazione di un
+    /// nuovo pattern. In entrambi i casi l'istanza ricevuta non viene mai modificata
+    /// direttamente: l'editor lavora sempre su una copia profonda interna.
+    /// </summary>
+    [Parameter]
+    public Pattern? Pattern { get; set; }
+
+    [Parameter]
+    public EventCallback<Pattern> OnConfirm { get; set; }
+
+    /// <summary>
+    /// Apre l'editor senza la possibilità di salvare.
+    ///
+    /// <para>
+    /// Non è un editor mutilato: tutto si può ancora toccare, l'anteprima risponde, il
+    /// sorgente si copia e si scarica. Quello che manca è il solo salvataggio, ed è una
+    /// decisione dell'ospite — qui la libreria non sa perché, e non ha bisogno di saperlo:
+    /// un permesso mancante, un archivio in manutenzione, un documento altrui.
+    /// </para>
+    /// <para>
+    /// Il componente <b>non</b> si fida di questo parametro per la sicurezza, e nemmeno
+    /// l'ospite dovrebbe: nasconde un pulsante, non difende un dato. A dire di no dev'essere
+    /// il server, sempre, perché è l'unico posto che un browser non può contraddire.
+    /// </para>
+    /// </summary>
+    [Parameter]
+    public bool ReadOnly { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    /// <summary>
+    /// Tema cromatico. Predefinito: quello del sistema operativo. Un'applicazione che offra
+    /// una scelta esplicita all'utente la passa qui, così l'editor resta coerente con il
+    /// resto della pagina anche quando la scelta contraddice il sistema.
+    /// </summary>
+    [Parameter]
+    public PatternEditorTheme Theme { get; set; } = PatternEditorTheme.System;
+
+    /// <summary>
+    /// Scheda visibile sullo schermo stretto. Su schermo largo non ha effetto: i tre
+    /// pannelli sono affiancati e l'attributo viene ignorato dal foglio di stile.
+    /// </summary>
+    private string _scheda = "proprieta";
+
+    @* La chiave della scheda è anche il nome del testo: due elenchi paralleli — uno per
+       il codice, uno per le parole — si sarebbero disallineati alla prima scheda nuova. *@
+    private static readonly (string Chiave, string Testo)[] Schede =
+    [
+        ("proprieta", "editor.schedaProprieta"),
+        ("elementi", "editor.schedaElementi"),
+        ("sorgente", "editor.schedaSorgente"),
+    ];
+
+    /// <summary>
+    /// Identificativo del nodo &lt;pattern&gt; dell'anteprima ancorata, distinto da quello
+    /// del pannello: due nodi con lo stesso identificativo nella stessa pagina si
+    /// oscurerebbero a vicenda, perché url(#id) si risolve sull'intero documento.
+    /// </summary>
+    private readonly string _mobilePatternId = $"pe-mobile-{Guid.NewGuid():N}";
+
+    private Pattern _editingPattern = default!;
+    private readonly PatternEditorStateMachine _state = new();
+
+    /// <summary>
+    /// La cronologia della sessione. Vive quanto l'editor: aprire un altro pattern la
+    /// riapre da capo, perché annullare dentro la sessione precedente non avrebbe senso.
+    /// </summary>
+    private readonly PatternHistory _storia = new();
+
+    private IJSObjectReference? _modulo;
+    private IJSObjectReference? _scorciatoie;
+    private DotNetObjectReference<PatternEditor>? _riferimento;
+    private ValidationResult? _validationResult;
+    private Guid? _lastBoundPatternId;
+
+    /// <summary>
+    /// Valore dell'attributo che pilota la tavolozza. Per <see cref="PatternEditorTheme.System"/>
+    /// non viene emesso alcun attributo: senza di esso decide il foglio di stile, tramite
+    /// prefers-color-scheme.
+    /// </summary>
+    private string? ThemeAttribute => Theme switch
+    {
+        PatternEditorTheme.Light => "light",
+        PatternEditorTheme.Dark => "dark",
+        _ => null,
+    };
+
+    /// <summary>
+    /// Le date sono conservate in UTC e mostrate nel fuso orario di chi guarda.
+    /// Sono di sola lettura: le aggiorna il livello di persistenza al salvataggio, non
+    /// l'editor, quindi aprire e annullare non le tocca.
+    /// </summary>
+    private static string Local(DateTimeOffset value) =>
+        value.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
+
+    /// <summary>
+    /// Il rapporto larghezza/altezza della cella, come numero singolo: serve sia a
+    /// <c>aspect-ratio</c> sia ai conti del foglio di stile, che con una frazione non
+    /// saprebbero che farsene.
+    ///
+    /// Si passa dalle misure del renderer e non da quelle della definizione perché è lì che
+    /// vive la regola, compreso il caso di una cella con un lato a zero — che il validatore
+    /// segnala come errore, ma che nel frattempo non deve far sparire la cornice.
+    /// </summary>
+    private string RapportoCella
+    {
+        get
+        {
+            var (larghezza, altezza) = SvgRenderer.SingleCellDisplaySize(_editingPattern, 120);
+            return InvariantNumber.Format(Math.Round(larghezza / altezza, 4));
+        }
+    }
+
+    private string StateLabel => ReadOnly
+        // In sola lettura «modifiche non salvate» suonerebbe come un promemoria a salvare,
+        // cioè il contrario di quello che c'è da capire. La frase dev'essere la stessa sia
+        // prima sia dopo aver toccato qualcosa.
+        ? E["editor.statoSolaLettura"]
+        : _state.State switch
+        {
+            PatternEditorState.Dirty => E["editor.statoNonSalvate"],
+            PatternEditorState.Invalid => E["editor.statoNonValidi"],
+            PatternEditorState.Confirming => E["editor.statoValidazione"],
+            _ => string.Empty,
+        };
+
+    /// <summary>
+    /// Ci si iscrive al cambio di lingua.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Basta iscrivere questo componente e non i suoi: un ridisegno di qui percorre tutto
+    /// l'editor — i pannelli, l'elenco, la scheda del plugin aperto — perché nessuno di
+    /// quelli rifiuta i ridisegni. Venti iscrizioni farebbero lo stesso lavoro con venti
+    /// occasioni di dimenticarne una disdetta.
+    /// </remarks>
+    protected override void OnInitialized() => E.Cambiato += RidisegnaPerLaLingua;
+
+    private void RidisegnaPerLaLingua() => InvokeAsync(StateHasChanged);
+
+    protected override void OnParametersSet()
+    {
+        // La copia profonda viene (ri)creata solo quando cambia l'identità del Pattern
+        // ricevuto (nuova sessione di editing), non a ogni rendering: l'editor non deve
+        // generare un nuovo Pattern/Id a ogni ciclo di rendering di Blazor.
+        var incomingId = Pattern?.Id;
+        if (_lastBoundPatternId == incomingId && _editingPattern is not null)
+        {
+            return;
+        }
+
+        _lastBoundPatternId = incomingId;
+        _validationResult = null;
+
+        if (Pattern is null)
+        {
+            _editingPattern = PatternFactory.CreateNew();
+            _state.Reset();
+            _state.OpenNew();
+        }
+        else
+        {
+            // Deep clone tramite round-trip di serializzazione: garantisce che l'editor
+            // non condivida mai riferimenti mutabili con il Pattern del chiamante.
+            _editingPattern = PatternSerializer.Deserialize(PatternSerializer.Serialize(Pattern));
+            _state.Reset();
+            _state.OpenExisting();
+        }
+
+        // Lo stato di apertura è il primo passo della cronologia: è il punto a cui
+        // «Annulla» deve poter riportare, e senza registrarlo il primo annullamento non
+        // avrebbe dove andare.
+        _storia.Inizia(PatternSerializer.Serialize(_editingPattern));
+
+        // Un pattern nuovo nel bel mezzo di un ciclo differito: quello che era in sospeso
+        // riguardava il documento di prima e non deve finire nella cronologia di questo.
+        _istantaneaInSospeso = false;
+        _altreModifiche = false;
+    }
+
+    /// <summary>
+    /// Le scorciatoie si registrano una volta sola, sul documento. Non serve rifarlo a ogni
+    /// cambio di pattern: l'ascoltatore chiama sempre questa stessa istanza.
+    /// </summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        _modulo = await JS.InvokeAsync<IJSObjectReference>(
+            "import", "./_content/PatternEditor/patternEditorInterop.js");
+
+        _riferimento = DotNetObjectReference.Create(this);
+        _scorciatoie = await _modulo.InvokeAsync<IJSObjectReference>("ascoltaScorciatoie", _riferimento);
+    }
+
+    [JSInvokable]
+    public Task AnnullaDaTastiera()
+    {
+        Annulla();
+        return Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public Task RipetiDaTastiera()
+    {
+        Ripeti();
+        return Task.CompletedTask;
+    }
+
+    private void Annulla()
+    {
+        ScaricaStoria();
+        Ripristina(_storia.Annulla());
+    }
+
+    private void Ripeti()
+    {
+        ScaricaStoria();
+        Ripristina(_storia.Ripeti());
+    }
+
+    /// <summary>
+    /// Rimette in piedi uno stato della cronologia.
+    ///
+    /// <para>
+    /// La copia di lavoro viene <b>sostituita</b>, non modificata sul posto: ricostruirla
+    /// dall'istantanea è l'unico modo per essere certi che non resti niente della versione
+    /// precedente. I pannelli la ricevono come parametro e si riallineano da soli; il
+    /// dettaglio di un elemento resta aperto perché lo tiene per identificativo, e gli
+    /// identificativi attraversano la serializzazione intatti.
+    /// </para>
+    /// </summary>
+    private void Ripristina(string? istantanea)
+    {
+        if (istantanea is null)
+        {
+            return;
+        }
+
+        _editingPattern = PatternSerializer.Deserialize(istantanea);
+
+        // Lo stato resta «modifiche non salvate» anche tornando al punto di partenza: che
+        // la copia di lavoro coincida di nuovo con l'originale è una coincidenza di
+        // contenuto, non un salvataggio, e dirlo altrimenti inviterebbe a chiudere senza
+        // confermare credendo di aver già confermato.
+        if (_state.State is not PatternEditorState.Dirty)
+        {
+            _state.MarkDirty();
+        }
+
+        _validationResult = PatternValidator.Validate(_editingPattern);
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // I due cicli differiti aspettano su un timer e si risveglierebbero su un componente
+        // che non c'è più: questo segnale li congeda al primo risveglio.
+        _congedato = true;
+
+        // Il servizio dei testi vive quanto l'applicazione: un'iscrizione non disdetta
+        // terrebbe in vita l'editor chiuso, e al cambio di lingua lo farebbe pure
+        // ridisegnare.
+        E.Cambiato -= RidisegnaPerLaLingua;
+
+        // L'ascoltatore sta sul documento e sopravviverebbe al componente: senza toglierlo,
+        // aprire e chiudere l'editor più volte lascerebbe una pila di ascoltatori che
+        // chiamano istanze ormai scomparse.
+        try
+        {
+            if (_scorciatoie is not null)
+            {
+                await _scorciatoie.InvokeVoidAsync("dismetti");
+                await _scorciatoie.DisposeAsync();
+            }
+
+            if (_modulo is not null)
+            {
+                await _modulo.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // Il circuito è già chiuso: non c'è più niente da togliere.
+        }
+
+        _riferimento?.Dispose();
+    }
+
+    /// <summary>
+    /// Ogni quanto si ridisegna, al massimo, mentre le modifiche arrivano a raffica.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// <para>
+    /// Un selettore di colore e un cursore notificano a ogni pixel: decine di volte al
+    /// secondo. Ogni notifica rigenera le due anteprime, il documento del sorgente e la
+    /// convalida, e su un pattern che incorpora un'immagine da novantasei kilobyte un giro
+    /// completo costa un sesto di secondo — più di quanto ne passi fra una notifica e la
+    /// successiva. Il risultato è una coda che si allunga: l'interfaccia va a scatti mentre
+    /// insegue modifiche già superate.
+    /// </para>
+    /// <para>
+    /// Un decimo di secondo è il compromesso: dieci aggiornamenti al secondo si leggono come
+    /// movimento continuo, e la modifica <b>finale</b> si vede sempre perché il ciclo fa
+    /// sempre un giro in più dopo l'ultima notifica.
+    /// </para>
+    /// </remarks>
+    private static readonly TimeSpan Cadenza = TimeSpan.FromMilliseconds(100);
+
+    private bool _giroInCorso;
+    private bool _altreModifiche;
+    private bool _congedato;
+
+    /// <summary>Il prossimo ridisegno automatico va saltato: la modifica è stata rimandata.</summary>
+    private bool _sopprimiRidisegno;
+
+    /// <summary>
+    /// Vale per <b>un solo</b> ridisegno e poi si disarma da sé.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Un interruttore permanente sarebbe pericoloso: da qui passano anche i ridisegni che
+    /// non c'entrano niente con le modifiche a raffica -- un pannello che si apre, un
+    /// parametro nuovo dall'ospite, la conferma. Saltarne uno preciso, quello che la
+    /// notifica appena rimandata avrebbe provocato, non toglie niente a nessun altro.
+    /// </remarks>
+    protected override bool ShouldRender()
+    {
+        if (!_sopprimiRidisegno)
+        {
+            return true;
+        }
+
+        _sopprimiRidisegno = false;
+        return false;
+    }
+
+    /// <summary>
+    /// Una modifica è arrivata dal modello.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Il modello è già stato cambiato da chi ci chiama, e non si tocca: qui si decide
+    /// soltanto <b>quando</b> reagire. Il primo giro parte subito — nessuna latenza sul
+    /// gesto isolato, che è il caso normale — e quelli successivi si accorpano.
+    /// </remarks>
+    private void HandleModelChanged()
+    {
+        if (_state.State is not PatternEditorState.Dirty)
+        {
+            _state.MarkDirty();
+        }
+
+        if (_giroInCorso)
+        {
+            _altreModifiche = true;
+
+            // Non basta uscire di qui. La notifica arriva da un EventCallback, e Blazor
+            // ridisegna da sé il componente che quel callback lo ha creato -- cioè questo,
+            // con sotto le anteprime e il sorgente. Uscire senza dire niente lascerebbe in
+            // piedi proprio il giro che si voleva rimandare, e l'accorpamento non
+            // accorperebbe nulla.
+            _sopprimiRidisegno = true;
+            return;
+        }
+
+        _giroInCorso = true;
+        Aggiorna();
+        _ = CodaDegliAggiornamentiAsync();
+    }
+
+    /// <summary>
+    /// Il giro di aggiornamento: convalida, cronologia, ridisegno.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Il ridisegno rigenera anche le anteprime: i pannelli ricevono <c>_editingPattern</c>
+    /// come parametro e Blazor, trattandolo come tipo di riferimento mutabile, non salta mai
+    /// il loro aggiornamento. La convalida è «live» per la stessa ragione di sempre: chi
+    /// sbaglia una misura deve vederlo mentre la scrive, non alla conferma.
+    /// </remarks>
+    private void Aggiorna()
+    {
+        _validationResult = PatternValidator.Validate(_editingPattern);
+        AggiornaStoria();
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Continua a ridisegnare finché arrivano modifiche, non più di una ogni
+    /// <see cref="Cadenza"/>, e si ferma quando il flusso si esaurisce.
+    /// </summary>
+    private async Task CodaDegliAggiornamentiAsync()
+    {
+        while (true)
+        {
+            await Task.Delay(Cadenza);
+
+            if (_congedato)
+            {
+                return;
+            }
+
+            // Fra questo controllo e l'azzeramento del segnale non c'è alcuna attesa, e il
+            // browser esegue un thread solo: nessuna modifica può infilarsi in mezzo e
+            // andare perduta.
+            if (!_altreModifiche)
+            {
+                _giroInCorso = false;
+                return;
+            }
+
+            _altreModifiche = false;
+            await InvokeAsync(Aggiorna);
+        }
+    }
+
+    // ----------------------------------------------------------------- la cronologia ---
+
+    /// <summary>Una modifica non ancora fotografata dalla cronologia.</summary>
+    private bool _istantaneaInSospeso;
+
+    /// <summary>
+    /// Decide quando fotografare lo stato per la cronologia.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// <para>
+    /// Fotografare significa <b>serializzare l'intero pattern</b> e confrontare il risultato
+    /// con l'istantanea precedente, carattere per carattere. Su un documento da novantasei
+    /// kilobyte è l'operazione più cara di tutto il giro, e la si pagava a ogni notifica per
+    /// poi buttarla via un istante dopo: la cronologia accorpa già le modifiche ravvicinate
+    /// (<see cref="PatternHistory.Finestra"/>), quindi di quelle istantanee ne sopravviveva
+    /// una su decine.
+    /// </para>
+    /// <para>
+    /// Adesso se ne prende una sola per finestra di accorpamento. La <b>prima</b> modifica
+    /// però si fotografa subito: è quella che accende «Annulla», e un pulsante che si accende
+    /// mezzo secondo dopo il gesto sembra un difetto.
+    /// </para>
+    /// </remarks>
+    private void AggiornaStoria()
+    {
+        if (!_storia.PuoAnnullare)
+        {
+            RegistraOra();
+            return;
+        }
+
+        if (_istantaneaInSospeso)
+        {
+            return;
+        }
+
+        _istantaneaInSospeso = true;
+        _ = FotografaFraPocoAsync();
+    }
+
+    /// <summary>
+    /// Quanto si aspetta prima di fotografare.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// È <b>metà</b> della finestra di accorpamento, e la differenza non è un dettaglio di
+    /// taratura. La cronologia accorpa due istantanee se distano meno della finestra:
+    /// aspettando esattamente la finestra, ogni istantanea differita cadrebbe appena fuori e
+    /// mezzo secondo di trascinamento diventerebbe un passo di «Annulla» a sé — il contrario
+    /// di quello che l'accorpamento serve a ottenere. Con metà finestra le istantanee
+    /// continuano a fondersi come prima, e a cambiare è solo quante se ne prendono.
+    /// </remarks>
+    private static readonly TimeSpan AttesaIstantanea =
+        TimeSpan.FromMilliseconds(PatternHistory.Finestra.TotalMilliseconds / 2);
+
+    private async Task FotografaFraPocoAsync()
+    {
+        await Task.Delay(AttesaIstantanea);
+
+        if (_congedato || !_istantaneaInSospeso)
+        {
+            return;
+        }
+
+        await InvokeAsync(() =>
+        {
+            RegistraOra();
+
+            // I pulsanti di annulla e ripeti cambiano stato con la cronologia.
+            StateHasChanged();
+        });
+    }
+
+    /// <summary>
+    /// Fotografa adesso. L'istantanea si prende DOPO la modifica: la cronologia è una
+    /// successione di stati raggiunti, e quello di partenza è già stato registrato
+    /// all'apertura.
+    /// </summary>
+    private void RegistraOra()
+    {
+        _istantaneaInSospeso = false;
+        _storia.Registra(PatternSerializer.Serialize(_editingPattern), DateTimeOffset.UtcNow);
+    }
+
+    /// <summary>
+    /// Fotografa ciò che è rimasto in sospeso, prima di un'operazione che legge la
+    /// cronologia. Senza, annullare subito dopo una modifica tornerebbe a uno stato più
+    /// vecchio di quello che si voleva annullare — l'ultima modifica non sarebbe mai entrata.
+    /// </summary>
+    private void ScaricaStoria()
+    {
+        if (_istantaneaInSospeso)
+        {
+            RegistraOra();
+        }
+    }
+
+    private async Task ConfirmAsync()
+    {
+        // Difesa dell'invariante, non dell'interfaccia: in sola lettura il pulsante non
+        // esiste, ma un ospite che chiamasse comunque questa via non deve poter propagare
+        // un pattern che aveva promesso di non salvare.
+        if (ReadOnly)
+        {
+            return;
+        }
+
+        // Quello che si conferma è la copia di lavoro, non la cronologia; si scarica lo stesso
+        // perché un ospite può tenere l'editor aperto dopo la conferma, e ritrovarsi una
+        // cronologia a cui manca l'ultimo passo sarebbe un difetto difficile da spiegare.
+        ScaricaStoria();
+
+        _state.BeginConfirm();
+        _validationResult = PatternValidator.Validate(_editingPattern);
+
+        if (!_validationResult.IsValid)
+        {
+            _state.CompleteConfirm(isValid: false);
+            StateHasChanged();
+            return;
+        }
+
+        _state.CompleteConfirm(isValid: true);
+        await OnConfirm.InvokeAsync(_editingPattern);
+    }
+
+    private async Task CancelAsync()
+    {
+        _state.Cancel();
+        await OnCancel.InvokeAsync();
+    }
+}

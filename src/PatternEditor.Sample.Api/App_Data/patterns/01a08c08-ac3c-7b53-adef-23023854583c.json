@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac3c-7b53-adef-23023854583c",
+  "name": "Stars \u0026 Lines - 2",
+  "createdAt": "2026-09-10T15:56:16.4909620\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.1943121\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 20,
+    "height": 35,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M0 0v15h20V0H0zm10.135 2.4l1.342 3.579 3.845.312-2.996 2.506.897 3.8-3.268-2.056L6.736 12.6l.985-3.848-3.043-2.504 3.935-.18L10.135 2.4z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac3c-7408-9ad5-acc31fd0aa20",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 30h20v5H0zm0-10h20v5H0z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac3c-77fc-9965-1aa4d43f3065",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

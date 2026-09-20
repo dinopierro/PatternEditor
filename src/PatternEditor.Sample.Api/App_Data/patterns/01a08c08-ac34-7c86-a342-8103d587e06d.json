@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac34-7c86-a342-8103d587e06d",
+  "name": "Squares \u0026 Plus - 2",
+  "createdAt": "2026-09-10T15:56:16.3555194\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.0257035\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 60,
+    "height": 60,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M15 0l-3.75 3.75v7.5h-7.5L0 15l3.75 3.75h7.5v7.5L15 30l3.75-3.75v-7.5h7.5L30 15l-3.75-3.75h-7.5v-7.5zm3.75 3.75l7.5 7.5v-7.5zm7.5 15l-7.5 7.5h7.5zm-15 7.5l-7.5-7.5v7.5zm-7.5-15l7.5-7.5h-7.5zM45 30l-3.75 3.75v7.5h-7.5L30 45l3.75 3.75h7.5v7.5L45 60l3.75-3.75v-7.5h7.5L60 45l-3.75-3.75h-7.5v-7.5zm3.75 3.75l7.5 7.5v-7.5zm7.5 15l-7.5 7.5h7.5zm-15 7.5l-7.5-7.5v7.5zm-7.5-15l7.5-7.5h-7.5z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac34-72ee-aed1-f7c9f639005a",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M30 0v15l3.75-3.75v-7.5h7.5L45 0zm15 0l3.75 3.75h7.5v7.5L60 15V0zm15 15l-3.75 3.75v7.5h-7.5L45 30h15zM45 30l-3.75-3.75h-7.5v-7.5L30 15v15zm-15 0H15l3.75 3.75h7.5v7.5L30 45zm0 15l-3.75 3.75v7.5h-7.5L15 60h15zM15 60l-3.75-3.75h-7.5v-7.5L0 45v15zM0 45l3.75-3.75v-7.5h7.5L15 30H0zm11.25-11.25l-7.5 7.5h7.5zm-7.5 15l7.5 7.5v-7.5zm15 7.5l7.5-7.5h-7.5zm7.5-15l-7.5-7.5v7.5zm7.5-22.5l7.5 7.5v-7.5zm15 7.5l7.5-7.5h-7.5zm7.5-15l-7.5-7.5v7.5zm-15-7.5l-7.5 7.5h7.5z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac34-7b59-83d6-28b1790544cb",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

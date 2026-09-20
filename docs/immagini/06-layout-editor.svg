@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 640" width="940" height="640" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="640" fill="#ffffff"/>
+
+  <text x="40" y="42" font-size="19" font-weight="600" fill="#1b2430">Figura 6 — Impaginazione del componente PatternEditor</text>
+  <text x="40" y="64" font-size="13" fill="#6b7684">Tre colonne di pari altezza: si regola a sinistra, si osserva al centro, si compone a destra.</text>
+
+  <!-- cornice editor -->
+  <rect x="40" y="88" width="860" height="428" rx="12" fill="#ffffff" stroke="#ccd3db" stroke-width="1.6"/>
+
+  <!-- barra superiore: identita' a sinistra, decisioni a destra -->
+  <rect x="56" y="104" width="828" height="60" rx="8" fill="#fbfcfd" stroke="#e3e6ea"/>
+  <text x="72" y="124" font-size="10" fill="#6b7684">Nome pattern</text>
+  <rect x="72" y="130" width="300" height="26" rx="5" fill="#ffffff" stroke="#ccd3db"/>
+  <text x="82" y="147" font-size="11.5" fill="#1b2430">Mattoni</text>
+  <rect x="700" y="130" width="72" height="26" rx="5" fill="#ffffff" stroke="#ccd3db"/>
+  <text x="736" y="147" font-size="11" fill="#1b2430" text-anchor="middle">Annulla</text>
+  <rect x="780" y="130" width="96" height="26" rx="5" fill="#3b6ef5"/>
+  <text x="828" y="147" font-size="11" fill="#ffffff" text-anchor="middle">Chiudi / Conferma</text>
+
+  <!-- colonna proprieta: chiude alla stessa quota delle altre due -->
+  <rect x="56" y="176" width="212" height="286" rx="8" fill="#ffffff" stroke="#e3e6ea"/>
+  <text x="72" y="196" font-size="9.5" font-weight="700" fill="#6b7684" letter-spacing="1">PROPRIET&#192;</text>
+  <text x="72" y="218" font-size="11.5" font-weight="600" fill="#1b2430">Cella</text>
+  <rect x="72" y="226" width="86" height="24" rx="4" fill="#fbfcfd" stroke="#ccd3db"/>
+  <text x="80" y="242" font-size="10" fill="#6b7684">Larghezza 50</text>
+  <rect x="166" y="226" width="86" height="24" rx="4" fill="#fbfcfd" stroke="#ccd3db"/>
+  <text x="174" y="242" font-size="10" fill="#6b7684">Altezza 50</text>
+  <text x="72" y="278" font-size="11.5" font-weight="600" fill="#1b2430">Trasformazione</text>
+  <g>
+    <text x="72" y="298" font-size="10" fill="#6b7684">Scala [%]</text>
+    <rect x="72" y="304" width="110" height="6" rx="3" fill="#e3e6ea"/><circle cx="112" cy="307" r="6" fill="#3b6ef5"/>
+    <rect x="190" y="297" width="62" height="20" rx="4" fill="#fbfcfd" stroke="#ccd3db"/><text x="221" y="311" font-size="10" fill="#1b2430" text-anchor="middle">100</text>
+
+    <text x="72" y="336" font-size="10" fill="#6b7684">Rotazione [&#176;]</text>
+    <rect x="72" y="342" width="110" height="6" rx="3" fill="#e3e6ea"/><circle cx="90" cy="345" r="6" fill="#3b6ef5"/>
+    <rect x="190" y="335" width="62" height="20" rx="4" fill="#fbfcfd" stroke="#ccd3db"/><text x="221" y="349" font-size="10" fill="#1b2430" text-anchor="middle">45</text>
+
+    <text x="72" y="374" font-size="10" fill="#6b7684">Traslazione X [px]</text>
+    <rect x="72" y="380" width="110" height="6" rx="3" fill="#e3e6ea"/><circle cx="127" cy="383" r="6" fill="#3b6ef5"/>
+    <rect x="190" y="373" width="62" height="20" rx="4" fill="#fbfcfd" stroke="#ccd3db"/><text x="221" y="387" font-size="10" fill="#1b2430" text-anchor="middle">0</text>
+
+    <text x="72" y="412" font-size="10" fill="#6b7684">Traslazione Y [px]</text>
+    <rect x="72" y="418" width="110" height="6" rx="3" fill="#e3e6ea"/><circle cx="127" cy="421" r="6" fill="#3b6ef5"/>
+    <rect x="190" y="411" width="62" height="20" rx="4" fill="#fbfcfd" stroke="#ccd3db"/><text x="221" y="425" font-size="10" fill="#1b2430" text-anchor="middle">0</text>
+  </g>
+
+  <!-- colonna anteprima -->
+  <rect x="280" y="176" width="360" height="286" rx="8" fill="#ffffff" stroke="#e3e6ea"/>
+  <text x="296" y="196" font-size="9.5" font-weight="700" fill="#6b7684" letter-spacing="1">ANTEPRIMA</text>
+  <text x="296" y="216" font-size="10.5" font-weight="600" fill="#1b2430">Cella singola</text>
+  <rect x="296" y="224" width="160" height="128" rx="5" fill="#fbfcfd" stroke="#ccd3db"/>
+  <rect x="312" y="240" width="128" height="48" rx="3" fill="#dc1822" opacity="0.85"/>
+  <rect x="312" y="294" width="128" height="42" rx="3" fill="#dc1822" opacity="0.85"/>
+  <text x="470" y="216" font-size="10.5" font-weight="600" fill="#1b2430">Ripetizione</text>
+  <rect x="470" y="224" width="152" height="128" rx="5" fill="#fbfcfd" stroke="#ccd3db"/>
+  <g fill="#dc1822" opacity="0.85">
+    <rect x="478" y="232" width="32" height="14"/><rect x="516" y="232" width="32" height="14"/><rect x="554" y="232" width="32" height="14"/><rect x="592" y="232" width="24" height="14"/>
+    <rect x="478" y="252" width="20" height="14"/><rect x="504" y="252" width="32" height="14"/><rect x="542" y="252" width="32" height="14"/><rect x="580" y="252" width="36" height="14"/>
+    <rect x="478" y="272" width="32" height="14"/><rect x="516" y="272" width="32" height="14"/><rect x="554" y="272" width="32" height="14"/><rect x="592" y="272" width="24" height="14"/>
+    <rect x="478" y="292" width="20" height="14"/><rect x="504" y="292" width="32" height="14"/><rect x="542" y="292" width="32" height="14"/><rect x="580" y="292" width="36" height="14"/>
+    <rect x="478" y="312" width="32" height="14"/><rect x="516" y="312" width="32" height="14"/><rect x="554" y="312" width="32" height="14"/><rect x="592" y="312" width="24" height="14"/>
+    <rect x="478" y="332" width="20" height="14"/><rect x="504" y="332" width="32" height="14"/><rect x="542" y="332" width="32" height="14"/><rect x="580" y="332" width="36" height="14"/>
+  </g>
+
+  <!-- riquadro del sorgente: aperto, con le azioni sul documento nella sua intestazione -->
+  <rect x="296" y="364" width="326" height="86" rx="5" fill="#fbfcfd" stroke="#e3e6ea"/>
+  <text x="308" y="381" font-size="10.5" fill="#6b7684">&#9662; SVG generato</text>
+  <rect x="474" y="370" width="54" height="20" rx="4" fill="#ffffff" stroke="#ccd3db"/>
+  <text x="501" y="384" font-size="9.5" fill="#1b2430" text-anchor="middle">Copia</text>
+  <rect x="534" y="370" width="78" height="20" rx="4" fill="#ffffff" stroke="#ccd3db"/>
+  <text x="573" y="384" font-size="9.5" fill="#1b2430" text-anchor="middle">&#8595; Scarica SVG</text>
+  <g font-size="8" fill="#6b7684" font-family="Consolas, ui-monospace, monospace">
+    <text x="308" y="404">&lt;svg xmlns="http://www.w3.org/2000/svg"</text>
+    <text x="308" y="416">     width="100%" height="100%"&gt;</text>
+    <text x="308" y="428">  &lt;defs&gt;&lt;pattern id="pe-preview-e41d&#8230;"</text>
+    <text x="308" y="440">    patternTransform="rotate(45)"&gt;</text>
+  </g>
+  <rect x="612" y="396" width="4" height="30" rx="2" fill="#ccd3db"/>
+
+  <!-- colonna elementi -->
+  <rect x="652" y="176" width="232" height="286" rx="8" fill="#ffffff" stroke="#e3e6ea"/>
+  <text x="668" y="196" font-size="9.5" font-weight="700" fill="#6b7684" letter-spacing="1">ELEMENTI</text>
+  <rect x="668" y="206" width="200" height="28" rx="5" fill="#3b6ef5"/>
+  <text x="768" y="225" font-size="11.5" font-weight="600" fill="#ffffff" text-anchor="middle">+ Aggiungi elemento &#9662;</text>
+  <g>
+    <rect x="668" y="244" width="200" height="30" rx="5" fill="#fbfcfd" stroke="#ccd3db"/>
+    <rect x="676" y="251" width="16" height="16" rx="3" fill="#eaf0ff" stroke="#3b6ef5"/>
+    <text x="700" y="263" font-size="11" fill="#1b2430">Rettangolo</text>
+    <text x="780" y="264" font-size="11" fill="#3b6ef5">&#8250;</text>
+    <text x="860" y="263" font-size="10" fill="#6b7684" text-anchor="end">&#8593; &#8595; &#10697; &#10005;</text>
+
+    <rect x="668" y="280" width="200" height="30" rx="5" fill="#fbfcfd" stroke="#ccd3db"/>
+    <rect x="676" y="287" width="16" height="16" rx="3" fill="#eaf0ff" stroke="#3b6ef5"/>
+    <text x="700" y="299" font-size="11" fill="#1b2430">Rettangolo</text>
+    <text x="780" y="300" font-size="11" fill="#3b6ef5">&#8250;</text>
+    <text x="860" y="299" font-size="10" fill="#6b7684" text-anchor="end">&#8593; &#8595; &#10697; &#10005;</text>
+
+    <rect x="668" y="316" width="200" height="30" rx="5" fill="#fbfcfd" stroke="#ccd3db"/>
+    <rect x="676" y="323" width="16" height="16" rx="3" fill="#eaf0ff" stroke="#3b6ef5"/>
+    <text x="700" y="335" font-size="11" fill="#1b2430">Cerchio</text>
+    <text x="780" y="336" font-size="11" fill="#3b6ef5">&#8250;</text>
+    <text x="860" y="335" font-size="10" fill="#6b7684" text-anchor="end">&#8593; &#8595; &#10697; &#10005;</text>
+  </g>
+  <text x="668" y="372" font-size="10" fill="#6b7684">La riga stessa &#232; il comando di</text>
+  <text x="668" y="386" font-size="10" fill="#6b7684">modifica: apre il dettaglio al</text>
+  <text x="668" y="400" font-size="10" fill="#6b7684">posto dell'elenco.</text>
+  <rect x="864" y="244" width="4" height="60" rx="2" fill="#ccd3db"/>
+
+  <!-- piede: dati di servizio, non comandi -->
+  <rect x="56" y="474" width="828" height="30" rx="8" fill="#fbfcfd" stroke="#e3e6ea"/>
+  <text x="72" y="493" font-size="9.5" fill="#6b7684">UUIDv7 01a08a43&#8230;   Creato 10/09/2026 09:41   Modificato 10/09/2026 11:49</text>
+  <text x="868" y="493" font-size="9.5" font-weight="600" fill="#3b6ef5" text-anchor="end">Modifiche non salvate</text>
+
+  <!-- note numerate -->
+  <g font-size="11.5" fill="#1b2430">
+    <circle cx="52" cy="546" r="10" fill="#3b6ef5"/><text x="52" y="550" font-size="11" fill="#ffffff" text-anchor="middle">1</text>
+    <text x="70" y="550">Ogni movimento di un cursore aggiorna il modello e rigenera le due anteprime: nessun pulsante &#171;Applica&#187;.</text>
+    <circle cx="52" cy="576" r="10" fill="#3b6ef5"/><text x="52" y="580" font-size="11" fill="#ffffff" text-anchor="middle">2</text>
+    <text x="70" y="580">Le tre colonne chiudono sulla stessa linea: a scorrere &#232; il contenuto di ciascuna, non la finestra.</text>
+    <circle cx="52" cy="606" r="10" fill="#3b6ef5"/><text x="52" y="610" font-size="11" fill="#ffffff" text-anchor="middle">3</text>
+    <text x="70" y="610">Nell'Anteprima scorre il solo sorgente: le due anteprime devono restare intere e sempre visibili.</text>
+  </g>
+</svg>

@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-abb4-7e38-a9b0-a423d46b816d",
+  "name": "Chevron - 13",
+  "createdAt": "2026-09-10T15:56:14.0692150\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:14.5348971\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 20.016,
+    "height": 100,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m10.145 72.989-.153-.07-.155.07L0 59.67v17.981l9.992 13.525 10.024-13.525v-17.98z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abb4-7328-aefe-07f57d26a2fc",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "m10.145 22.37-.153-.07-.155.07L0 9.053v17.98l9.992 13.525 10.024-13.525V9.053Z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abb4-7379-8539-4e144a1a304d",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 0v1.724l9.992 13.525L20.016 1.724V0Zm10.145 47.68-.153-.07-.155.07L0 34.361v17.981l9.992 13.525 10.024-13.525v-17.98Zm0 50.618-.153-.069-.155.07L0 84.981V100h20.016V84.97z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abb4-79d5-93a8-72801f983a14",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

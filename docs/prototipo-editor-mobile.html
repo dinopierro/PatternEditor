@@ -1,0 +1,1284 @@
+<title>Pattern Editor Mobile</title>
+
+<style>
+/* ------------------------------------------------------------------
+   Tavolozza: e' quella del componente reale (patternEditor.css), non
+   una scelta di questo prototipo. Un prototipo con colori propri
+   risponderebbe a una domanda diversa da quella posta.
+   ------------------------------------------------------------------ */
+:root {
+    --pe-bg: #ffffff;
+    --pe-bg-sunken: #f6f7f9;
+    --pe-bg-raised: #ffffff;
+    --pe-border: #e3e6ea;
+    --pe-border-strong: #cbd2da;
+    --pe-text: #1b2430;
+    --pe-text-muted: #6b7684;
+    --pe-accent: #3b6ef5;
+    --pe-accent-weak: #eaf0ff;
+    --pe-accent-text: #ffffff;
+    --pe-danger: #d33a3a;
+    --pe-danger-weak: #fdeceb;
+    --pe-checker-a: #ffffff;
+    --pe-checker-b: #eceef1;
+    --pe-radius: 10px;
+    --pe-radius-sm: 7px;
+    --pe-shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 1px 3px rgba(16, 24, 40, .06);
+    --pe-menu-shadow: 0 -8px 32px rgba(16, 24, 40, .18);
+
+    /* Il fondo attorno al telaio: neutro spostato verso l'accento, non grigio puro. */
+    --scena: #eef1f6;
+    --scena-testo: #46505e;
+
+    --ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --pe-bg: #161a20;
+        --pe-bg-sunken: #11151a;
+        --pe-bg-raised: #1c222a;
+        --pe-border: #2a323c;
+        --pe-border-strong: #3a4450;
+        --pe-text: #e7ebf0;
+        --pe-text-muted: #98a3b1;
+        --pe-accent: #5b87ff;
+        --pe-accent-weak: #1e2a45;
+        --pe-danger: #ff7b72;
+        --pe-danger-weak: #3a2020;
+        --pe-checker-a: #2a2f36;
+        --pe-checker-b: #21262c;
+        --pe-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+        --pe-menu-shadow: 0 -8px 32px rgba(0, 0, 0, .55);
+        --scena: #0e1116;
+        --scena-testo: #9aa5b3;
+    }
+}
+
+:root[data-theme="dark"] {
+    --pe-bg: #161a20;
+    --pe-bg-sunken: #11151a;
+    --pe-bg-raised: #1c222a;
+    --pe-border: #2a323c;
+    --pe-border-strong: #3a4450;
+    --pe-text: #e7ebf0;
+    --pe-text-muted: #98a3b1;
+    --pe-accent: #5b87ff;
+    --pe-accent-weak: #1e2a45;
+    --pe-danger: #ff7b72;
+    --pe-danger-weak: #3a2020;
+    --pe-checker-a: #2a2f36;
+    --pe-checker-b: #21262c;
+    --pe-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+    --pe-menu-shadow: 0 -8px 32px rgba(0, 0, 0, .55);
+    --scena: #0e1116;
+    --scena-testo: #9aa5b3;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--scena);
+    color: var(--pe-text);
+    font-family: var(--ui);
+    -webkit-text-size-adjust: 100%;
+}
+
+button, input, select { font-family: inherit; }
+
+:focus-visible {
+    outline: 2px solid var(--pe-accent);
+    outline-offset: 2px;
+}
+
+/* ==================================================================
+   La scena: sul telefono c'e' solo l'applicazione, a tutto schermo.
+   Da 1000px in su compare il telaio e accanto le note di progetto.
+   ================================================================== */
+.scena {
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+.note { display: none; }
+
+.app {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    height: 100dvh;
+    background: var(--pe-bg);
+}
+
+@media (min-width: 1000px) {
+    .scena {
+        grid-template-columns: minmax(20rem, 26rem) auto;
+        gap: 3.5rem;
+        justify-content: center;
+        align-items: center;
+        padding: 3rem 2rem;
+    }
+
+    .note { display: block; }
+
+    .app {
+        width: 390px;
+        height: 844px;
+        border: 10px solid #10141a;
+        border-radius: 34px;
+        box-shadow: 0 30px 70px rgba(8, 12, 20, .35);
+    }
+}
+
+/* ---------- note di progetto (solo su schermo largo) -------------- */
+
+.note__occhiello {
+    margin: 0 0 .5rem;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--pe-accent);
+}
+
+.note h1 {
+    margin: 0 0 .6rem;
+    font-size: 1.85rem;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    text-wrap: balance;
+    color: var(--pe-text);
+}
+
+.note__occhio {
+    margin: 0 0 1.6rem;
+    max-width: 34ch;
+    font-size: .92rem;
+    line-height: 1.55;
+    color: var(--scena-testo);
+}
+
+/* Numerate perche' seguono davvero le tre fasce dello schermo, dall'alto in basso. */
+.note__elenco {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    counter-reset: fascia;
+}
+
+.note__voce {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    gap: .75rem;
+    counter-increment: fascia;
+}
+
+.note__voce::before {
+    content: counter(fascia);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: var(--pe-accent);
+    color: #fff;
+    font-size: .74rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.note__voce h2 {
+    margin: .15rem 0 .25rem;
+    font-size: .95rem;
+    font-weight: 650;
+}
+
+.note__voce p {
+    margin: 0;
+    font-size: .85rem;
+    line-height: 1.5;
+    color: var(--scena-testo);
+}
+
+.note__coda {
+    margin: 1.8rem 0 0;
+    padding-top: 1.1rem;
+    border-top: 1px solid color-mix(in srgb, var(--scena-testo) 25%, transparent);
+    font-size: .8rem;
+    line-height: 1.55;
+    color: var(--scena-testo);
+}
+
+.note__coda strong { color: var(--pe-text); font-weight: 650; }
+
+/* ==================================================================
+   Fascia 1 — barra fissa: le decisioni sulla sessione
+   ================================================================== */
+.barra {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .45rem .5rem;
+    border-bottom: 1px solid var(--pe-border);
+    background: var(--pe-bg-raised);
+}
+
+.barra__nome {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 44px;
+    padding: 0 .6rem;
+    border: 1px solid transparent;
+    border-radius: var(--pe-radius-sm);
+    background: transparent;
+    color: var(--pe-text);
+    font-size: 16px;      /* sotto i 16px Safari ingrandisce la pagina al focus */
+    font-weight: 650;
+}
+
+.barra__nome:focus {
+    outline: none;
+    border-color: var(--pe-accent);
+    background: var(--pe-bg);
+}
+
+.tondo {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--pe-border-strong);
+    border-radius: 50%;
+    background: var(--pe-bg);
+    color: var(--pe-text);
+    font-size: 1.05rem;
+    cursor: pointer;
+}
+
+.tondo--conferma {
+    border-color: var(--pe-accent);
+    background: var(--pe-accent);
+    color: var(--pe-accent-text);
+}
+
+/* ==================================================================
+   Fascia 2 — anteprima fissa: non scorre mai via
+   ================================================================== */
+.anteprima {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    height: 34dvh;
+    min-height: 210px;
+    border-bottom: 1px solid var(--pe-border);
+    background: var(--pe-bg-sunken);
+}
+
+.linguette {
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .4rem .5rem 0;
+}
+
+.linguette__nome {
+    padding: .35rem .1rem;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--pe-text-muted);
+}
+
+.linguette__misura {
+    margin-left: auto;
+    padding-right: .25rem;
+    font-size: .68rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--pe-text-muted);
+}
+
+.tela {
+    display: grid;
+    place-items: center;
+    padding: .5rem .75rem .75rem;
+    min-height: 0;
+}
+
+.tela__superficie {
+    width: 100%;
+    height: 100%;
+    border: 1px solid var(--pe-border);
+    border-radius: var(--pe-radius-sm);
+    overflow: hidden;
+    background-color: var(--pe-checker-a);
+    background-image:
+        linear-gradient(45deg, var(--pe-checker-b) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--pe-checker-b) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--pe-checker-b) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--pe-checker-b) 75%);
+    background-size: 14px 14px;
+    background-position: 0 0, 0 7px, 7px -7px, -7px 0;
+}
+
+.tela__superficie svg { display: block; width: 100%; height: 100%; }
+
+/* ==================================================================
+   Fascia 3 — schede: al posto delle tre colonne
+   ================================================================== */
+.schede {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: var(--pe-bg-raised);
+    border-bottom: 1px solid var(--pe-border);
+}
+
+.scheda {
+    height: 46px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--pe-text-muted);
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .01em;
+    cursor: pointer;
+}
+
+.scheda[aria-selected="true"] {
+    border-bottom-color: var(--pe-accent);
+    color: var(--pe-accent);
+}
+
+/* ==================================================================
+   Fascia 4 — il foglio: l'unica parte che scorre
+   ================================================================== */
+.foglio {
+    overflow-y: auto;
+    overscroll-behavior: contain;   /* arrivato in fondo non trascina la pagina sotto */
+    -webkit-overflow-scrolling: touch;
+    padding: .85rem .75rem 2rem;
+    background: var(--pe-bg);
+}
+
+.gruppo + .gruppo {
+    margin-top: 1.1rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--pe-border);
+}
+
+.gruppo__testa {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-bottom: .6rem;
+}
+
+.gruppo__titolo {
+    margin: 0;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--pe-text-muted);
+}
+
+.azzera {
+    border: none;
+    background: none;
+    padding: .3rem;
+    color: var(--pe-accent);
+    font-size: .78rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Un campo per riga: le griglie a due colonne del desktop qui si aprono. */
+.campo { display: block; }
+.campo + .campo { margin-top: .85rem; }
+
+.campo__etichetta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-bottom: .3rem;
+    font-size: .82rem;
+    color: var(--pe-text);
+}
+
+.unita { color: var(--pe-text-muted); font-size: .75rem; }
+
+.valore {
+    font-family: var(--mono);
+    font-size: .82rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--pe-text-muted);
+}
+
+.testo {
+    width: 100%;
+    height: 44px;
+    padding: 0 .6rem;
+    border: 1px solid var(--pe-border-strong);
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg);
+    color: var(--pe-text);
+    font-size: 16px;
+}
+
+.testo:focus {
+    outline: none;
+    border-color: var(--pe-accent);
+    box-shadow: 0 0 0 3px var(--pe-accent-weak);
+}
+
+/* Il cursore sta sopra il suo numero, non accanto: a 390px affiancarli
+   lascerebbe al dito una corsa di due centimetri. */
+.cursore {
+    width: 100%;
+    height: 44px;
+    margin: 0;
+    accent-color: var(--pe-accent);
+}
+
+.colore {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.colore__scelta {
+    flex: 0 0 auto;
+    width: 52px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--pe-border-strong);
+    border-radius: var(--pe-radius-sm);
+    background: none;
+    cursor: pointer;
+}
+
+.colore__codice {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 44px;
+    padding: 0 .6rem;
+    border: 1px solid var(--pe-border-strong);
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg);
+    color: var(--pe-text);
+    font-family: var(--mono);
+    font-size: 16px;
+}
+
+.colore__codice:focus {
+    outline: none;
+    border-color: var(--pe-accent);
+    box-shadow: 0 0 0 3px var(--pe-accent-weak);
+}
+
+.colore__codice:invalid {
+    border-color: var(--pe-danger);
+    color: var(--pe-danger);
+}
+
+/* ---------- elenco degli elementi --------------------------------- */
+
+.aggiungi {
+    width: 100%;
+    height: 48px;
+    margin-bottom: .75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    border: none;
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-accent);
+    color: var(--pe-accent-text);
+    font-size: .92rem;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.elenco {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.riga {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--pe-border);
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg-sunken);
+    overflow: hidden;
+}
+
+/* Tutto su una riga: il nome si tocca per aprire, i comandi gli stanno
+   accanto. Una seconda fascia per elemento costava una cinquantina di
+   pixel a testa, e con nove elementi fa mezzo schermo speso in comandi. */
+.riga__apri {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    min-height: 52px;
+    padding: .5rem .3rem .5rem .55rem;
+    border: none;
+    background: none;
+    color: var(--pe-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.riga__nome {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: .92rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.riga__comandi {
+    flex: 0 0 auto;
+    display: flex;
+    padding-left: .15rem;
+    border-left: 1px solid var(--pe-border);
+}
+
+/* 40px di larghezza, non 44: l'area toccabile e' alta quanto la riga, e in
+   verticale il dito ha tutto lo spazio che serve. */
+.comando {
+    width: 40px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--pe-radius-sm);
+    background: none;
+    color: var(--pe-text-muted);
+    font-size: .95rem;
+    cursor: pointer;
+}
+
+.comando:disabled { opacity: .3; }
+.comando--elimina { color: var(--pe-danger); }
+
+.pastiglia {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.35rem;
+    padding: 0 .4rem;
+    border-radius: 999px;
+    background: var(--pe-accent-weak);
+    color: var(--pe-accent);
+    font-size: .7rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.icona {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 6px;
+    background: var(--pe-accent-weak);
+    color: var(--pe-accent);
+}
+
+.icona svg { display: block; }
+
+/* ---------- dettaglio di un elemento ------------------------------ */
+
+.dettaglio__testa {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin: -.2rem -.1rem .8rem;
+    padding-bottom: .7rem;
+    border-bottom: 1px solid var(--pe-border);
+}
+
+.indietro {
+    display: inline-flex;
+    align-items: center;
+    gap: .2rem;
+    height: 44px;
+    padding: 0 .6rem 0 .3rem;
+    border: none;
+    background: none;
+    color: var(--pe-accent);
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.dettaglio__nome {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: .95rem;
+    font-weight: 650;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.interruttore {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .8rem;
+    color: var(--pe-text-muted);
+}
+
+.interruttore input { width: 22px; height: 22px; accent-color: var(--pe-accent); }
+
+/* ---------- scheda SVG -------------------------------------------- */
+
+.sorgente {
+    margin: 0 0 .9rem;
+    padding: .6rem;
+    max-height: 40dvh;
+    overflow: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--pe-border);
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg-sunken);
+    font-family: var(--mono);
+    font-size: .72rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: var(--pe-text);
+}
+
+.azioni { display: flex; gap: .5rem; margin-bottom: 1.1rem; }
+
+.bottone {
+    flex: 1 1 0;
+    height: 46px;
+    border: 1px solid var(--pe-border-strong);
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg);
+    color: var(--pe-text);
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.bottone--primario {
+    border-color: var(--pe-accent);
+    background: var(--pe-accent);
+    color: var(--pe-accent-text);
+}
+
+.dati { display: grid; gap: .55rem; font-size: .78rem; }
+
+.dati__voce {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: .5rem;
+    align-items: baseline;
+}
+
+.dati__nome {
+    font-size: .68rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--pe-text-muted);
+}
+
+.dati__valore {
+    font-family: var(--mono);
+    overflow-wrap: anywhere;
+    color: var(--pe-text);
+}
+
+.stato {
+    margin-top: .9rem;
+    padding: .5rem .65rem;
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-accent-weak);
+    color: var(--pe-accent);
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+/* ==================================================================
+   Foglio di scelta del tipo: a tutto schermo, non una tendina
+   ================================================================== */
+.velo {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    background: rgba(11, 16, 23, .45);
+}
+
+.velo[hidden] { display: none !important; }
+
+.scelta {
+    position: absolute;
+    z-index: 6;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 82%;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    border-radius: 16px 16px 0 0;
+    background: var(--pe-bg-raised);
+    box-shadow: var(--pe-menu-shadow);
+    animation: sali .22s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.scelta[hidden] { display: none !important; }
+
+@keyframes sali { from { transform: translateY(12%); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.scelta__testa {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: .7rem .5rem .7rem .9rem;
+    border-bottom: 1px solid var(--pe-border);
+}
+
+.scelta__titolo { font-size: .95rem; font-weight: 650; }
+
+.scelta__corpo {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: .5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .4rem;
+}
+
+.tipo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .3rem;
+    min-height: 76px;
+    padding: .6rem;
+    border: 1px solid var(--pe-border);
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg);
+    color: var(--pe-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.tipo__nome { font-size: .86rem; font-weight: 600; }
+.tipo__codice { font-family: var(--mono); font-size: .66rem; color: var(--pe-text-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+    .scelta { animation: none; }
+}
+</style>
+
+<div class="scena">
+
+    <aside class="note">
+        <p class="note__occhiello">Prototipo · da toccare</p>
+        <h1>L'editor su schermo stretto</h1>
+        <p class="note__occhio">
+            Le stesse funzioni della versione da scrivania, disposte in tre fasce fisse
+            invece che in tre colonne. Aprilo dal telefono: l'unica prova che conta è il pollice.
+        </p>
+
+        <ol class="note__elenco">
+            <li class="note__voce">
+                <div>
+                    <h2>Le decisioni restano in alto</h2>
+                    <p>Annulla, nome e conferma in una barra che non scorre. Sono le scelte
+                       sulla sessione, e si prendono dove si guarda per primo.</p>
+                </div>
+            </li>
+            <li class="note__voce">
+                <div>
+                    <h2>L'anteprima non scorre mai</h2>
+                    <p>Sta ferma sotto la barra mentre si regolano i valori. Resta la sola
+                       ripetizione: affiancarle anche la cella singola, a 390 px, darebbe
+                       due francobolli invece di un'anteprima.</p>
+                </div>
+            </li>
+            <li class="note__voce">
+                <div>
+                    <h2>Tre schede al posto di tre colonne</h2>
+                    <p>Proprietà, elementi e sorgente. A scorrere è solo il foglio; il
+                       dettaglio di un elemento sostituisce l'elenco, esattamente come già
+                       accade su schermo largo. Ogni elemento sta su una riga sola, comandi
+                       compresi.</p>
+                </div>
+            </li>
+        </ol>
+
+        <p class="note__coda">
+            Il pattern caricato è <strong>Waves - 1</strong>, uno dei 395 importati: dati
+            veri, non riempitivi. Prova a trascinare <strong>Rotazione</strong> e guarda se
+            l'anteprima resta dove serve; apri <strong>Elementi</strong> e tocca una riga;
+            scrivi un colore a mano, anche sbagliato.
+            <br /><br />
+            Questa disposizione è ora <strong>nell'applicazione</strong>: stessa pagina,
+            stessi componenti, <strong>fino a 1024 px</strong> di larghezza. Da 1025 in su
+            tornano le tre colonne, invariate.
+        </p>
+    </aside>
+
+    <div class="app" id="app">
+
+        <header class="barra">
+            <button class="tondo" type="button" title="Annulla" aria-label="Annulla">✕</button>
+            <input class="barra__nome" id="nome" value="Waves - 1" aria-label="Nome del pattern" />
+            <button class="tondo tondo--conferma" type="button" title="Conferma" aria-label="Conferma">✓</button>
+        </header>
+
+        <section class="anteprima">
+            <div class="linguette">
+                <span class="linguette__nome">Ripetizione</span>
+                <span class="linguette__misura" id="misura">120 × 80</span>
+            </div>
+            <div class="tela">
+                <div class="tela__superficie" id="tela"></div>
+            </div>
+        </section>
+
+        <nav class="schede" role="tablist" aria-label="Sezioni">
+            <button class="scheda" role="tab" data-scheda="proprieta" aria-selected="true" type="button">Proprietà</button>
+            <button class="scheda" role="tab" data-scheda="elementi" aria-selected="false" type="button">Elementi</button>
+            <button class="scheda" role="tab" data-scheda="svg" aria-selected="false" type="button">SVG</button>
+        </nav>
+
+        <section class="foglio" id="foglio"></section>
+
+        <div class="velo" id="velo" hidden></div>
+
+        <div class="scelta" id="scelta" hidden role="dialog" aria-label="Scegli il tipo di elemento">
+            <div class="scelta__testa">
+                <span class="scelta__titolo">Aggiungi elemento</span>
+                <button class="tondo" type="button" id="chiudi-scelta" aria-label="Chiudi">✕</button>
+            </div>
+            <div class="scelta__corpo" id="scelta-corpo"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    // ---------------------------------------------------------------
+    // Dati veri: e' il pattern "Waves - 1" come sta nell'applicazione.
+    // ---------------------------------------------------------------
+    const onda = (y) => "M-50.129 " + y + ".685C-33.346 " + y + ".358-16.786 " + (y - 8) +
+        ".918 0 " + (y - 7) + "c16.787.082 43.213 10 60 10s43.213-9.918 60-10c16.786-.082 33.346 7.358 50.129 7.685";
+
+    const modello = {
+        nome: "Waves - 1",
+        id: "01a08c08-ac4d-7a18-927e-e0d084897230",
+        creato: "10/09/2026 17:56",
+        modificato: "10/09/2026 17:56",
+        larghezza: 120,
+        altezza: 80,
+        scala: 100,
+        rotazione: 0,
+        traslaX: 0,
+        traslaY: 0,
+        elementi: [
+            { tipo: "rect", nome: "Rettangolo", x: 0, y: 0, w: 120, h: 80, fill: "#2a2a30", stroke: null, spessore: 0 },
+            { tipo: "path", nome: "Tracciato", d: onda(12), fill: null, stroke: "#ecc94b", spessore: 1 },
+            { tipo: "path", nome: "Tracciato", d: onda(32), fill: null, stroke: "#f44336", spessore: 1 },
+            { tipo: "path", nome: "Tracciato", d: onda(52), fill: null, stroke: "#00bcd4", spessore: 1 },
+            { tipo: "path", nome: "Tracciato", d: onda(72), fill: null, stroke: "#805ad5", spessore: 1 }
+        ]
+    };
+
+    const TIPI = [
+        ["rect", "Rettangolo"], ["circle", "Cerchio"], ["ellipse", "Ellisse"],
+        ["line", "Linea"], ["path", "Tracciato"], ["polygon", "Poligono"],
+        ["polyline", "Spezzata"], ["text", "Testo"], ["image", "Immagine"]
+    ];
+
+    const ICONE = {
+        rect: '<rect x="2.5" y="4" width="11" height="8" rx="1.5"/>',
+        circle: '<circle cx="8" cy="8" r="5.5"/>',
+        ellipse: '<ellipse cx="8" cy="8" rx="6" ry="4"/>',
+        line: '<path d="M3 13 L13 3"/>',
+        path: '<path d="M2 11c3-8 9 2 12-6"/>',
+        polygon: '<path d="M8 2.5 14 7l-2.3 6.5H4.3L2 7z"/>',
+        polyline: '<path d="M2 11l3.5-5L9 9l5-6"/>',
+        text: '<path d="M4 4h8M8 4v9"/>',
+        image: '<rect x="2.5" y="3.5" width="11" height="9" rx="1.5"/><path d="M2.5 10l3-2.5 3.5 3 2-1.5 2.5 2"/>'
+    };
+
+    const stato = { scheda: "proprieta", inModifica: null };
+
+    const $ = (sel) => document.querySelector(sel);
+    const num = (v) => Math.round(v * 1000) / 1000;
+    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    // ---------------------------------------------------------------
+    // Colore: le stesse regole del componente reale.
+    // ---------------------------------------------------------------
+    const canonico = (t) => /^#[0-9a-fA-F]{6}$/.test(t || "");
+
+    function normalizza(t) {
+        if (!t) return null;
+        let c = String(t).trim();
+        if (c[0] === "#") c = c.slice(1);
+        if (!/^[0-9a-fA-F]+$/.test(c)) return null;
+        if (c.length === 6) return "#" + c;
+        if (c.length === 3) return "#" + c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+        return null;
+    }
+
+    const perSelettore = (t) => normalizza(t) || "#000000";
+
+    // ---------------------------------------------------------------
+    // Generazione dell'SVG: una sola sorgente per anteprime e sorgente,
+    // come nel componente.
+    // ---------------------------------------------------------------
+    function elementoSvg(e) {
+        const pezzi = [];
+        if (e.tipo === "rect") {
+            pezzi.push('<rect x="' + e.x + '" y="' + e.y + '" width="' + e.w + '" height="' + e.h + '"');
+        } else {
+            pezzi.push('<path d="' + e.d + '"');
+        }
+        pezzi.push(' fill="' + (e.fill || "none") + '"');
+        if (e.stroke) pezzi.push(' stroke="' + e.stroke + '" stroke-width="' + e.spessore + '"');
+        pezzi.push(" />");
+        return pezzi.join("");
+    }
+
+    function trasformazione() {
+        const t = [];
+        if (modello.scala !== 100) t.push("scale(" + num(modello.scala / 100) + ")");
+        if (modello.rotazione) t.push("rotate(" + num(modello.rotazione) + ")");
+        if (modello.traslaX || modello.traslaY) t.push("translate(" + num(modello.traslaX) + "," + num(modello.traslaY) + ")");
+        return t.join(" ");
+    }
+
+    function sorgente(idPattern) {
+        const t = trasformazione();
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">\n' +
+            "  <defs>\n" +
+            '    <pattern id="' + idPattern + '" width="' + modello.larghezza + '" height="' + modello.altezza +
+            '" patternUnits="userSpaceOnUse"' + (t ? ' patternTransform="' + t + '"' : "") + ">\n" +
+            modello.elementi.map((e) => "      " + elementoSvg(e)).join("\n") + "\n" +
+            "    </pattern>\n" +
+            "  </defs>\n" +
+            '  <rect width="100%" height="100%" fill="url(#' + idPattern + ')" />\n' +
+            "</svg>";
+    }
+
+    function disegnaAnteprima() {
+        // Sullo schermo stretto resta la sola ripetizione: e' quella che dice se il
+        // motivo funziona. La geometria del singolo elemento si legge nel dettaglio.
+        $("#tela").innerHTML = sorgente("anteprima-mobile");
+        $("#misura").textContent = num(modello.larghezza) + " × " + num(modello.altezza);
+    }
+
+    // ---------------------------------------------------------------
+    // Schede del foglio
+    // ---------------------------------------------------------------
+    function campoCursore(etichetta, unita, chiave, min, max, passo) {
+        return '<div class="campo">' +
+            '<span class="campo__etichetta"><span>' + etichetta + ' <span class="unita">[' + unita + ']</span></span>' +
+            '<span class="valore" data-eco="' + chiave + '">' + num(modello[chiave]) + "</span></span>" +
+            '<input class="cursore" type="range" min="' + min + '" max="' + max + '" step="' + passo +
+            '" value="' + modello[chiave] + '" data-chiave="' + chiave + '" aria-label="' + etichetta + '" />' +
+            "</div>";
+    }
+
+    function schedaProprieta() {
+        return '<div class="gruppo">' +
+            '<div class="gruppo__testa"><h2 class="gruppo__titolo">Cella</h2></div>' +
+            '<label class="campo"><span class="campo__etichetta"><span>Larghezza <span class="unita">[px]</span></span></span>' +
+            '<input class="testo" type="number" inputmode="decimal" step="1" min="1" value="' + modello.larghezza + '" data-chiave="larghezza" /></label>' +
+            '<label class="campo"><span class="campo__etichetta"><span>Altezza <span class="unita">[px]</span></span></span>' +
+            '<input class="testo" type="number" inputmode="decimal" step="1" min="1" value="' + modello.altezza + '" data-chiave="altezza" /></label>' +
+            "</div>" +
+            '<div class="gruppo">' +
+            '<div class="gruppo__testa"><h2 class="gruppo__titolo">Trasformazione</h2>' +
+            '<button class="azzera" type="button" id="azzera">Azzera</button></div>' +
+            campoCursore("Scala", "%", "scala", 10, 400, 5) +
+            campoCursore("Rotazione", "°", "rotazione", 0, 360, 1) +
+            campoCursore("Traslazione X", "px", "traslaX", -modello.larghezza, modello.larghezza, 1) +
+            campoCursore("Traslazione Y", "px", "traslaY", -modello.altezza, modello.altezza, 1) +
+            "</div>";
+    }
+
+    const iconaHtml = (tipo) =>
+        '<span class="icona"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">' + (ICONE[tipo] || ICONE.rect) + "</svg></span>";
+
+    function schedaElementi() {
+        if (stato.inModifica !== null) return dettaglioElemento(stato.inModifica);
+
+        const righe = modello.elementi.map(function (e, i) {
+            return '<li class="riga">' +
+                '<button class="riga__apri" type="button" data-apri="' + i + '">' +
+                iconaHtml(e.tipo) +
+                '<span class="riga__nome">' + e.nome + "</span>" +
+                "</button>" +
+                '<div class="riga__comandi">' +
+                '<button class="comando" type="button" title="Sposta su" data-su="' + i + '"' + (i === 0 ? " disabled" : "") + ">↑</button>" +
+                '<button class="comando" type="button" title="Sposta giù" data-giu="' + i + '"' + (i === modello.elementi.length - 1 ? " disabled" : "") + ">↓</button>" +
+                '<button class="comando" type="button" title="Duplica" data-dup="' + i + '">⧉</button>' +
+                '<button class="comando comando--elimina" type="button" title="Elimina" data-del="' + i + '">✕</button>' +
+                "</div></li>";
+        }).join("");
+
+        return '<button class="aggiungi" type="button" id="apri-scelta"><span>+</span> Aggiungi elemento</button>' +
+            '<ul class="elenco">' + righe + "</ul>";
+    }
+
+    function campoColore(etichetta, indice, canale) {
+        const e = modello.elementi[indice];
+        const v = e[canale];
+        return '<div class="gruppo">' +
+            '<div class="gruppo__testa"><h2 class="gruppo__titolo">' + etichetta + "</h2>" +
+            '<label class="interruttore"><input type="checkbox" data-attivo="' + canale + '"' + (v ? " checked" : "") + " /> Attivo</label></div>" +
+            (v
+                ? '<div class="colore">' +
+                  '<input class="colore__scelta" type="color" value="' + perSelettore(v) + '" data-selettore="' + canale + '" aria-label="Scegli ' + etichetta + '" />' +
+                  '<input class="colore__codice" type="text" value="' + v + '" spellcheck="false" autocomplete="off" maxlength="7" ' +
+                  'pattern="#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})" data-codice="' + canale + '" aria-label="Codice ' + etichetta + '" />' +
+                  "</div>" +
+                  (canale === "stroke"
+                      ? '<label class="campo"><span class="campo__etichetta"><span>Spessore <span class="unita">[px]</span></span></span>' +
+                        '<input class="testo" type="number" inputmode="decimal" min="0" step="0.5" value="' + e.spessore + '" data-spessore="1" /></label>'
+                      : "")
+                : '<p class="valore" style="margin:0">Nessun ' + etichetta.toLowerCase() + ".</p>")
+            + "</div>";
+    }
+
+    function dettaglioElemento(i) {
+        const e = modello.elementi[i];
+        return '<div class="dettaglio__testa">' +
+            '<button class="indietro" type="button" id="torna"><span aria-hidden="true">‹</span> Elenco</button>' +
+            iconaHtml(e.tipo) +
+            '<span class="dettaglio__nome">' + e.nome + "</span>" +
+            '<span class="pastiglia">' + (i + 1) + " / " + modello.elementi.length + "</span>" +
+            "</div>" +
+            (e.tipo === "rect"
+                ? '<div class="gruppo"><div class="gruppo__testa"><h2 class="gruppo__titolo">Geometria</h2></div>' +
+                  '<label class="campo"><span class="campo__etichetta"><span>Larghezza <span class="unita">[px]</span></span></span>' +
+                  '<input class="testo" type="number" inputmode="decimal" value="' + e.w + '" /></label>' +
+                  '<label class="campo"><span class="campo__etichetta"><span>Altezza <span class="unita">[px]</span></span></span>' +
+                  '<input class="testo" type="number" inputmode="decimal" value="' + e.h + '" /></label></div>'
+                : '<div class="gruppo"><div class="gruppo__testa"><h2 class="gruppo__titolo">Tracciato</h2></div>' +
+                  '<label class="campo"><span class="campo__etichetta"><span>Comando <span class="unita">[d]</span></span></span>' +
+                  '<input class="testo" style="font-family:var(--mono);font-size:14px" type="text" value="' + esc(e.d).slice(0, 42) + '…" /></label></div>') +
+            campoColore("Riempimento", i, "fill") +
+            campoColore("Bordo", i, "stroke");
+    }
+
+    function schedaSvg() {
+        return '<div class="azioni">' +
+            '<button class="bottone" type="button">Copia</button>' +
+            '<button class="bottone bottone--primario" type="button">↓ Scarica SVG</button>' +
+            "</div>" +
+            '<pre class="sorgente">' + esc(sorgente("p")) + "</pre>" +
+            '<div class="dati">' +
+            '<div class="dati__voce"><span class="dati__nome">UUIDv7</span><span class="dati__valore">' + modello.id + "</span></div>" +
+            '<div class="dati__voce"><span class="dati__nome">Creato</span><span class="dati__valore">' + modello.creato + "</span></div>" +
+            '<div class="dati__voce"><span class="dati__nome">Modificato</span><span class="dati__valore">' + modello.modificato + "</span></div>" +
+            "</div>" +
+            '<p class="stato">Modifiche non salvate</p>';
+    }
+
+    function disegnaFoglio() {
+        const foglio = $("#foglio");
+        foglio.innerHTML = stato.scheda === "proprieta" ? schedaProprieta()
+            : stato.scheda === "elementi" ? schedaElementi()
+            : schedaSvg();
+        foglio.scrollTop = 0;
+    }
+
+    function disegnaTutto() {
+        disegnaFoglio();
+        disegnaAnteprima();
+    }
+
+    // ---------------------------------------------------------------
+    // Interazione
+    // ---------------------------------------------------------------
+    document.querySelectorAll(".scheda").forEach(function (b) {
+        b.addEventListener("click", function () {
+            stato.scheda = b.dataset.scheda;
+            stato.inModifica = null;
+            document.querySelectorAll(".scheda").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+            disegnaFoglio();
+        });
+    });
+
+    $("#nome").addEventListener("input", function (e) { modello.nome = e.target.value; });
+
+    // Un solo ascoltatore sul foglio: il contenuto viene ridisegnato spesso.
+    $("#foglio").addEventListener("input", function (ev) {
+        const t = ev.target;
+
+        if (t.dataset.chiave) {
+            modello[t.dataset.chiave] = parseFloat(t.value) || 0;
+            const eco = $('[data-eco="' + t.dataset.chiave + '"]');
+            if (eco) eco.textContent = num(modello[t.dataset.chiave]);
+            disegnaAnteprima();
+            return;
+        }
+
+        if (t.dataset.selettore) {
+            modello.elementi[stato.inModifica][t.dataset.selettore] = t.value;
+            const codice = $('[data-codice="' + t.dataset.selettore + '"]');
+            if (codice) codice.value = t.value;
+            disegnaAnteprima();
+            return;
+        }
+
+        // Mentre si digita si accetta solo la forma canonica: normalizzare a ogni
+        // carattere riscriverebbe il campo sotto le dita di chi scrive.
+        if (t.dataset.codice && canonico(t.value)) {
+            modello.elementi[stato.inModifica][t.dataset.codice] = t.value;
+            const sel = $('[data-selettore="' + t.dataset.codice + '"]');
+            if (sel) sel.value = t.value;
+            disegnaAnteprima();
+            return;
+        }
+
+        if (t.dataset.spessore) {
+            modello.elementi[stato.inModifica].spessore = parseFloat(t.value) || 0;
+            disegnaAnteprima();
+        }
+    });
+
+    // All'uscita dal campo si accettano anche le forme abbreviate, e il campo
+    // torna comunque al valore effettivo.
+    $("#foglio").addEventListener("change", function (ev) {
+        const t = ev.target;
+
+        if (t.dataset.codice) {
+            const c = normalizza(t.value);
+            if (c) modello.elementi[stato.inModifica][t.dataset.codice] = c;
+            disegnaFoglio();
+            disegnaAnteprima();
+        }
+
+        if (t.dataset.attivo) {
+            const e = modello.elementi[stato.inModifica];
+            const canale = t.dataset.attivo;
+            e[canale] = t.checked ? (e[canale] || (canale === "fill" ? "#aefaef" : "#000000")) : null;
+            if (canale === "stroke" && t.checked && !e.spessore) e.spessore = 1;
+            disegnaFoglio();
+            disegnaAnteprima();
+        }
+    });
+
+    $("#foglio").addEventListener("click", function (ev) {
+        const b = ev.target.closest("button");
+        if (!b) return;
+        const d = b.dataset;
+
+        if (b.id === "apri-scelta") return apriScelta();
+        if (b.id === "torna") { stato.inModifica = null; return disegnaFoglio(); }
+
+        if (b.id === "azzera") {
+            modello.scala = 100; modello.rotazione = 0; modello.traslaX = 0; modello.traslaY = 0;
+            return disegnaTutto();
+        }
+
+        if (d.apri !== undefined) { stato.inModifica = +d.apri; return disegnaFoglio(); }
+
+        if (d.su !== undefined) {
+            const i = +d.su;
+            [modello.elementi[i - 1], modello.elementi[i]] = [modello.elementi[i], modello.elementi[i - 1]];
+            return disegnaTutto();
+        }
+        if (d.giu !== undefined) {
+            const i = +d.giu;
+            [modello.elementi[i + 1], modello.elementi[i]] = [modello.elementi[i], modello.elementi[i + 1]];
+            return disegnaTutto();
+        }
+        if (d.dup !== undefined) {
+            const i = +d.dup;
+            modello.elementi.splice(i + 1, 0, Object.assign({}, modello.elementi[i]));
+            return disegnaTutto();
+        }
+        if (d.del !== undefined) {
+            modello.elementi.splice(+d.del, 1);
+            return disegnaTutto();
+        }
+    });
+
+    // ---------------------------------------------------------------
+    // Foglio di scelta del tipo
+    // ---------------------------------------------------------------
+    function apriScelta() {
+        $("#scelta-corpo").innerHTML = TIPI.map(function (t) {
+            return '<button class="tipo" type="button" data-tipo="' + t[0] + '">' +
+                iconaHtml(t[0]) +
+                '<span class="tipo__nome">' + t[1] + "</span>" +
+                '<span class="tipo__codice">' + t[0] + "</span></button>";
+        }).join("");
+        $("#velo").hidden = false;
+        $("#scelta").hidden = false;
+    }
+
+    function chiudiScelta() {
+        $("#velo").hidden = true;
+        $("#scelta").hidden = true;
+    }
+
+    $("#velo").addEventListener("click", chiudiScelta);
+    $("#chiudi-scelta").addEventListener("click", chiudiScelta);
+
+    $("#scelta-corpo").addEventListener("click", function (ev) {
+        const b = ev.target.closest("[data-tipo]");
+        if (!b) return;
+        const tipo = b.dataset.tipo;
+        const nome = (TIPI.find((t) => t[0] === tipo) || [])[1] || tipo;
+        const nuovo = tipo === "rect"
+            ? { tipo: "rect", nome: nome, x: 10, y: 10, w: 40, h: 30, fill: "#aefaef", stroke: null, spessore: 0 }
+            : { tipo: tipo, nome: nome, d: "M 10 40 L 40 10 L 70 40", fill: null, stroke: "#3b6ef5", spessore: 2 };
+        modello.elementi.push(nuovo);
+        chiudiScelta();
+        // Dopo l'inserimento il dettaglio si apre da solo sull'elemento appena aggiunto.
+        stato.inModifica = modello.elementi.length - 1;
+        disegnaTutto();
+    });
+
+    disegnaTutto();
+})();
+</script>

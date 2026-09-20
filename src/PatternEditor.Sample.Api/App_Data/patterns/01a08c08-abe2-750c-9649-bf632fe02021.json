@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-abe2-750c-9649-bf632fe02021",
+  "name": "Egyptian Pattern - 10",
+  "createdAt": "2026-09-10T15:56:14.8517231\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.4165580\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 40,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M40 27.5 35.001 20 40 12.498zM0 12.497 5.001 20 0 27.5zM0 2.5 15 20 0 37.5h10l10-11.666L30 37.5h10L25 20 40 2.5H30L20 14.166 10 2.5z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abe2-7cc2-bf5b-b1aaef600d89",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M5.001 37.5 37.5 2.5h-2.498l-32.5 35zm30 0-32.5-35H5l32.498 35zM0 10v2.498L5.002 20 0 27.5V30h2.5L10 20 2.5 10zm37.5 0L30 20l7.5 10H40v-2.5L35.002 20 40 12.498V10z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abe2-76b4-98c6-6028add1b482",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "m17.49 19.996 2.5-2.5 2.5 2.5-2.5 2.5zM5.001 37.499 2.501 40 0 37.5Zm4.999 0L7.5 40 5 37.5zm5.001 0L12.501 40 10 37.5zm4.999 0L17.5 40 15 37.5zm5.001 0L22.501 40 20 37.5zm4.999 0L27.5 40 25 37.5zm5.001 0L32.501 40 30 37.5zm4.999 0L37.5 40 35 37.5zM35.001 2.501 37.5 0 40 2.5zM30 2.5 32.5 0l2.501 2.5zm-4.999 0L27.5 0 30 2.5zM20 2.5 22.5 0l2.501 2.5zm-4.999 0L17.5 0 20 2.5zM10 2.5 12.5 0l2.501 2.5zm0 0H5.001L7.5 0zm-10 0L2.5 0l2.501 2.5z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abe2-7b52-b6e9-ff6411e132f1",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

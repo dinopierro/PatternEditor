@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac30-71ed-84b4-c5967a4e6dbe",
+  "name": "Squares - 9",
+  "createdAt": "2026-09-10T15:56:16.2966651\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.9138880\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 60,
+    "height": 60,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M60 30 48.007 41.993H30V30zm0-30L48.007 12.01H30V0L18.007 12.01H0V0h30zM30 30 18.007 41.993H0V30z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac30-7d8a-ab52-6167256cfa09",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M60 0 48.007 12.01V30H60L48.007 41.993V60H60V30zM30 0 18.007 12.01V30H30L18.007 41.993V60H30V30z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac30-75a5-8187-f72a0a21ea70",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

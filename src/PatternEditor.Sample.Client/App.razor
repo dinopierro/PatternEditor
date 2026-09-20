@@ -1,0 +1,15 @@
+@* Instradamento dell'applicazione di riferimento. Una pagina sola, quindi il router qui
+   serve a poco: c'è perché è il guscio standard di un'applicazione Blazor, e perché
+   aggiungere una seconda pagina non debba comportare anche riscrivere l'avvio. *@
+@inject Lingua T
+
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(Layout.MainLayout)">
+            <p>@T["app.paginaNonTrovata"]</p>
+        </LayoutView>
+    </NotFound>
+</Router>

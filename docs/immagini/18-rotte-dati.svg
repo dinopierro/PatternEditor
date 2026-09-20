@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 418" width="940" height="418" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="418" fill="#ffffff"/>
+  <defs><marker id="punta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b6ef5"/></marker></defs>
+  <text x="30" y="34" font-size="17" font-weight="600" fill="#1b2430">Figura 18 — Il percorso dei dati, dal campo al file</text>
+  <text x="30" y="55" font-size="12.5" fill="#6b7684">Chi tiene lo stato, chi lo trasporta, chi lo conserva.</text>
+  <rect x="30.0" y="84.0" width="270.0" height="160.0" rx="8" fill="#eef3ff" stroke="#3b6ef5" stroke-width="1.5"/>
+  <text x="42.0" y="104.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">Browser — WebAssembly</text>
+  <text x="42.0" y="122.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">PatternsPage: elenco, ordine, pagina</text>
+  <text x="42.0" y="136.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">PatternEditor: la copia in modifica</text>
+  <text x="42.0" y="150.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start"></text>
+  <text x="42.0" y="164.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">Nessuno scrive sul disco da qui:</text>
+  <text x="42.0" y="178.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">il browser non ne ha il permesso.</text>
+  <rect x="355.0" y="84.0" width="230.0" height="160.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="367.0" y="104.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">HTTP · JSON</text>
+  <text x="367.0" y="122.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">GET    /api/patterns</text>
+  <text x="367.0" y="136.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">GET    /api/patterns/{id}</text>
+  <text x="367.0" y="150.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">POST   /api/patterns</text>
+  <text x="367.0" y="164.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">PUT    /api/patterns/{id}</text>
+  <text x="367.0" y="178.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">DELETE /api/patterns/{id}</text>
+  <text x="367.0" y="192.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">DELETE /api/patterns  (elenco di id)</text>
+  <rect x="640.0" y="84.0" width="270.0" height="160.0" rx="8" fill="#eef3ff" stroke="#3b6ef5" stroke-width="1.5"/>
+  <text x="652.0" y="104.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">API — PatternEditor.Sample.Api</text>
+  <text x="652.0" y="122.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">JsonFilePatternRepository</text>
+  <text x="652.0" y="136.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">un file per pattern, in App_Data</text>
+  <text x="652.0" y="150.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start"></text>
+  <text x="652.0" y="164.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">Usa lo STESSO PatternSerializer</text>
+  <text x="652.0" y="178.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">del client: un solo formato, non due.</text>
+  <path d="M 300.0 150.0 L 355.0 150.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <path d="M 640 190 L 585 190" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <path d="M 585.0 150.0 L 640.0 150.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <path d="M 355 190 L 300 190" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <rect x="640.0" y="280.0" width="270.0" height="106.0" rx="8" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1.5"/>
+  <text x="652.0" y="300.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">Disco</text>
+  <text x="652.0" y="318.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">App_Data/patterns/{id}.json</text>
+  <text x="652.0" y="332.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">un documento per pattern: si riscrive</text>
+  <text x="652.0" y="346.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">solo quello toccato</text>
+  <text x="652.0" y="360.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start"></text>
+  <text x="652.0" y="374.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">Le date le decide questo livello, e</text>
+  <text x="652.0" y="388.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">CreatedAt non si riscrive mai.</text>
+  <path d="M 775.0 244.0 L 775.0 280.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <rect x="30.0" y="280.0" width="580.0" height="92.0" rx="6" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1.2"/>
+  <text x="40.0" y="297.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">Il client non conosce il formato del file, e l'API non conosce l'interfaccia: si parlano</text>
+  <text x="40.0" y="310.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">attraverso il documento JSON, che è l'unico contratto fra i due. Sostituire l'archiviazione</text>
+  <text x="40.0" y="323.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">su file con un database non tocca una riga del componente.</text>
+  <text x="40.0" y="336.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start"></text>
+  <text x="40.0" y="349.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">La validazione avviene in due punti e non è una ripetizione inutile: nell'editor per</text>
+  <text x="40.0" y="362.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">accompagnare chi lavora, nell'API perché una richiesta può arrivare anche da altrove.</text>
+</svg>

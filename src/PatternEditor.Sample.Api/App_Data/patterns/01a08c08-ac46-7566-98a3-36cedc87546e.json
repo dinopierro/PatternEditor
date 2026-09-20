@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac46-7566-98a3-36cedc87546e",
+  "name": "Triangles - 24",
+  "createdAt": "2026-09-10T15:56:16.6890260\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:17.4023732\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 43.78,
+    "height": 70,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m15.323-.024 8.66-69.952H6.663ZM6.567-69.976l8.66 69.952h-17.32Zm43.78 0 8.66 69.952h-17.32ZM-6.567 34.976l8.66-69.952h-17.32Zm21.89 35L23.983.024H6.663ZM6.567.024l8.66 69.952h-17.32Zm30.646 34.952 8.66-69.952h-17.32Zm-8.756-69.952 8.66 69.952h-17.32Zm21.89 35 8.66 69.952h-17.32ZM-6.567 104.976l8.66-69.952h-17.32Zm21.89 35 8.66-69.952H6.663ZM6.567 70.024l8.66 69.952h-17.32Zm30.646 34.952 8.66-69.952h-17.32Zm-8.756-69.952 8.66 69.952h-17.32Zm21.89 35 8.66 69.952h-17.32Z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac46-706c-b60c-bc790f74801b",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

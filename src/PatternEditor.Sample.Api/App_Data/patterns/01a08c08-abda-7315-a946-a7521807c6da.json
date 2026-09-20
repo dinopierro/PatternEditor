@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-abda-7315-a946-a7521807c6da",
+  "name": "Diamonds - 21",
+  "createdAt": "2026-09-10T15:56:14.6970124\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.2630928\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 77.308,
+    "height": 50,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m64.423 25-12.886 9.615-12.881 9.616-.002-.002V50h12.884l12.885-9.615ZM25.769 0 12.883 9.615.003 19.231 0 19.229v11.542l12.885 9.752L25.77 50V34.478L12.884 25l12.884-9.615Zm12.885 0v5.77l12.885 9.753L64.423 25V9.478L51.537 0Z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abda-7b15-8d0e-9a3d0140b219",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M12.885 25v15.522L25.77 50h12.885v-5.77l-12.886-9.753ZM51.539 0v15.523L64.424 25v15.385l12.88-9.615.005.002V19.229L64.422 9.477ZM25.77 0v15.385h.003l12.88-9.615.002.001V0Z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abda-7f22-9973-019a28c02c5a",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

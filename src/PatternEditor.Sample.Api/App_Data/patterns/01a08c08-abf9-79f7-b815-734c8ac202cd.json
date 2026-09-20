@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-abf9-79f7-b815-734c8ac202cd",
+  "name": "Herringbone - 4",
+  "createdAt": "2026-09-10T15:56:15.2973780\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.8403562\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 20,
+    "height": 40,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M10-10V0l10 10V0L10-10zm0 10L0 10v10l10-10V0zm0 30v10l10 10V40L10 30z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abf9-7676-bc1b-6c2d77564e1b",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M10 10l10 10v10L10 20zm0 10L0 30v10l10-10z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abf9-73a3-90f1-64390b1446a3",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

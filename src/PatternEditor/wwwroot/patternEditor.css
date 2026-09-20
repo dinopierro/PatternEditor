@@ -1,0 +1,2507 @@
+/* ==========================================================================
+   Pattern Editor - foglio di stile della libreria.
+
+   Tutte le regole sono prefissate "pe-" per non interferire con lo stile
+   dell'applicazione host. I colori passano da variabili CSS: l'host può
+   ridefinirle su .pe-editor (o su :root) per adattare il componente al proprio
+   tema, senza riscrivere le regole.
+
+   TEMA CHIARO E SCURO - tre stati, non due:
+
+     nessun attributo          il componente segue il sistema operativo
+     data-pe-theme="light"     chiaro imposto, anche su un sistema scuro
+     data-pe-theme="dark"      scuro imposto, anche su un sistema chiaro
+
+   La tavolozza chiara è definita su .pe-editor ed è la base: vale sempre, e
+   nessun colore ha la propria unica definizione dentro un blocco condizionale.
+   Quella scura viene ridefinita due volte, perché i due casi in cui si applica
+   non sono esprimibili in un solo selettore: la preferenza di sistema (quando
+   l'host non ha imposto il chiaro) e la scelta esplicita dell'utente.
+   ========================================================================== */
+
+.pe-editor {
+    --pe-bg: #ffffff;
+    --pe-bg-sunken: #f6f7f9;
+    --pe-bg-raised: #ffffff;
+    --pe-border: #e3e6ea;
+    --pe-border-strong: #cbd2da;
+    --pe-text: #1b2430;
+    --pe-text-muted: #6b7684;
+    --pe-accent: #3b6ef5;
+    --pe-accent-weak: #eaf0ff;
+    --pe-accent-text: #ffffff;
+    --pe-danger: #d33a3a;
+    --pe-danger-weak: #fdeceb;
+    --pe-warning: #d0a215;
+    --pe-warning-weak: #fdf6e3;
+    --pe-warning-text: #6b5106;
+    --pe-checker-a: #ffffff;
+    --pe-checker-b: #eceef1;
+    --pe-menu-shadow: 0 8px 24px rgba(16, 24, 40, .16);
+    --pe-radius: 10px;
+    --pe-radius-sm: 7px;
+    --pe-shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 1px 3px rgba(16, 24, 40, .06);
+
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    box-sizing: border-box;
+    padding: 1.1rem 1.25rem 1.25rem;
+    border: 1px solid var(--pe-border);
+    border-radius: 14px;
+    background: var(--pe-bg);
+    color: var(--pe-text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.pe-editor *,
+.pe-editor *::before,
+.pe-editor *::after {
+    box-sizing: border-box;
+}
+
+/* Scuro di sistema: non si applica se l'host ha imposto il chiaro. */
+@media (prefers-color-scheme: dark) {
+    .pe-editor:not([data-pe-theme="light"]) {
+        --pe-bg: #161a20;
+        --pe-bg-sunken: #11151a;
+        --pe-bg-raised: #1c222a;
+        --pe-border: #2a323c;
+        --pe-border-strong: #3a4450;
+        --pe-text: #e7ebf0;
+        --pe-text-muted: #98a3b1;
+        --pe-accent: #5b87ff;
+        --pe-accent-weak: #1e2a45;
+        --pe-danger: #ff7b72;
+        --pe-danger-weak: #3a2020;
+        --pe-warning: #d9b23a;
+        --pe-warning-weak: #332b14;
+        --pe-warning-text: #e8d191;
+        --pe-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+        --pe-checker-a: #2a2f36;
+        --pe-checker-b: #21262c;
+        --pe-menu-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+    }
+}
+
+/* Scuro scelto dall'utente: vince sempre, anche su un sistema chiaro. */
+.pe-editor[data-pe-theme="dark"] {
+    --pe-bg: #161a20;
+    --pe-bg-sunken: #11151a;
+    --pe-bg-raised: #1c222a;
+    --pe-border: #2a323c;
+    --pe-border-strong: #3a4450;
+    --pe-text: #e7ebf0;
+    --pe-text-muted: #98a3b1;
+    --pe-accent: #5b87ff;
+    --pe-accent-weak: #1e2a45;
+    --pe-danger: #ff7b72;
+    --pe-danger-weak: #3a2020;
+    --pe-warning: #d9b23a;
+    --pe-warning-weak: #332b14;
+    --pe-warning-text: #e8d191;
+    --pe-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+    --pe-checker-a: #2a2f36;
+    --pe-checker-b: #21262c;
+    --pe-menu-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+}
+
+/* ---------- Toolbar superiore -------------------------------------------- */
+
+.pe-toolbar-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-bottom: .9rem;
+    border-bottom: 1px solid var(--pe-border);
+}
+
+.pe-toolbar-top__actions {
+    display: flex;
+    gap: .5rem;
+    align-items: flex-end;
+}
+
+/* La cronologia si appoggia alle azioni della sessione invece di restare in mezzo alla
+   barra: il margine automatico si mangia lo spazio libero che la distribuiva al centro.
+   Un filo verticale la separa da Annulla e Conferma — vicine per posizione ma non per
+   conseguenza: queste due tornano indietro di un passo, quelle chiudono. */
+.pe-storia {
+    display: flex;
+    gap: .35rem;
+    align-items: center;
+    margin-left: auto;
+    padding-right: .7rem;
+    border-right: 1px solid var(--pe-border);
+}
+
+/*
+   Due pulsanti rotondi con la freccia nel blu dei comandi.
+
+   Erano due glifi grigi su fondo trasparente, e si vedevano poco ovunque — sulla barra
+   dello schermo stretto, che galleggia sopra il disegno, quasi per niente. Il cerchio dà
+   loro un corpo e li stacca da qualunque cosa ci finisca dietro; il blu è lo stesso dei
+   pulsanti che concludono, e dice che sono comandi e non decorazioni.
+
+   Restano comunque più quieti di Conferma: il blu è nel tratto, non nel fondo. Un cerchio
+   pieno accanto a «Chiudi / Conferma» sarebbero due pulsanti che gridano la stessa cosa,
+   mentre tornare indietro di un passo non ha il peso di chiudere una sessione.
+*/
+.pe-storia__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+
+    width: 2.2rem;
+    height: 2.2rem;
+    padding: 0;
+
+    border: 1px solid var(--pe-border-strong);
+    border-radius: 999px;
+    background: var(--pe-bg);
+    color: var(--pe-accent);
+
+    cursor: pointer;
+    transition: background-color .12s ease, border-color .12s ease, transform .06s ease;
+}
+
+.pe-storia__btn:hover:not(:disabled) {
+    background: var(--pe-accent-weak);
+    border-color: var(--pe-accent);
+}
+
+.pe-storia__btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.pe-storia__btn:focus-visible {
+    outline: none;
+    border-color: var(--pe-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pe-accent) 25%, transparent);
+}
+
+/* Spento significa «non c'è niente da annullare»: resta al suo posto, per non far ballare
+   i pulsanti accanto ogni volta che la cronologia si svuota o si riempie. Il cerchio resta
+   visibile e perde il colore: è il tratto a spegnersi, non il pulsante a sparire. */
+.pe-storia__btn:disabled {
+    color: var(--pe-text-muted);
+    opacity: .45;
+    cursor: default;
+}
+
+.pe-field--name {
+    flex: 1 1 260px;
+    min-width: 240px;
+    max-width: 32rem;
+}
+
+.pe-input--name {
+    font-size: 1.02rem;
+    font-weight: 600;
+    max-width: 26rem;
+}
+
+.pe-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .35rem .9rem;
+    font-size: .72rem;
+    color: var(--pe-text-muted);
+}
+
+.pe-uuid {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .72rem;
+    color: var(--pe-text-muted);
+}
+
+.pe-uuid__label {
+    padding: .05rem .35rem;
+    border: 1px solid var(--pe-border);
+    border-radius: 4px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    font-size: .62rem;
+}
+
+.pe-uuid code {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+/* ---------- Errori di validazione ---------------------------------------- */
+
+.pe-editor__errors {
+    background: var(--pe-danger-weak);
+    border: 1px solid var(--pe-danger);
+    border-left-width: 4px;
+    color: var(--pe-danger);
+    padding: .6rem .85rem;
+    border-radius: var(--pe-radius-sm);
+    font-size: .85rem;
+}
+
+.pe-editor__errors ul,
+.pe-editor__warnings ul {
+    margin: .35rem 0 0;
+    padding-left: 1.1rem;
+}
+
+.pe-editor__warnings {
+    background: var(--pe-warning-weak);
+    border: 1px solid var(--pe-warning);
+    border-left-width: 4px;
+    color: var(--pe-warning-text);
+    padding: .6rem .85rem;
+    border-radius: var(--pe-radius-sm);
+    font-size: .85rem;
+}
+
+/* ---------- Layout a tre colonne ----------------------------------------- */
+
+.pe-editor__body {
+    display: grid;
+    /*
+       Tre colonne: i comandi, il disegno, gli elementi. Le prime due contengono due card
+       ciascuna — proprietà e sorgente, anteprima e filtri — e come si spartiscono
+       l'altezza lo dice la regola della colonna, qui sotto.
+
+       La colonna di mezzo è la più larga perché ospita i filtri: sono la parte con più
+       comandi di tutto l'editor, e trecento pixel non le bastavano.
+    */
+    grid-template-columns: minmax(260px, 320px) minmax(360px, 1fr) minmax(290px, 360px);
+    gap: 1rem;
+    /* align-items resta al valore predefinito "stretch": le colonne si pareggiano e i loro
+       bordi chiudono sulla stessa linea. */
+}
+
+/* ---------- Le colonne a due card ----------------------------------------- */
+/*
+   Come si spartiscono l'altezza.
+
+   La regola è una sola: lo spazio va a chi lo sta usando. Con la card in basso chiusa —
+   è una testata e niente più — quella in alto si prende tutto e la spinge in fondo alla
+   colonna; aperta, le parti si invertono e in alto resta quel che serve.
+
+   Una spartizione simile non si può scrivere con le righe della griglia: quelle valgono
+   per tutte le colonne insieme, e chiudere il sorgente aprirebbe un vuoto anche sotto i
+   filtri. Serve un contenitore per coppia, ed è il motivo per cui esiste.
+*/
+.pe-colonna {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: 0;
+}
+
+/*
+   La card in alto non si stringe MAI sotto il proprio contenuto.
+
+   È la regola che decide chi cede quando lo spazio non basta, e cede sempre quella in
+   basso. Le proprietà si devono leggere tutte senza una barra di scorrimento dentro un
+   riquadro alto mezzo schermo; l'anteprima è l'oggetto principale del pannello e dev'essere
+   intera e corretta, non un ritaglio. I filtri e il sorgente hanno molte righe e una barra
+   se la portano bene: sono elenchi, si scorrono per natura.
+
+   «Non si stringe» si scrive in due pezzi: `flex-shrink: 0` e la rinuncia al min-height 0
+   che la regola generale dei pannelli concede a tutti. Senza il secondo, il primo non
+   basta — un elemento flessibile con min-height 0 può essere compresso sotto il proprio
+   contenuto, e quel contenuto esce dal riquadro che dovrebbe contenerlo.
+*/
+.pe-colonna > .pe-panel:first-child {
+    flex: 1 0 auto;
+    min-height: auto;
+}
+
+/* Con la card in basso aperta, quella in alto si ferma alla propria altezza: tutto il
+   resto è suo. */
+.pe-colonna:has(> .pe-panel.is-aperto) > .pe-panel:first-child {
+    flex: 0 0 auto;
+}
+
+/* In basso, chiusa: alta quanto la sua testata, e in fondo alla colonna. */
+.pe-colonna > .pe-panel:last-child {
+    flex: 0 0 auto;
+}
+
+/*
+   In basso, aperta: è lei a lavorare, ed è sua l’altezza che avanza — ed è lei a cedere
+   quando non ne avanza.
+
+   Cede fino alla propria testata e non oltre: niente min-height 0 qui, altrimenti la card
+   si stringe sotto la riga del titolo e il titolo esce dal riquadro. A scorrere dev’essere
+   il contenuto, che ha già il permesso di farlo.
+*/
+.pe-colonna > .pe-panel.is-aperto {
+    flex: 1 1 auto;
+
+    /* Il limite è la propria testata, ed è scritto in cifre invece che lasciato al
+       min-height automatico: dentro c’è un blocco che scorre, e il calcolo automatico del
+       minimo su un contenuto scorrevole dà risposte diverse a seconda di che cosa contiene.
+       Una misura esplicita è la stessa in tutti i casi, ed è quella della card chiusa. */
+    min-height: 6rem;
+}
+
+/*
+   Nel layout a tre colonne le schede riempiono la finestra fino al piede, e a scorrere
+   è il contenuto di ciascuna. È così che le anteprime restano sotto gli occhi mentre
+   si regolano i valori: sono il riscontro di ogni modifica, e perderle di vista
+   vanificherebbe l'aggiornamento in tempo reale. Sostituisce l'ancoraggio "sticky", che
+   con le colonne a tutta altezza non avrebbe più margine entro cui scorrere.
+
+   Sotto questa soglia le colonne si impilano: dare a ognuna una fetta di schermo le
+   ridurrebbe a tre finestrelle, e conviene lasciar scorrere la pagina.
+*/
+@media (min-width: 1025px) {
+    .pe-editor__body {
+        flex: 1 1 auto;
+        min-height: 0;
+
+        /*
+           L'ultima rete. Le card in alto non si stringono, quindi su una finestra molto
+           bassa la somma dei minimi può superare l'altezza disponibile: a quel punto o
+           qualcosa esce dal proprio riquadro, o scorre. Scorrere è il male minore, e
+           capita solo quando la finestra è davvero troppo bassa per quello che contiene.
+        */
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .pe-panel__scroll {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    /* Aperto, il sorgente si prende l'altezza della card e scorre lui: una barra sola,
+       dove serve, invece di una barra dentro l'altra. */
+    .pe-panel--sorgente.is-aperto .pe-source__code {
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: none;
+    }
+}
+
+
+/* Le due specchiature stanno in colonna: sono due interruttori, non due campi, e in riga
+   si leggerebbero come una scelta fra l'uno e l'altro invece che come due indipendenti. */
+/* I due interruttori stanno affiancati: sono la stessa domanda posta sui due assi, e
+   incolonnarli li faceva leggere come due scelte indipendenti in momenti diversi. Vanno a
+   capo da soli quando il foglio si stringe. */
+.pe-specchi {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem 1.4rem;
+    margin: .5rem 0 .6rem;
+}
+
+/* ------------------------------------------------------------------ elenco: filtro e scelta
+
+   Due barrette sopra l'elenco, non un pannello: servono quando gli elementi sono tanti e
+   devono sparire dalla vista quando sono pochi. La seconda compare solo in modalità scelta.
+*/
+.pe-elenco__strumenti {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin: .5rem 0 .35rem;
+}
+
+.pe-elenco__filtro { flex: 1 1 auto; min-width: 0; }
+
+.pe-select {
+    width: 100%;
+    padding: .35rem .5rem;
+    border: 1px solid var(--pe-border-strong);
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg);
+    color: var(--pe-text);
+    font: inherit;
+    font-size: .8rem;
+    cursor: pointer;
+}
+
+.pe-select:focus-visible {
+    outline: none;
+    border-color: var(--pe-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pe-accent) 25%, transparent);
+}
+
+.pe-elenco__selezione {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-bottom: .4rem;
+    padding: .35rem .5rem;
+    border-radius: var(--pe-radius-sm);
+    background: color-mix(in srgb, var(--pe-accent) 10%, transparent);
+}
+
+.pe-elenco__tutti {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .8rem;
+    color: var(--pe-text);
+    cursor: pointer;
+}
+
+.pe-elenco__tutti input { width: 1rem; height: 1rem; accent-color: var(--pe-accent); }
+
+/* La casella prende il posto della presa: le due cose non servono mai insieme, e la riga
+   resta della stessa larghezza passando da una modalità all'altra. */
+.pe-elements__spunta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    min-width: 1.75rem;
+    align-self: stretch;
+    cursor: pointer;
+}
+
+.pe-elements__spunta input { width: 1rem; height: 1rem; accent-color: var(--pe-accent); }
+
+.pe-elements__item.is-scelta {
+    background: color-mix(in srgb, var(--pe-accent) 12%, transparent);
+    border-radius: var(--pe-radius-sm);
+}
+
+/* La presa spenta si vede ma non risponde: sparire del tutto farebbe ballare la riga, e
+   chi cerca di trascinare non capirebbe perché non succede niente. */
+.pe-elements__presa.is-spenta {
+    opacity: .35;
+    cursor: not-allowed;
+}
+
+/* Testo per i soli lettori di schermo: l'etichetta del filtro c'è, ma a video la dice
+   già la prima voce della tendina. */
+.pe-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* Il guscio per schermo stretto non si vede finché non serve. */
+.pe-mobile-preview,
+.pe-mobile-cella,
+.pe-schede {
+    display: none;
+}
+
+/* ---------- Pannelli ------------------------------------------------------ */
+
+.pe-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border: 1px solid var(--pe-border);
+    border-radius: var(--pe-radius);
+    background: var(--pe-bg-raised);
+    box-shadow: var(--pe-shadow);
+    padding: .85rem;
+}
+
+/* L'area che assorbe lo spazio libero, e che scorre quando non basta. */
+.pe-panel__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* Intestazioni e comandi restano fermi in cima alla loro scheda. */
+.pe-panel__head,
+.pe-add,
+.pe-dettaglio__testa {
+    flex: 0 0 auto;
+}
+
+.pe-panel__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-bottom: .75rem;
+
+    /*
+       Un'altezza minima uguale per tutte. Serve alle due card richiudibili: chiuse sono la
+       sola testata, e senza questa riga il sorgente risulterebbe più alto dei filtri di una
+       decina di pixel — non per una scelta, ma perché dentro ha due pulsanti e l'altra una
+       pastiglia. Due riquadri chiusi affiancati che non chiudono sulla stessa linea si
+       notano subito, e non c'è modo di leggerli come voluti.
+    */
+    min-height: 1.9rem;
+}
+
+/* I nomi delle card nel blu dei pulsanti. Sono le cinque insegne dell’editor — Proprietà,
+   SVG generato, Anteprima, Filtri, Elementi — e nel grigio del testo secondario si
+   confondevano con le etichette dei campi che hanno sotto: stesso tono, stessa
+   dimensione, e l’occhio non trovava più dove comincia una sezione.
+
+   Il colore è la variabile d’accento e non il valore scritto a mano: nel tema scuro quel
+   blu si schiarisce da sé, e un #3b6ef5 fisso su fondo scuro sarebbe illeggibile. */
+.pe-panel__title {
+    margin: 0;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--pe-accent);
+}
+
+.pe-badge {
+    padding: .1rem .45rem;
+    border-radius: 999px;
+    background: var(--pe-bg-sunken);
+    border: 1px solid var(--pe-border);
+    font-size: .72rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--pe-text-muted);
+}
+
+/* ---------- Gruppi e campi ------------------------------------------------ */
+
+.pe-group + .pe-group {
+    margin-top: .85rem;
+    padding-top: .85rem;
+    border-top: 1px dashed var(--pe-border);
+}
+
+/* Un blocco che non è un campo e non va affiancato a nessuno: gli interruttori di
+   specchiatura, un pulsante, una nota. Fuori da una griglia non ha alcun effetto. */
+.pe-riga-intera {
+    grid-column: 1 / -1;
+}
+
+/* Le sezioni comuni a tutti i tipi — Posizione e Generale — stanno nell'editor principale,
+   mentre quelle del tipo stanno dentro il contenitore del plugin: non sono fratelli, e il
+   selettore qui sopra non le raggiunge. La riga di separazione la chiedono a nome proprio. */
+.pe-group--comune {
+    margin-top: .85rem;
+    padding-top: .85rem;
+    border-top: 1px dashed var(--pe-border);
+}
+
+.pe-group__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+}
+
+.pe-group__title {
+    margin: 0 0 .5rem;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--pe-text);
+}
+
+.pe-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .5rem .6rem;
+    align-items: start;
+}
+
+/*
+   La spaziatura fra campi consecutivi vale solo per i campi impilati verticalmente:
+   dentro la griglia è già la gap a separarli, e un margine sul secondo elemento lo
+   farebbe scendere rispetto al primo (Larghezza/Altezza, X/Y disallineati).
+*/
+.pe-grid-2 > .pe-field + .pe-field {
+    margin-top: 0;
+}
+
+.pe-field {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    min-width: 0;
+}
+
+.pe-field + .pe-field,
+.pe-grid-2 + .pe-field {
+    margin-top: .5rem;
+}
+
+.pe-field__label {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: .25rem;
+    font-size: .74rem;
+    font-weight: 500;
+    color: var(--pe-text-muted);
+}
+
+.pe-unit {
+    font-weight: 400;
+    opacity: .75;
+}
+
+.pe-field__value {
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+    color: var(--pe-text);
+    font-weight: 600;
+}
+
+.pe-input {
+    width: 100%;
+    min-width: 0;
+    padding: .38rem .5rem;
+    border: 1px solid var(--pe-border-strong);
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg);
+    color: var(--pe-text);
+    font: inherit;
+    font-size: .85rem;
+    font-variant-numeric: tabular-nums;
+    transition: border-color .12s ease, box-shadow .12s ease;
+}
+
+.pe-input:focus-visible,
+.pe-range:focus-visible,
+.pe-btn:focus-visible,
+.pe-icon-btn:focus-visible {
+    outline: none;
+    border-color: var(--pe-accent);
+    box-shadow: 0 0 0 3px var(--pe-accent-weak);
+}
+
+.pe-input--select {
+    flex: 1 1 auto;
+    cursor: pointer;
+}
+
+.pe-input--num {
+    width: 5.4rem;
+    flex: 0 0 auto;
+}
+
+.pe-textarea {
+    min-height: 3.6rem;
+    resize: vertical;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: .76rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.pe-hint {
+    margin: .35rem 0 0;
+    font-size: .68rem;
+    line-height: 1.6;
+    color: var(--pe-text-muted);
+}
+
+.pe-hint code {
+    padding: 0 .2rem;
+    border-radius: 3px;
+    background: var(--pe-bg-sunken);
+    border: 1px solid var(--pe-border);
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: .95em;
+}
+
+/* ---------- Elemento immagine --------------------------------------------- */
+
+.pe-image-source {
+    display: flex;
+    gap: .6rem;
+    align-items: stretch;
+    margin-bottom: .5rem;
+}
+
+.pe-image-thumb {
+    flex: 0 0 auto;
+    width: 4.2rem;
+    height: 4.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--pe-border-strong);
+    border-radius: var(--pe-radius-sm);
+    overflow: hidden;
+}
+
+.pe-image-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+}
+
+.pe-image-source__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: .4rem;
+    min-width: 0;
+}
+
+.pe-image-source__kind {
+    font-size: .72rem;
+    color: var(--pe-text-muted);
+}
+
+/*
+   L'input file nativo non è impaginabile: viene nascosto e reso cliccabile
+   attraverso la label che lo contiene.
+*/
+.pe-file {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    padding: .35rem .6rem;
+    border: 1px solid var(--pe-border-strong);
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg);
+    font-size: .78rem;
+    cursor: pointer;
+}
+
+.pe-file:hover {
+    background: var(--pe-bg-sunken);
+    border-color: var(--pe-text-muted);
+}
+
+.pe-file input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.pe-hint.is-error {
+    color: var(--pe-danger);
+}
+
+.pe-slider-row {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.pe-range {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 1.05rem;
+    accent-color: var(--pe-accent);
+    cursor: pointer;
+}
+
+.pe-color {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.pe-color__input {
+    width: 2.4rem;
+    height: 1.95rem;
+    padding: 0;
+    border: 1px solid var(--pe-border-strong);
+    border-radius: var(--pe-radius-sm);
+    background: none;
+    cursor: pointer;
+}
+
+/*
+   Il valore non è più un'etichetta ma un campo: si può scrivere il colore a mano
+   quando lo si conosce, invece di inseguirlo nel selettore. Niente maiuscole forzate,
+   che su un testo modificabile farebbero apparire diverso da quello che è.
+*/
+.pe-color__code {
+    width: 6.6rem;
+    padding: .3rem .4rem;
+    border: 1px solid var(--pe-border-strong);
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg);
+    color: var(--pe-text);
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: .74rem;
+}
+
+.pe-color__code:focus {
+    outline: none;
+    border-color: var(--pe-accent);
+    box-shadow: 0 0 0 3px var(--pe-accent-weak);
+}
+
+/* Segnalazione mentre si digita: il valore a metà non è un errore, è solo incompleto. */
+.pe-color__code:invalid {
+    border-color: var(--pe-danger);
+    color: var(--pe-danger);
+}
+
+.pe-color__code:invalid:focus {
+    box-shadow: 0 0 0 3px var(--pe-danger-weak);
+}
+
+.pe-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    margin-bottom: .5rem;
+    font-size: .74rem;
+    color: var(--pe-text-muted);
+    cursor: pointer;
+    user-select: none;
+}
+
+.pe-switch input {
+    accent-color: var(--pe-accent);
+    cursor: pointer;
+}
+
+/* ---------- Anteprima: un palco solo -------------------------------------- */
+/*
+   La ripetizione fa da fondo e prende tutto lo spazio della card; la cella singola le sta
+   sopra, incorniciata in un angolo. È la stessa disposizione dello schermo stretto, ed è
+   arrivata qui per la stessa ragione: due riquadri affiancati non riescono a riempire lo
+   spazio che hanno — ciascuno ha una forma propria — e quello che avanza resta bianco
+   sopra, sotto e in mezzo.
+*/
+.pe-palco {
+    position: relative;   /* riferimento per la miniatura della cella */
+
+    /* Si prende l'altezza che avanza nella card: è esattamente lo spazio che prima restava
+       bianco sopra e sotto le due anteprime. */
+    flex: 1 1 auto;
+
+    /* L’anteprima è l’oggetto principale del pannello e non deve ridursi a una striscia
+       quando i filtri, aperti, si prendono il resto: su una finestra alta si tiene quasi un
+       terzo dell’altezza, su una bassa scende ai duecento pixel sotto i quali un motivo non
+       si giudica più. */
+    min-height: clamp(210px, 30vh, 340px);
+
+    border: 1px solid var(--pe-border-strong);
+    border-radius: var(--pe-radius-sm);
+    overflow: hidden;
+}
+
+.pe-palco__trama {
+    position: absolute;
+    inset: 0;
+}
+
+.pe-palco__trama > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/*
+   La miniatura della cella singola.
+
+   A comandare è la LARGHEZZA, e l'altezza discende dal rapporto dichiarato nel markup. Il
+   contrario — altezza fissa e un limite di larghezza — sembra più naturale e invece rompe
+   la proporzione: con entrambe le misure definite il rapporto viene ignorato, e una cella
+   molto allungata darebbe una cornice di forma sbagliata.
+
+   I due limiti: non più larga di un terzo del palco, perché coprirebbe l'anteprima che le
+   sta sotto — ed è l'anteprima la ragione per cui il palco esiste — e non più alta di
+   --alto, che è in rem e non in percentuale perché una percentuale dentro una larghezza si
+   misura sulla larghezza anche quando quel numero nasce come un'altezza.
+*/
+.pe-palco__cella {
+    position: absolute;
+    left: .7rem;
+    top: .7rem;
+    margin: 0;
+
+    --alto: 8rem;
+    width: min(33%, calc(var(--alto) * var(--forma, 1)));
+    aspect-ratio: var(--forma, 1);
+
+    overflow: hidden;
+
+    /*
+       Cornice chiara di due pixel più un filo scuro all'esterno: la prima stacca la
+       miniatura da un pattern scuro, il secondo da uno chiaro. Una cornice sola, di
+       qualunque colore, sparirebbe su metà dei pattern.
+    */
+    border: 2px solid rgba(255, 255, 255, .88);
+    border-radius: var(--pe-radius-sm);
+    box-shadow:
+        0 0 0 1px rgba(8, 12, 20, .38),
+        0 10px 26px rgba(8, 12, 20, .42);
+}
+
+.pe-palco__cella > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* ---------- Legenda dell'anteprima ---------------------------------------- */
+/*
+   Sovrapporre due immagini costa una spiegazione: affiancate, due didascalie bastavano a
+   dire quale fosse quale. I due segni colorati legano la riga a ciò che si vede — la
+   cornice chiara del riquadro, il fondo attorno — e danno alla fascia sopra il palco
+   qualcosa da guardare, che è meglio di un altro centimetro di bianco.
+*/
+.pe-legenda {
+    /* Incolonnate e non affiancate: così ciascuna voce dispone della riga intera e non si
+       spezza a metà frase su due colonne strette. */
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+
+    /* Sotto il palco, non sopra: è una didascalia, e una didascalia si legge dopo aver
+       guardato. */
+    margin: .55rem 0 0;
+
+    font-size: .72rem;
+    line-height: 1.45;
+    color: var(--pe-text-muted);
+}
+
+.pe-legenda__voce {
+    display: flex;
+    align-items: baseline;
+    gap: .4rem;
+    min-width: 0;
+}
+
+/* Il testo è un elemento solo: il segno sta accanto, e la frase scorre sulla riga intera
+   andando a capo sotto se stessa e non sotto il segno. */
+.pe-legenda__testo {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* L’attacco di ogni riga prende il colore d’accento: sono le due parole su cui l’occhio
+   deve cadere per capire di quale delle due immagini si sta parlando, e danno alla fascia
+   quel po’ di colore che le impedisce di essere l’ennesima riga grigia. */
+.pe-legenda strong {
+    font-weight: 600;
+    color: var(--pe-accent);
+}
+
+.pe-legenda em {
+    font-style: normal;
+    font-weight: 600;
+}
+
+/* Il segno: un quadratino che ripete l'aspetto della cosa a cui si riferisce. */
+.pe-legenda__segno {
+    flex: 0 0 auto;
+    align-self: center;
+    width: .8rem;
+    height: .8rem;
+    border-radius: 3px;
+}
+
+/* Cornice chiara su fondo scuro, come la miniatura sul palco. Il fondo è scuro davvero,
+   altrimenti il bordo bianco sparirebbe: è il bordo la cosa da riconoscere. */
+.pe-legenda__voce--cella .pe-legenda__segno {
+    background: var(--pe-text-muted);
+    border: 2px solid rgba(255, 255, 255, .92);
+    box-shadow: 0 0 0 1px var(--pe-border-strong);
+}
+
+/* La scacchiera del fondo, in miniatura. */
+.pe-legenda__voce--trama .pe-legenda__segno {
+    border: 1px solid var(--pe-border-strong);
+    background-image:
+        linear-gradient(45deg, var(--pe-checker-b) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--pe-checker-b) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--pe-checker-b) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--pe-checker-b) 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+    background-color: var(--pe-checker-a);
+}
+
+/*
+   Scacchiera di fondo: rende evidenti trasparenze e aree non coperte.
+   Segue il tema, altrimenti in scuro un riquadro bianco spiccherebbe più del
+   disegno che deve fare da sfondo.
+*/
+.pe-checker {
+    background-color: var(--pe-checker-a);
+    background-image:
+        linear-gradient(45deg, var(--pe-checker-b) 25%, transparent 25%, transparent 75%, var(--pe-checker-b) 75%),
+        linear-gradient(45deg, var(--pe-checker-b) 25%, transparent 25%, transparent 75%, var(--pe-checker-b) 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 8px 8px;
+}
+
+/*
+   Le azioni sul documento (copia, scarica) vivono qui e non nella barra superiore:
+   riguardano l'SVG generato, ed è accanto all'SVG generato che uno le cerca. Restano
+   visibili anche a riquadro chiuso, perché stanno nell'intestazione e non nel corpo.
+*/
+/* I due pulsanti restano nella testata anche a riquadro chiuso: copiare e scaricare sono
+   ciò per cui si cerca questa card nove volte su dieci, e nasconderli dietro l'apertura
+   costringerebbe a mostrare trecento righe per premerne uno. */
+.pe-sorgente__azioni {
+    display: flex;
+    gap: .35rem;
+    flex: 0 0 auto;
+}
+
+.pe-source__code {
+    margin: .2rem 0 0;
+    padding: .5rem .6rem;
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg-sunken);
+    max-height: 340px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: .7rem;
+    line-height: 1.5;
+    /*
+       Il sorgente è già rientrato con un attributo per riga da SvgSourceFormatter:
+       pre-wrap conserva quel rientro, e overflow-wrap manda a capo anche l'eventuale
+       valore singolo più largo del riquadro, evitando la barra orizzontale.
+    */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: var(--pe-text-muted);
+}
+
+/* ---------- Pannello elementi --------------------------------------------- */
+
+/* ---------- Menu di inserimento ------------------------------------------- */
+
+.pe-add {
+    position: relative;
+    margin-bottom: .75rem;
+}
+
+.pe-btn--block {
+    width: 100%;
+    justify-content: center;
+}
+
+.pe-caret {
+    margin-left: auto;
+    font-size: .7rem;
+    opacity: .8;
+}
+
+/*
+   Superficie trasparente sotto al menu: intercetta il clic fuori e lo chiude.
+   Sta sopra al resto della pagina ma sotto al menu stesso.
+*/
+.pe-menu__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+}
+
+/*
+   Il menu è più largo del pulsante e si sviluppa su due colonne: con nove tipi, una
+   colonna sola costringerebbe a scorrere per vedere gli ultimi, e un elenco che scorre
+   nasconde proprio le voci che si stanno cercando. Si estende verso sinistra, dove nella
+   finestra dell'editor c'è spazio.
+*/
+.pe-menu {
+    position: absolute;
+    z-index: 21;
+    top: calc(100% + .3rem);
+    right: 0;
+    left: auto;
+    width: max(100%, 25rem);
+    max-width: 90vw;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .1rem;
+    padding: .3rem;
+    border: 1px solid var(--pe-border-strong);
+    border-radius: var(--pe-radius);
+    background: var(--pe-bg-raised);
+    box-shadow: var(--pe-menu-shadow);
+}
+
+@media (max-width: 1024px) {
+    .pe-menu {
+        width: 100%;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 560px) {
+    .pe-menu {
+        grid-template-columns: 1fr;
+    }
+}
+
+.pe-menu__item {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    width: 100%;
+    padding: .4rem .5rem;
+    border: none;
+    border-radius: var(--pe-radius-sm);
+    background: transparent;
+    color: var(--pe-text);
+    font: inherit;
+    font-size: .84rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.pe-menu__item:hover,
+.pe-menu__item:focus-visible {
+    outline: none;
+    background: var(--pe-accent-weak);
+}
+
+.pe-menu__label {
+    flex: 1 1 auto;
+}
+
+.pe-menu__type {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: .68rem;
+    color: var(--pe-text-muted);
+}
+
+.pe-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 5px;
+    background: var(--pe-bg-sunken);
+    border: 1px solid var(--pe-border);
+    color: var(--pe-accent);
+}
+
+.pe-menu__item:hover .pe-icon {
+    background: var(--pe-bg-raised);
+}
+
+.pe-elements__icon {
+    width: 1.4rem;
+    height: 1.4rem;
+}
+
+.pe-empty {
+    margin: 0 0 .6rem;
+    padding: .75rem;
+    border: 1px dashed var(--pe-border-strong);
+    border-radius: var(--pe-radius-sm);
+    text-align: center;
+    font-size: .78rem;
+    color: var(--pe-text-muted);
+}
+
+.pe-note {
+    margin: 0;
+    font-size: .76rem;
+    color: var(--pe-text-muted);
+}
+
+.pe-elements__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
+.pe-elements__item {
+    border: 1px solid var(--pe-border);
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg);
+    overflow: hidden;
+    transition: border-color .12s ease;
+}
+
+.pe-elements__item:hover {
+    border-color: var(--pe-accent);
+    box-shadow: 0 0 0 2px var(--pe-accent-weak);
+}
+
+.pe-elements__header {
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    padding: 0 .35rem 0 0;
+    background: var(--pe-bg-sunken);
+}
+
+/*
+   L'area di apertura occupa tutta la riga tranne i comandi di disposizione: è il
+   bersaglio più grande possibile, e non serve più un pulsante "modifica" dedicato
+   accanto a quattro icone già fitte. Il padding sta qui e non sull'intestazione,
+   così la zona sensibile arriva fino ai bordi della scheda.
+*/
+.pe-elements__apri {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .3rem .1rem .3rem .35rem;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.pe-elements__apri:focus-visible {
+    outline: 2px solid var(--pe-accent);
+    outline-offset: -2px;
+    border-radius: var(--pe-radius-sm);
+}
+
+/* La freccia indica che la riga porta da qualche parte; si accende all'avvicinarsi. */
+.pe-elements__freccia {
+    font-size: 1.05rem;
+    line-height: 1;
+    color: var(--pe-text-muted);
+    opacity: .5;
+    transition: opacity .12s ease, transform .12s ease, color .12s ease;
+}
+
+.pe-elements__item:hover .pe-elements__freccia,
+.pe-elements__apri:focus-visible .pe-elements__freccia {
+    opacity: 1;
+    color: var(--pe-accent);
+    transform: translateX(2px);
+}
+
+.pe-elements__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: .82rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pe-elements__title.is-unknown {
+    font-weight: 500;
+    font-style: italic;
+    color: var(--pe-text-muted);
+}
+
+.pe-elements__actions {
+    display: flex;
+    gap: .15rem;
+}
+
+/*
+   Appiglio per il trascinamento. touch-action: none è indispensabile e non un dettaglio:
+   senza, il browser interpreta il movimento del dito come uno scorrimento della pagina e
+   il trascinamento non parte nemmeno.
+*/
+.pe-elements__presa {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    align-self: stretch;
+    color: var(--pe-text-muted);
+    cursor: grab;
+    touch-action: none;
+    opacity: .55;
+    transition: opacity .12s ease, color .12s ease;
+}
+
+.pe-elements__item:hover .pe-elements__presa { opacity: 1; }
+
+.pe-elements__presa:focus-visible {
+    outline: 2px solid var(--pe-accent);
+    outline-offset: -2px;
+    border-radius: var(--pe-radius-sm);
+    opacity: 1;
+}
+
+/* La riga che si sta trascinando si stacca dalle altre: senza un segno, con il dito
+   sopra la riga non si capisce quale si sta muovendo. */
+.pe-elements__item.is-trascinata {
+    border-color: var(--pe-accent);
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--pe-accent) 28%, transparent);
+}
+
+.pe-elements__item.is-trascinata .pe-elements__presa {
+    cursor: grabbing;
+    color: var(--pe-accent);
+    opacity: 1;
+}
+
+/* Mentre si trascina, il testo non deve selezionarsi sotto il puntatore. */
+.pe-elements__list:has(.is-trascinata) {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* ---------- dettaglio di un elemento -------------------------------------- */
+
+/*
+   Intestazione del dettaglio: dice da dove si torna, che cosa si sta modificando e in
+   che posizione si trova. Senza l'elenco sotto gli occhi, è l'unico riferimento.
+*/
+.pe-dettaglio__testa {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin: -.1rem -.1rem .75rem;
+    padding-bottom: .7rem;
+    border-bottom: 1px solid var(--pe-border);
+}
+
+.pe-dettaglio__nome {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: .9rem;
+    font-weight: 650;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pe-caret-sx { font-size: 1.05em; line-height: 1; }
+
+/* ---------- Bottoni -------------------------------------------------------- */
+
+.pe-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .42rem .85rem;
+    border-radius: var(--pe-radius-sm);
+    border: 1px solid var(--pe-border-strong);
+    background: var(--pe-bg);
+    color: var(--pe-text);
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color .12s ease, border-color .12s ease, transform .06s ease;
+}
+
+.pe-btn:hover:not(:disabled) {
+    background: var(--pe-bg-sunken);
+    border-color: var(--pe-text-muted);
+}
+
+.pe-btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.pe-btn:disabled,
+.pe-icon-btn:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+.pe-btn--primary {
+    background: var(--pe-accent);
+    color: var(--pe-accent-text);
+    border-color: var(--pe-accent);
+}
+
+.pe-btn--primary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--pe-accent) 85%, black);
+    border-color: color-mix(in srgb, var(--pe-accent) 85%, black);
+}
+
+.pe-btn--secondary {
+    background: var(--pe-bg);
+}
+
+.pe-btn--ghost {
+    border-color: transparent;
+    background: transparent;
+    color: var(--pe-text-muted);
+}
+
+.pe-btn--sm {
+    padding: .35rem .6rem;
+    font-size: .78rem;
+}
+
+.pe-btn__glyph {
+    font-size: .95em;
+    line-height: 1;
+}
+
+.pe-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.65rem;
+    height: 1.65rem;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--pe-text-muted);
+    font: inherit;
+    font-size: .82rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color .12s ease, color .12s ease;
+}
+
+.pe-icon-btn:hover:not(:disabled) {
+    background: var(--pe-bg-raised);
+    border-color: var(--pe-border-strong);
+    color: var(--pe-text);
+}
+
+.pe-icon-btn--danger:hover:not(:disabled) {
+    background: var(--pe-danger-weak);
+    border-color: var(--pe-danger);
+    color: var(--pe-danger);
+}
+
+.pe-link-btn {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--pe-accent);
+    font: inherit;
+    font-size: .74rem;
+    cursor: pointer;
+}
+
+.pe-link-btn:disabled {
+    color: var(--pe-text-muted);
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.pe-link-btn:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+/* ---------- Footer --------------------------------------------------------- */
+
+.pe-editor__footer {
+    display: flex;
+    align-items: center;
+    gap: .35rem 1.1rem;
+    flex-wrap: wrap;
+    padding-top: .9rem;
+    border-top: 1px solid var(--pe-border);
+    font-size: .72rem;
+    color: var(--pe-text-muted);
+}
+
+.pe-meta__voce {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+}
+
+.pe-meta__voce code {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.pe-meta__voce strong {
+    color: var(--pe-text);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Lo stato si stacca dagli altri dati: è l'unica voce che cambia mentre si lavora. */
+.pe-state {
+    margin-left: auto;
+    font-size: .76rem;
+    font-weight: 600;
+    color: var(--pe-accent);
+}
+
+
+/* ==========================================================================
+   Movimento
+
+   L'editor è uno strumento: il movimento serve a spiegare cosa è appena
+   successo, non a farsi notare. Nessuna animazione è legata alla modifica dei
+   valori - mentre si trascina un cursore l'unica cosa che deve muoversi è
+   l'anteprima.
+   ========================================================================== */
+
+@keyframes pe-entra {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* I tre pannelli entrano sfalsati: l'occhio segue l'ordine di lettura. */
+.pe-panel {
+    animation: pe-entra .5s cubic-bezier(.22, 1, .36, 1) backwards;
+}
+
+.pe-panel--preview { animation-delay: .04s; }
+.pe-panel--properties { animation-delay: .1s; }
+.pe-panel--elements { animation-delay: .16s; }
+
+.pe-toolbar-top,
+.pe-editor__footer {
+    animation: pe-entra .45s cubic-bezier(.22, 1, .36, 1) backwards;
+}
+
+/* Il menu scende dal pulsante che lo ha aperto. */
+.pe-menu {
+    transform-origin: top center;
+    animation: pe-menu-entra .16s cubic-bezier(.22, 1, .36, 1);
+}
+
+@keyframes pe-menu-entra {
+    from { opacity: 0; transform: translateY(-8px) scale(.97); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* Il dettaglio entra al posto dell'elenco, non appare di colpo. */
+.pe-dettaglio__testa,
+.pe-dettaglio__corpo {
+    animation: pe-entra .24s ease-out;
+}
+
+/* Segnalazioni: entrano da sopra, così si nota che sono comparse adesso. */
+.pe-editor__errors,
+.pe-editor__warnings {
+    animation: pe-entra .3s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* ---------- Testate richiudibili ------------------------------------------ */
+
+/* La testata è tutta un interruttore: il bersaglio è la riga, non il triangolino. */
+.pe-panel__toggle {
+    flex: 1 1 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    min-width: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.pe-panel__toggle:focus-visible {
+    outline: none;
+    color: var(--pe-accent);
+}
+
+.pe-panel__toggle .pe-panel__title {
+    min-width: 0;
+}
+
+/* Quanti passaggi ci sono, o che il filtro c’è ma è spento: una card chiusa che non dicesse
+   niente costringerebbe ad aprirla per sapere se valeva la pena guardarci dentro. */
+.pe-filtro__stato {
+    flex: 0 0 auto;
+}
+
+/* ---------- Filtro -------------------------------------------------------- */
+/*
+   Il pannello del filtro è l’unico che contiene un ELENCO ORDINATO di cose modificabili, e
+   da qui viene tutto il suo aspetto: i passaggi sono righe con un numero, si spostano, si
+   spengono, e uno per volta si apre. Somiglia più all’elenco degli elementi che alla scheda
+   delle proprietà, ed è giusto così: è la stessa operazione, su un’altra materia.
+*/
+
+.pe-filtro__avvio {
+    margin: .2rem 0 .4rem;
+    font-size: .74rem;
+    font-weight: 500;
+    color: var(--pe-text-muted);
+}
+
+.pe-filtro__interruttore {
+    margin-bottom: .6rem;
+}
+
+.pe-filtro__nota {
+    margin-top: .7rem;
+}
+
+/* ---- effetti pronti ---- */
+
+/* Quattro famiglie incolonnate, e dentro ciascuna le pastiglie che vanno a capo da sole. */
+.pe-effetti {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.pe-effetti__titolo {
+    display: block;
+    margin-bottom: .25rem;
+    font-size: .66rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--pe-text-muted);
+}
+
+.pe-effetti__pastiglie {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+}
+
+.pe-effetto {
+    padding: .3rem .6rem;
+    border: 1px solid var(--pe-border-strong);
+    border-radius: 999px;
+    background: var(--pe-bg);
+    color: var(--pe-text);
+    font: inherit;
+    font-size: .74rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color .12s ease, border-color .12s ease, color .12s ease;
+}
+
+.pe-effetto:hover {
+    background: var(--pe-accent-weak);
+    border-color: var(--pe-accent);
+    color: var(--pe-accent);
+}
+
+.pe-effetto:focus-visible {
+    outline: none;
+    border-color: var(--pe-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--pe-accent) 25%, transparent);
+}
+
+/* ---- l’elenco dei passaggi ---- */
+
+.pe-passi {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+    margin: 0 0 .6rem;
+    padding: 0;
+    list-style: none;
+}
+
+.pe-passo {
+    border: 1px solid var(--pe-border);
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg-sunken);
+    overflow: hidden;
+}
+
+.pe-passo.e-aperto {
+    border-color: var(--pe-accent);
+    background: var(--pe-bg-raised);
+}
+
+/* Un passaggio spento resta leggibile ma si tira indietro: dev’essere chiaro che c’è e che
+   non sta facendo niente, e barrarlo lo renderebbe illeggibile proprio mentre lo si valuta. */
+.pe-passo.e-spento .pe-passo__etichetta,
+.pe-passo.e-spento .pe-passo__riassunto {
+    opacity: .45;
+}
+
+.pe-passo__riga {
+    display: flex;
+    align-items: center;
+    gap: .2rem;
+    padding: .2rem .3rem;
+}
+
+.pe-passo__acceso {
+    display: inline-flex;
+    align-items: center;
+    padding: .25rem;
+    cursor: pointer;
+}
+
+.pe-passo__acceso input {
+    margin: 0;
+    accent-color: var(--pe-accent);
+    cursor: pointer;
+}
+
+.pe-passo__nome {
+    flex: 1;
+    display: flex;
+    align-items: baseline;
+    gap: .4rem;
+    min-width: 0;
+    padding: .25rem .15rem;
+    border: 0;
+    background: transparent;
+    color: var(--pe-text);
+    font: inherit;
+    font-size: .78rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.pe-passo__ordine {
+    flex: none;
+    min-width: 1.15rem;
+    padding: .05rem .25rem;
+    border-radius: 4px;
+    background: var(--pe-bg);
+    border: 1px solid var(--pe-border);
+    color: var(--pe-text-muted);
+    font-size: .68rem;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+.pe-passo.e-aperto .pe-passo__ordine {
+    background: var(--pe-accent);
+    border-color: var(--pe-accent);
+    color: var(--pe-accent-text);
+}
+
+.pe-passo__etichetta {
+    flex: none;
+    font-weight: 600;
+}
+
+/* Il riassunto è la ragione per cui l’elenco si legge senza aprirlo: se non ci sta, si
+   taglia lui, perché il nome del passaggio deve restare sempre intero. */
+.pe-passo__riassunto {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--pe-text-muted);
+    font-size: .72rem;
+}
+
+.pe-passo__comandi {
+    flex: none;
+    display: inline-flex;
+    gap: .05rem;
+}
+
+.pe-icon-btn--rimuovi:hover:not(:disabled) {
+    background: var(--pe-danger-weak);
+    border-color: var(--pe-danger);
+    color: var(--pe-danger);
+}
+
+.pe-passo__corpo {
+    padding: .1rem .6rem .6rem;
+    border-top: 1px solid var(--pe-border);
+}
+
+.pe-passo__corpo > * + * {
+    margin-top: .5rem;
+}
+
+/* ---- i quattro canali dei livelli ---- */
+
+.pe-canale {
+    padding: .45rem .5rem;
+    border: 1px solid var(--pe-border);
+    border-radius: var(--pe-radius-sm);
+    background: var(--pe-bg-sunken);
+}
+
+.pe-canale > * + * {
+    margin-top: .4rem;
+}
+
+/* ---- griglie di coefficienti ---- */
+/*
+   Le colonne sono cinque per la matrice dei colori (quattro canali più lo scostamento) e
+   variabili per il nucleo di convoluzione, che il markup dichiara. Una matrice scritta su
+   una colonna sola non è una matrice: è un elenco di venti numeri senza significato.
+*/
+.pe-matrice {
+    display: grid;
+    grid-template-columns: repeat(var(--colonne, 5), 1fr);
+    gap: .25rem;
+}
+
+.pe-matrice__cella {
+    padding: .3rem .25rem;
+    font-size: .72rem;
+    text-align: center;
+}
+
+.pe-elenco {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .25rem;
+}
+
+.pe-elenco__cella {
+    width: 4.2rem;
+    padding: .3rem .35rem;
+    font-size: .72rem;
+}
+
+.pe-livello {
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+}
+
+.pe-livello .pe-input {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ---- inserimento ---- */
+
+.pe-aggiungi {
+    display: flex;
+    gap: .35rem;
+}
+
+.pe-aggiungi .pe-input--select {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ---- i pieghevoli ---- */
+/*
+   Collegamenti, effetti pronti e area del filtro stanno chiusi perché servono di rado: il
+   primo solo nelle catene, gli altri due quando qualcosa non torna. Aperti di default
+   sarebbero tre blocchi da scorrere ogni volta per arrivare al cursore che si cercava.
+*/
+.pe-collegamenti,
+.pe-effetti-pronti,
+.pe-avanzate {
+    margin-top: .6rem;
+    border: 1px dashed var(--pe-border);
+    border-radius: var(--pe-radius-sm);
+    padding: .1rem .5rem;
+}
+
+.pe-collegamenti > summary,
+.pe-effetti-pronti > summary,
+.pe-avanzate > summary {
+    padding: .35rem .1rem;
+    color: var(--pe-text-muted);
+    font-size: .74rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.pe-collegamenti > summary:focus-visible,
+.pe-effetti-pronti > summary:focus-visible,
+.pe-avanzate > summary:focus-visible {
+    outline: none;
+    color: var(--pe-accent);
+}
+
+.pe-collegamenti[open],
+.pe-effetti-pronti[open],
+.pe-avanzate[open] {
+    padding-bottom: .55rem;
+}
+
+.pe-collegamenti > *:not(summary) + *,
+.pe-effetti-pronti > *:not(summary) + *,
+.pe-avanzate > *:not(summary) + * {
+    margin-top: .45rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pe-panel,
+    .pe-toolbar-top,
+    .pe-editor__footer,
+    .pe-menu,
+    .pe-dettaglio__testa,
+    .pe-dettaglio__corpo,
+    .pe-editor__errors,
+    .pe-editor__warnings { animation: none; }
+
+    .pe-elements__freccia { transition: none; }
+
+    .pe-elements__item:hover .pe-elements__freccia,
+    .pe-elements__apri:focus-visible .pe-elements__freccia { transform: none; }
+}
+
+@media (max-width: 1024px) {
+
+    /* ==============================================================
+       Disposizione per schermo stretto.
+
+       Vale fino a 1024px compresi: da lì in giù le tre colonne non
+       stanno più senza comprimersi, e mezza disposizione è peggio
+       di una disposizione diversa.
+
+
+       Tre fasce fisse al posto di tre colonne: le decisioni in alto,
+       l'anteprima che non scorre mai, e sotto la sola scheda scelta.
+       L'anteprima è il riscontro di ogni modifica: se scorre via
+       mentre si trascina un cursore, l'aggiornamento in tempo reale
+       non serve a niente. Su uno schermo alto e stretto è il primo
+       problema da risolvere, non l'ultimo.
+
+       L'editor riempie la finestra che lo ospita e non scorre: a
+       scorrere è solo il foglio in fondo. Se l'ospite non gli dà
+       un'altezza, tutto torna a impilarsi nel flusso normale.
+       ============================================================== */
+
+    .pe-editor {
+        position: relative;   /* riferimento per la barra, che qui galleggia */
+        height: 100%;
+        min-height: 0;
+        gap: 0;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+    }
+
+    .pe-mobile-preview,
+    .pe-schede,
+    .pe-editor__footer,
+    .pe-editor__errors,
+    .pe-editor__warnings {
+        flex: 0 0 auto;
+    }
+
+    /*
+       Uscendo dal flusso, la barra non detta più l'ordine di quello che resta: le
+       segnalazioni, che nel markup la seguono, finirebbero sotto di lei. L'ordine
+       visivo si ristabilisce qui, e non spostando il markup: la struttura del
+       documento è la stessa per tutte le larghezze.
+    */
+    .pe-mobile-preview { order: 0; }
+    .pe-editor__errors,
+    .pe-editor__warnings { order: 1; }
+    .pe-schede { order: 2; }
+    .pe-editor__body { order: 3; }
+    .pe-editor__footer { order: 4; }
+
+    /* ---- fascia 1: nome e decisioni sulla sessione --------------- */
+
+    /*
+       La barra galleggia sopra l'anteprima invece di occupare una fascia propria: sono
+       una sessantina di pixel restituiti al foglio dei comandi, che su un telefono sono
+       due campi in più visibili senza scorrere. Coprire la parte alta dell'anteprima non
+       toglie informazione: un pattern si ripete, e quello che sta sotto la barra è
+       identico a quello che si vede poco più giù.
+
+       Il fondo è velato e sfocato per staccare i comandi da qualunque disegno ci finisca
+       dietro. La sfocatura agisce su ciò che sta DIETRO l'elemento, non sul suo
+       contenuto: nome e pulsanti restano nitidi.
+    */
+    .pe-toolbar-top {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 3;
+        gap: .4rem;
+        align-items: center;
+        flex-wrap: nowrap;
+        padding: .5rem .6rem;
+        border-bottom: none;
+        /*
+           Il velo è SCURO in entrambi i temi, e non preso dalla tavolozza. Non è una
+           dimenticanza: la barra non sta su una superficie dell'interfaccia, sta su
+           un'immagine, e le immagini non seguono il tema. Un velo chiaro obbligava a
+           scrivere il nome in nero, che su un pattern scuro spariva e su uno chiaro
+           cambiava di resa a ogni pattern.
+
+           È la convenzione dei titoli sovrimpressi: una sfumatura scura in cima e testo
+           bianco. La sfocatura, oltre a staccare, appiattisce il contrasto locale del
+           disegno, e su una superficie uniforme il testo si legge sempre allo stesso modo.
+        */
+        background: linear-gradient(
+            to bottom,
+            rgba(10, 14, 20, .58),
+            rgba(10, 14, 20, .14));
+        -webkit-backdrop-filter: blur(18px) saturate(1.25);
+        backdrop-filter: blur(18px) saturate(1.25);
+    }
+
+    /*
+       Perché la barra sembri appoggiata sull'anteprima e non una fascia bianca, i
+       controlli devono essere leggeri: a 390 px il campo e i due pulsanti occupano da
+       soli quasi tutta la larghezza, e con i loro fondi pieni ricostruirebbero la fascia
+       che si voleva togliere.
+
+       Il campo diventa quindi trasparente e si riempie solo quando lo si sta scrivendo,
+       che è l'unico momento in cui il contrasto conta davvero. «Annulla» resta un
+       contorno; pieno resta solo «Conferma», che è l'azione da trovare a colpo d'occhio.
+    */
+    /*
+       Il nome è bianco con un alone scuro, non nero: sul velo scuro si legge sempre, e
+       l'alone lo tiene leggibile anche dove il disegno sotto è chiaro. Due ombre e non
+       una: la prima stretta disegna il contorno, la seconda larga stacca dal fondo.
+    */
+    .pe-toolbar-top .pe-input--name {
+        background: transparent;
+        border-color: transparent;
+        color: #fff;
+        font-weight: 650;
+        text-shadow: 0 1px 2px rgba(6, 10, 16, .75), 0 0 10px rgba(6, 10, 16, .45);
+    }
+
+    .pe-toolbar-top .pe-input--name::placeholder {
+        color: rgba(255, 255, 255, .7);
+    }
+
+    /* Mentre lo si scrive il campo torna un campo: fondo pieno e inchiostro normale.
+       È il momento in cui serve il massimo contrasto, e l'alone darebbe solo fastidio. */
+    .pe-toolbar-top .pe-input--name:focus {
+        background: var(--pe-bg);
+        border-color: var(--pe-accent);
+        color: var(--pe-text);
+        text-shadow: none;
+    }
+
+    /* «Annulla» vive sul velo scuro come il nome: contorno chiaro, testo bianco.
+       «Conferma» resta pieno d'accento, che sullo scuro risalta da solo. */
+    .pe-toolbar-top .pe-btn--secondary {
+        background: rgba(255, 255, 255, .14);
+        border-color: rgba(255, 255, 255, .45);
+        color: #fff;
+        text-shadow: 0 1px 2px rgba(6, 10, 16, .5);
+    }
+
+    .pe-toolbar-top .pe-btn--secondary:hover {
+        background: rgba(255, 255, 255, .24);
+        border-color: rgba(255, 255, 255, .7);
+    }
+
+    .pe-solo-largo { display: none; }
+
+    .pe-toolbar-top .pe-btn { padding-inline: .7rem; }
+
+    .pe-field--name {
+        flex: 1 1 8rem;
+        min-width: 0;
+    }
+
+    .pe-field--name .pe-field__label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+
+    .pe-toolbar-top__actions {
+        flex: 0 0 auto;
+        gap: .35rem;
+    }
+
+    /*
+       Sulla barra che galleggia sopra il disegno i due cerchi devono reggere QUALUNQUE
+       fondo: il pattern dietro può essere bianco, nero o a righe. Fondo pieno chiaro e
+       freccia blu — gli stessi due colori in ogni caso — più un'ombra che li stacca anche
+       da un disegno chiaro, dove il solo bordo non basterebbe.
+
+       Sono anche più grandi: qui si toccano con un dito, e 2,2 rem sono un bersaglio da
+       sbagliare.
+    */
+    .pe-storia {
+        padding-right: .5rem;
+        border-right-color: rgba(255, 255, 255, .35);
+    }
+
+    .pe-storia__btn {
+        width: 2.6rem;
+        height: 2.6rem;
+        background: #ffffff;
+        border-color: rgba(8, 12, 20, .12);
+        color: #3b6ef5;
+        box-shadow: 0 2px 8px rgba(8, 12, 20, .35);
+    }
+
+    .pe-storia__btn:disabled {
+        background: rgba(255, 255, 255, .55);
+        color: rgba(27, 36, 48, .55);
+        opacity: 1;
+        box-shadow: none;
+    }
+
+    .pe-editor__errors,
+    .pe-editor__warnings {
+        margin: .5rem .6rem 0;
+    }
+
+    /* ---- fascia 2: l'anteprima ancorata -------------------------- */
+
+    /*
+       Sullo schermo stretto resta la sola ripetizione. Affiancare anche
+       la cella singola darebbe due francobolli invece di un'anteprima:
+       la geometria del singolo elemento si legge nel suo dettaglio.
+    */
+    .pe-mobile-preview {
+        display: block;
+        position: relative;   /* riferimento per la miniatura della cella */
+        height: 34dvh;
+        min-height: 180px;
+        border-bottom: 1px solid var(--pe-border);
+        overflow: hidden;
+    }
+
+    /* Il selettore è sul FIGLIO DIRETTO: dentro c'è anche la miniatura, con un suo
+       <svg> che non deve essere stirato a tutta fascia. */
+    .pe-mobile-preview > svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    /*
+       Miniatura della cella singola. Incorniciata e su scacchiera come le anteprime
+       grandi, perché una zona vuota e una bianca vanno distinte anche qui.
+
+       L'altezza è elastica ma con due limiti: non scende sotto una misura leggibile e
+       non supera lo spazio che resta sotto la barra, così su un telefono in orizzontale
+       - dove la fascia dell'anteprima è bassa - la miniatura si stringe invece di
+       sbordare sulle schede.
+    */
+    .pe-mobile-cella {
+        display: block;
+        position: absolute;
+        left: .6rem;
+        top: 4.3rem;
+        /*
+           La miniatura ha la forma della cella: il rapporto lo dichiara il markup nella
+           variabile --forma (larghezza diviso altezza), perché il foglio di stile non può
+           conoscerlo.
+
+           A comandare è la LARGHEZZA, e l'altezza discende dal rapporto. Il contrario —
+           altezza fissa e un limite di larghezza — sembra più naturale e invece rompe la
+           proporzione: con entrambe le misure definite il rapporto viene ignorato, e una
+           cella molto allungata darebbe una cornice di forma sbagliata.
+
+           I due limiti: non più larga di 44vw, perché coprirebbe l'anteprima che le sta
+           sotto — ed è l'anteprima la ragione per cui quella fascia esiste — e non più alta
+           di --alto. Sono in unità di finestra e non in percentuali perché una percentuale
+           dentro una larghezza si misura sulla larghezza, anche quando quel numero nasce
+           come un'altezza.
+        */
+        --alto: clamp(3.2rem, 9vh, 6.2rem);
+        width: min(44vw, calc(var(--alto) * var(--forma, 1)));
+        overflow: hidden;
+        /*
+           Cornice chiara di due pixel più un filo scuro all'esterno: la prima stacca la
+           miniatura da un pattern scuro, il secondo da uno chiaro. Una cornice sola, di
+           qualunque colore, sparirebbe su metà dei pattern.
+        */
+        border: 2px solid rgba(255, 255, 255, .88);
+        border-radius: var(--pe-radius-sm);
+        box-shadow:
+            0 0 0 1px rgba(8, 12, 20, .38),
+            0 10px 26px rgba(8, 12, 20, .42);
+    }
+
+    .pe-mobile-cella > svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .pe-palco,
+    .pe-legenda,
+    .pe-panel--preview .pe-panel__head {
+        display: none;
+    }
+
+    /* Il titolo del pannello ripeterebbe l'etichetta della scheda appena sopra.
+       Il contatore degli elementi invece resta: quello dice qualcosa. */
+    .pe-panel__title { display: none; }
+
+    .pe-panel__head { justify-content: flex-end; margin-bottom: .5rem; }
+
+    /* I titoli delle due card richiudibili fanno eccezione e restano: non ripetono
+       l’etichetta di nessuna scheda — sono card dentro una scheda — e senza il titolo la
+       loro testata si ridurrebbe a un triangolino che non dice che cosa apre. */
+    .pe-panel--filtro .pe-panel__title,
+    .pe-panel--sorgente .pe-panel__title { display: block; }
+
+    .pe-panel--filtro .pe-panel__head,
+    .pe-panel--sorgente .pe-panel__head { justify-content: flex-start; }
+
+    /* ---- fascia 3: le schede ------------------------------------- */
+
+    .pe-schede {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-bottom: 1px solid var(--pe-border);
+        background: var(--pe-bg-raised);
+    }
+
+    .pe-scheda {
+        height: 46px;
+        border: none;
+        border-bottom: 2px solid transparent;
+        background: none;
+        color: var(--pe-text-muted);
+        font: inherit;
+        font-size: .82rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .pe-scheda[aria-selected="true"] {
+        border-bottom-color: var(--pe-accent);
+        color: var(--pe-accent);
+    }
+
+    /* ---- fascia 4: il foglio, l'unica parte che scorre ------------ */
+
+    .pe-editor__body {
+        /*
+           Blocco, non colonna flessibile. Provata la seconda, ogni card diventava
+           comprimibile: le card dichiarano min-height 0 — serve loro sul desktop, dove
+           scorrono dentro una griglia ad altezza fissa — e in un contenitore flessibile
+           quel permesso le fa stringere sotto il proprio contenuto, che finisce a coprire
+           la card successiva. Qui l’altezza la detta il contenuto e a scorrere è il corpo.
+        */
+        display: block;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        /* arrivato in fondo non deve trascinare la pagina che sta sotto */
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        padding: .8rem .7rem 1.6rem;
+    }
+
+    /* Le colonne si sciolgono: qui le card sono una pila, e l'altezza la detta il
+       contenuto. */
+    .pe-colonna {
+        display: block;
+        min-height: 0;
+    }
+
+    /* I pannelli non sono più schede affiancate ma sezioni a tutta larghezza. */
+    .pe-panel {
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        background: none;
+        padding: 0;
+    }
+
+    /*
+       Una riga tratteggiata fra le due card della scheda «Proprietà», dove il filtro segue
+       le proprietà. Nella scheda «SVG» il sorgente è solo, e una riga sopra di lui
+       sembrerebbe il bordo di qualcosa che non c’è: la card delle anteprime, qui, non
+       disegna niente — le due figure sono nascoste poco più sopra e sostituite
+       dall’anteprima ancorata in cima allo schermo.
+    */
+    .pe-editor[data-pe-scheda="proprieta"] .pe-panel--filtro {
+        margin-top: .85rem;
+        padding-top: .85rem;
+        border-top: 1px dashed var(--pe-border);
+    }
+
+    .pe-editor[data-pe-scheda="proprieta"] .pe-panel--preview,
+    .pe-editor[data-pe-scheda="proprieta"] .pe-panel--sorgente,
+    .pe-editor[data-pe-scheda="proprieta"] .pe-panel--elements,
+    .pe-editor[data-pe-scheda="elementi"] .pe-panel--properties,
+    .pe-editor[data-pe-scheda="elementi"] .pe-panel--filtro,
+    .pe-editor[data-pe-scheda="elementi"] .pe-panel--preview,
+    .pe-editor[data-pe-scheda="elementi"] .pe-panel--sorgente,
+    .pe-editor[data-pe-scheda="sorgente"] .pe-panel--properties,
+    .pe-editor[data-pe-scheda="sorgente"] .pe-panel--filtro,
+    .pe-editor[data-pe-scheda="sorgente"] .pe-panel--elements {
+        display: none;
+    }
+
+    /* ---- comandi a misura di pollice ------------------------------ */
+
+    /*
+       44px è la misura sotto la quale il dito comincia a sbagliare
+       bersaglio; 16px è quella sotto la quale Safari ingrandisce la
+       pagina appena si tocca un campo, e poi ci resta.
+    */
+    .pe-input,
+    .pe-color__code,
+    .pe-btn {
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+    .pe-btn--sm { min-height: 38px; font-size: .85rem; }
+
+    .pe-color__input { width: 3.2rem; height: 44px; }
+    .pe-color__code { width: auto; flex: 1 1 auto; min-width: 0; }
+
+    .pe-icon-btn { width: 44px; height: 44px; font-size: 1rem; }
+
+    .pe-range { height: 44px; }
+
+    .pe-link-btn { min-height: 38px; }
+
+    /*
+       La disposizione dei campi non si decide qui. La soglia di questo blocco è a
+       1024 px, e comprende quindi sia un telefono da 390 sia un tablet da 1024: imporre
+       a entrambi una colonna sola sprecherebbe metà schermo sul secondo. Le regole
+       stanno più sotto, misurate sullo spazio che il foglio ha davvero.
+    */
+    .pe-editor__body {
+        container-type: inline-size;
+        container-name: foglio;
+    }
+
+    /*
+       Le soglie sono misurate sulla larghezza utile del foglio (il container query
+       guarda il contenuto, non il bordo esterno): su un telefono da 390 px il foglio
+       ne offre circa 350.
+
+       Campi e cursori hanno bisogni diversi e quindi soglie diverse. Due campi
+       numerici affiancati stanno comodi già in 350 px - restano 170 a testa, che per
+       un numero sono abbondanti. Un cursore no: affiancato al suo numero gli
+       resterebbero un centinaio di pixel di corsa, cioè un valore ogni tre pixel di
+       dito. Il cursore si affianca quindi molto più tardi.
+    */
+    @container foglio (max-width: 329px) {
+        .pe-grid-2 { grid-template-columns: 1fr; }
+    }
+
+    @container foglio (max-width: 459px) {
+        /* Il cursore sopra il suo numero, a tutta larghezza. */
+        .pe-slider-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: .35rem;
+        }
+
+        .pe-slider-row .pe-input--num { width: 100%; }
+    }
+
+    /*
+       Da qui in su il foglio è largo come una pagina, non come un telefono: i campi di
+       un gruppo si affiancano invece di incolonnarsi. Le griglie a due campi si
+       dissolvono (display: contents) e i loro campi entrano nella griglia del gruppo,
+       così a distribuirli è una regola sola e non due annidate.
+
+       auto-fit e non un numero fisso di colonne: il numero giusto lo decide la larghezza,
+       e va da due campi su un tablet in verticale a quattro su uno schermo da scrivania
+       stretto. È così che il selettore del colore, il codice esadecimale e l'opacità
+       finiscono su un'unica riga, come viene naturale aspettarsi.
+    */
+    @container foglio (min-width: 560px) {
+        .pe-group {
+            display: grid;
+            /* Due colonne esatte, non un numero variabile. Con auto-fit un gruppo di
+               quattro campi su un foglio largo finiva 3 + 1, spaiato; due colonne fisse
+               danno sempre 2 + 2, e a un cursore resta tutta la corsa che gli serve. */
+            grid-template-columns: 1fr 1fr;
+            gap: .55rem .75rem;
+            align-items: start;
+        }
+
+        /* Intestazione e titolo occupano la riga intera: sono l'etichetta del gruppo,
+           non uno dei suoi campi. */
+        .pe-group > .pe-group__head,
+        .pe-group > .pe-group__title {
+            grid-column: 1 / -1;
+        }
+
+        /* Lo spazio sotto il titolo lo dà il gap: il margine lo raddoppierebbe. */
+        .pe-group > .pe-group__title { margin-bottom: 0; }
+
+        .pe-grid-2 { display: contents; }
+
+        /* Con la griglia a distribuire, i margini fra campi consecutivi raddoppierebbero
+           la spaziatura già data dal gap. */
+        .pe-group > .pe-field + .pe-field,
+        .pe-group > .pe-grid-2 + .pe-field {
+            margin-top: 0;
+        }
+    }
+
+    /* ---- righe dell'elenco, tutto su una riga --------------------- */
+
+    /*
+       I comandi stanno accanto al nome, non sotto: una seconda fascia per
+       riga costava una cinquantina di pixel a elemento, e con nove elementi
+       fa mezzo schermo speso in comandi. Restano larghi 40px invece di 44:
+       l'area toccabile è alta quanto la riga, e in verticale il dito ha
+       tutto lo spazio che serve.
+    */
+    .pe-elements__header {
+        flex-wrap: nowrap;
+        gap: .15rem;
+        padding: 0 .2rem 0 0;
+    }
+
+    .pe-elements__apri {
+        flex: 1 1 auto;
+        min-width: 0;
+        min-height: 52px;
+        padding: .5rem .3rem .5rem .55rem;
+    }
+
+    /* Via la freccia: accanto a "su" e "giù" sembrerebbe un terzo comando di
+       spostamento invece dell'invito ad aprire. Al suo posto un filo che separa
+       l'area da toccare dai comandi. */
+    .pe-elements__freccia { display: none; }
+
+    .pe-elements__actions {
+        flex: 0 0 auto;
+        gap: 0;
+        padding-left: .15rem;
+        border-left: 1px solid var(--pe-border);
+    }
+
+    .pe-elements__actions .pe-icon-btn {
+        width: 40px;
+        height: 44px;
+    }
+
+    /* L'appiglio è il bersaglio di un gesto, non di un clic: sul tocco serve largo. */
+    .pe-elements__presa {
+        width: 40px;
+        opacity: 1;
+    }
+
+    /* ---- dettaglio, sorgente, piede -------------------------------- */
+
+    .pe-dettaglio__testa { margin: 0 0 .8rem; }
+
+    .pe-source__code { max-height: none; }
+
+    .pe-editor__footer {
+        gap: .2rem .8rem;
+        padding: .45rem .7rem;
+        border-top: 1px solid var(--pe-border);
+        background: var(--pe-bg-raised);
+        font-size: .68rem;
+    }
+
+    /* L'identificativo su un telefono occupa una riga intera e non serve a nulla:
+       resta nella scheda SVG, dove si va apposta a cercarlo. */
+    .pe-editor__footer .pe-meta__voce:has(.pe-uuid__label) { display: none; }
+}
+
+/* Il peso del documento, accanto al titolo della sua card. In tono minore: è un dato che si
+   guarda quando lo si cerca, non un'etichetta che deve farsi notare. */
+.pe-sorgente__peso {
+    margin-left: .45rem;
+    font-size: .72rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--pe-text-muted, #6b7684);
+    white-space: nowrap;
+}

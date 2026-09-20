@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Nuovo profilo",
+    "Projects": [
+      {
+        "Path": "src\\PatternEditor.Sample.Api\\PatternEditor.Sample.Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\PatternEditor.Sample.Client\\PatternEditor.Sample.Client.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

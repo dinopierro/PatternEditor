@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-abb5-7c67-8d9e-80cd5a3850d0",
+  "name": "Chevron - 15",
+  "createdAt": "2026-09-10T15:56:14.0817766\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:14.5490678\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 56,
+    "height": 20.576,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M27.992 10.556 56 20.576v-10.56L28 0l-.008.024Z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abb5-7a4b-89e6-e59892689c0f",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "m11.004 5.7-1.09.764h2.853c.108 0 .195-.171.195-.382 0-.212-.087-.383-.195-.383zm1.243 0c-.107 0-.194.17-.194.382 0 .21.087.382.194.382h15.744v-.765ZM1.895 9.331 0 10.01v.087h15.508a.382.382 0 0 0 .382-.383.382.382 0 0 0-.382-.382Zm12.594 0a.382.382 0 1 0 0 .765H27.99v-.765ZM0 16.598v.764h8.965l2.138-.764zm0 3.632v.34l.947-.34ZM22.206 2.066l-2.137.765h7.922v-.765ZM0 12.965v.765h19.12l2.138-.765h-5.75Z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abb5-7fdd-8593-8d4c5b4982e1",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

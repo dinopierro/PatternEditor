@@ -1,0 +1,785 @@
+@namespace PatternEditor.Components
+@using global::PatternEditor.Core.Formatting
+@using global::PatternEditor.Core.Models
+@using global::PatternEditor.Core.Models.Filters
+@inject TestiEditor E
+
+@*
+   Il filtro del pattern.
+
+   Tre idee reggono questo pannello, e spiegano perché non somiglia agli altri.
+
+   1. SI PARTE DA UN EFFETTO, NON DA UNA PRIMITIVA. Le primitive della specifica sono
+      operazioni elementari e quasi nessun effetto riconoscibile corrisponde a una sola di
+      esse. Chi vuole «tutto in grigio» non deve dover sapere che si scrive con una
+      feColorMatrix di tipo saturate a zero. Gli effetti pronti scrivono dei passaggi
+      normali, che da quel momento si aprono e si regolano come tutti gli altri: sono un
+      punto di partenza, non una scatola chiusa.
+
+   2. L'ELENCO È LA CATENA. I passaggi si applicano nell'ordine in cui si vedono, ciascuno
+      sul risultato del precedente. Spostare una riga cambia il disegno, ed è per questo che
+      si sposta con due frecce e non con un menu nascosto.
+
+   3. UN PASSAGGIO PER VOLTA. Sei passaggi aperti insieme sono quaranta campi, e in quaranta
+      campi non si trova più quello che si stava cercando. Aperto resta quello su cui si sta
+      lavorando; gli altri mostrano nome e regolazione in una riga.
+*@
+
+<section class="pe-panel pe-panel--filtro pe-filtro @(_pannelloAperto ? "is-aperto" : null)">
+
+    @* La testata è tutta un interruttore. Chiusa mostra comunque quanti passaggi ci sono, o
+       che il filtro c'è ma è spento: una card chiusa che non dice niente costringerebbe ad
+       aprirla per scoprire se serviva guardarci dentro. *@
+    <div class="pe-panel__head">
+        <button type="button" class="pe-panel__toggle"
+                aria-expanded="@(_pannelloAperto ? "true" : "false")"
+                title="@(_pannelloAperto ? E["filtro.chiudiPannello"] : E["filtro.apriPannello"])"
+                @onclick="() => _pannelloAperto = !_pannelloAperto">
+            <span class="pe-chevron">@(_pannelloAperto ? "▾" : "▸")</span>
+            <h3 class="pe-panel__title">@E["filtro.titolo"]</h3>
+        </button>
+
+        @if (Stato is { Length: > 0 } stato)
+        {
+            <span class="pe-badge pe-filtro__stato">@stato</span>
+        }
+
+        @if (_pannelloAperto && Filtro is not null)
+        {
+            <button type="button" class="pe-link-btn" title="@E["filtro.rimuoviTitolo"]"
+                    @onclick="Rimuovi">@E["filtro.rimuovi"]</button>
+        }
+    </div>
+
+    @if (!_pannelloAperto)
+    {
+        @* chiuso: la sola testata *@
+    }
+    else
+    {
+    <div class="pe-panel__scroll">
+
+    @if (Filtro is null)
+    {
+        @* La frase porta del grassetto, e in un'altra lingua cade su parole diverse: il
+           catalogo tiene il markup. È testo nostro, non di un utente. *@
+        <p class="pe-hint">@((MarkupString)E["filtro.premessa"])</p>
+    }
+    else
+    {
+        <label class="pe-switch pe-filtro__interruttore">
+            <input type="checkbox" checked="@Filtro.Enabled"
+                   @onchange="e => Cambia(() => Filtro.Enabled = (bool)(e.Value ?? false))" />
+            <span>@E["filtro.applica"]</span>
+        </label>
+    }
+
+    @* ------------------------------------------------------------- i passaggi ----- *@
+    @* Il filtro entra in una variabile locale: il compilatore non può sapere che una
+       proprietà non nulla un istante fa lo sia ancora adesso, e senza la variabile ogni
+       accesso qui dentro sarebbe un avviso di possibile riferimento nullo. *@
+    @if (Filtro is { Primitives.Count: > 0 } filtro)
+    {
+            <ol class="pe-passi">
+                @foreach (var p in filtro.Primitives)
+                {
+                    var indice = filtro.Primitives.IndexOf(p);
+                    var aperto = _aperto == p.Id;
+
+                    <li class="pe-passo @(aperto ? "e-aperto" : "") @(p.Enabled ? "" : "e-spento")" @key="p">
+
+                        <div class="pe-passo__riga">
+                            <label class="pe-passo__acceso" title="@(p.Enabled ? E["filtro.escludi"] : E["filtro.rimetti"])">
+                                <input type="checkbox" checked="@p.Enabled"
+                                       @onchange="e => Cambia(() => p.Enabled = (bool)(e.Value ?? false))" />
+                            </label>
+
+                            <button type="button" class="pe-passo__nome" @onclick="() => Apri(p)"
+                                    title="@(aperto ? E["filtro.chiudiPasso"] : E["filtro.apriPasso"])">
+                                <span class="pe-passo__ordine">@(indice + 1)</span>
+                                <span class="pe-passo__etichetta">@E.Testo(p.Titolo)</span>
+                                <span class="pe-passo__riassunto">@E.Testo(p.Sintesi)</span>
+                            </button>
+
+                            <span class="pe-passo__comandi">
+                                <button type="button" class="pe-icon-btn" title="@E["filtro.spostaPrima"]" disabled="@(indice == 0)"
+                                        @onclick="() => Sposta(p, -1)">↑</button>
+                                <button type="button" class="pe-icon-btn" title="@E["filtro.spostaDopo"]"
+                                        disabled="@(indice == filtro.Primitives.Count - 1)"
+                                        @onclick="() => Sposta(p, 1)">↓</button>
+                                <button type="button" class="pe-icon-btn pe-icon-btn--rimuovi" title="@E["filtro.eliminaPasso"]"
+                                        @onclick="() => Elimina(p)">✕</button>
+                            </span>
+                        </div>
+
+                        @if (aperto)
+                        {
+                            <div class="pe-passo__corpo">
+
+                                @* ------------------------------------------------ sfocatura -- *@
+                                @if (p is GaussianBlurPrimitive sfoca)
+                                {
+                                    <div class="pe-grid-2">
+                                        @Cursore(E["filtro.raggioX"], "px", sfoca.StdDeviationX, v => sfoca.StdDeviationX = v, 0, 20, 0.1)
+                                        @Cursore(E["filtro.raggioY"], "px", sfoca.StdDeviationY, v => sfoca.StdDeviationY = v, 0, 20, 0.1)
+                                    </div>
+                                    @Scelta(E["filtro.fuoriBordo"], sfoca.EdgeMode, v => sfoca.EdgeMode = v, NomeBordo)
+                                }
+
+                                @* ---------------------------------------------------- ombra -- *@
+                                else if (p is DropShadowPrimitive ombra)
+                                {
+                                    <div class="pe-grid-2">
+                                        @Numerico(E["filtro.spostamentoX"], "px", ombra.Dx, v => ombra.Dx = v, passo: 0.5)
+                                        @Numerico(E["filtro.spostamentoY"], "px", ombra.Dy, v => ombra.Dy = v, passo: 0.5)
+                                    </div>
+                                    @Cursore(E["filtro.sfumatura"], "px", ombra.StdDeviation, v => ombra.StdDeviation = v, 0, 20, 0.1)
+                                    @Colore(E["campo.colore"], ombra.FloodColor, v => ombra.FloodColor = v)
+                                    @Cursore(E["campo.opacita"], "%", ombra.FloodOpacity, v => ombra.FloodOpacity = v, 0, 1, 0.01, percentuale: true)
+                                }
+
+                                @* ----------------------------------------------- spostamento - *@
+                                else if (p is OffsetPrimitive sposta)
+                                {
+                                    <div class="pe-grid-2">
+                                        @Numerico("X", "px", sposta.Dx, v => sposta.Dx = v, passo: 0.5)
+                                        @Numerico("Y", "px", sposta.Dy, v => sposta.Dy = v, passo: 0.5)
+                                    </div>
+                                }
+
+                                @* --------------------------------------------------- colore -- *@
+                                else if (p is ColorMatrixPrimitive colore)
+                                {
+                                    @Scelta(E["filtro.operazione"], colore.Kind, v => colore.Kind = v, NomeMatrice)
+
+                                    @if (colore.Kind == ColorMatrixKind.Saturate)
+                                    {
+                                        @Cursore(E["filtro.saturazione"], "%", colore.Value, v => colore.Value = v, 0, 3, 0.01, percentuale: true)
+                                        <p class="pe-hint">@E["filtro.notaSaturazione"]</p>
+                                    }
+                                    else if (colore.Kind == ColorMatrixKind.HueRotate)
+                                    {
+                                        @Cursore(E["filtro.rotazioneTinta"], "°", colore.Value, v => colore.Value = v, 0, 360, 1)
+                                    }
+                                    else if (colore.Kind == ColorMatrixKind.LuminanceToAlpha)
+                                    {
+                                        <p class="pe-hint">@E["filtro.notaLuminanza"]</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="pe-field__label">@E["filtro.coefficienti"] <span class="pe-unit">[R G B A offset]</span></p>
+                                        <div class="pe-matrice">
+                                            @for (var i = 0; i < colore.Matrix.Count; i++)
+                                            {
+                                                var k = i;
+                                                <input class="pe-input pe-matrice__cella" type="number" step="0.01"
+                                                       value="@Num(colore.Matrix[k])"
+                                                       @onchange="e => Cambia(() => colore.Matrix[k] = InvariantNumber.Parse(e.Value, colore.Matrix[k]))" />
+                                            }
+                                        </div>
+                                        <button type="button" class="pe-btn pe-btn--sm pe-btn--ghost pe-btn--block"
+                                                @onclick="() => Cambia(() => colore.Matrix = [.. ColorMatrixPrimitive.MatriceIdentita()])">
+                                            @E["filtro.matriceNeutra"]
+                                        </button>
+                                    }
+                                }
+
+                                @* -------------------------------------------------- livelli -- *@
+                                else if (p is ComponentTransferPrimitive livelli)
+                                {
+                                    <p class="pe-hint">@E["filtro.notaLivelli"]</p>
+
+                                    @foreach (var (nome, funzione) in livelli.Canali())
+                                    {
+                                        <div class="pe-canale">
+                                            @Scelta(E["filtro.canale", nome], funzione.Kind, v => funzione.Kind = v, NomeCurva)
+
+                                            @if (funzione.Kind == TransferFunctionKind.Linear)
+                                            {
+                                                <div class="pe-grid-2">
+                                                    @Numerico(E["filtro.pendenza"], "", funzione.Slope, v => funzione.Slope = v, passo: 0.05)
+                                                    @Numerico(E["filtro.scostamento"], "", funzione.Intercept, v => funzione.Intercept = v, passo: 0.05)
+                                                </div>
+                                            }
+                                            else if (funzione.Kind == TransferFunctionKind.Gamma)
+                                            {
+                                                <div class="pe-grid-2">
+                                                    @Numerico(E["filtro.ampiezza"], "", funzione.Amplitude, v => funzione.Amplitude = v, passo: 0.05)
+                                                    @Numerico(E["filtro.esponente"], "", funzione.Exponent, v => funzione.Exponent = v, passo: 0.05)
+                                                </div>
+                                                @Numerico(E["filtro.scostamento"], "", funzione.Offset, v => funzione.Offset = v, passo: 0.05)
+                                            }
+                                            else if (funzione.Kind is TransferFunctionKind.Table or TransferFunctionKind.Discrete)
+                                            {
+                                                @Elenco(E["filtro.valori"], funzione.TableValues, minimo: 2)
+                                            }
+                                        </div>
+                                    }
+                                }
+
+                                @* ------------------------------------------------- spessore -- *@
+                                else if (p is MorphologyPrimitive spessore)
+                                {
+                                    @Scelta(E["filtro.operazione"], spessore.Operator, v => spessore.Operator = v, NomeSpessore)
+                                    <div class="pe-grid-2">
+                                        @Cursore(E["filtro.raggioX"], "px", spessore.RadiusX, v => spessore.RadiusX = v, 0, 10, 0.1)
+                                        @Cursore(E["filtro.raggioY"], "px", spessore.RadiusY, v => spessore.RadiusY = v, 0, 10, 0.1)
+                                    </div>
+                                }
+
+                                @* ---------------------------------------------- tinta piena -- *@
+                                else if (p is FloodPrimitive tinta)
+                                {
+                                    @Colore(E["campo.colore"], tinta.FloodColor, v => tinta.FloodColor = v)
+                                    @Cursore(E["campo.opacita"], "%", tinta.FloodOpacity, v => tinta.FloodOpacity = v, 0, 1, 0.01, percentuale: true)
+                                    <p class="pe-hint">@E["filtro.notaTintaPiena"]</p>
+                                }
+
+                                @* -------------------------------------------------- fusione -- *@
+                                else if (p is BlendPrimitive fusione)
+                                {
+                                    @Scelta(E["filtro.modo"], fusione.Mode, v => fusione.Mode = v, v => E.Testo(BlendPrimitive.Nome(v)))
+                                    @Ingresso(E["filtro.secondaImmagine"], fusione.In2, v => fusione.In2 = v)
+                                }
+
+                                @* --------------------------------------------- composizione -- *@
+                                else if (p is CompositePrimitive composizione)
+                                {
+                                    @Scelta(E["filtro.operatore"], composizione.Operator, v => composizione.Operator = v,
+                                            v => E.Testo(CompositePrimitive.Nome(v)))
+                                    @Ingresso(E["filtro.secondaImmagine"], composizione.In2, v => composizione.In2 = v)
+
+                                    @if (composizione.Operator == CompositeOperator.Arithmetic)
+                                    {
+                                        <div class="pe-grid-2">
+                                            @Numerico("k1", "", composizione.K1, v => composizione.K1 = v, passo: 0.1)
+                                            @Numerico("k2", "", composizione.K2, v => composizione.K2 = v, passo: 0.1)
+                                            @Numerico("k3", "", composizione.K3, v => composizione.K3 = v, passo: 0.1)
+                                            @Numerico("k4", "", composizione.K4, v => composizione.K4 = v, passo: 0.1)
+                                        </div>
+                                        <p class="pe-hint">@E["filtro.notaAritmetica"]</p>
+                                    }
+                                }
+
+                                @* --------------------------------------------------- rumore -- *@
+                                else if (p is TurbulencePrimitive rumore)
+                                {
+                                    @Scelta(E["filtro.tipo"], rumore.Kind, v => rumore.Kind = v, NomeRumore)
+                                    <div class="pe-grid-2">
+                                        @Numerico(E["filtro.frequenzaX"], "", rumore.BaseFrequencyX, v => rumore.BaseFrequencyX = v, passo: 0.005)
+                                        @Numerico(E["filtro.frequenzaY"], "", rumore.BaseFrequencyY, v => rumore.BaseFrequencyY = v, passo: 0.005)
+                                    </div>
+                                    <div class="pe-grid-2">
+                                        @Numerico(E["filtro.ottave"], "", rumore.NumOctaves, v => rumore.NumOctaves = (int)Math.Round(v), passo: 1)
+                                        @Numerico(E["filtro.seme"], "", rumore.Seed, v => rumore.Seed = v, passo: 1)
+                                    </div>
+                                    <label class="pe-switch">
+                                        <input type="checkbox" checked="@rumore.StitchTiles"
+                                               @onchange="e => Cambia(() => rumore.StitchTiles = (bool)(e.Value ?? false))" />
+                                        <span>@E["filtro.combaciaBordi"]</span>
+                                    </label>
+                                    <p class="pe-hint">@((MarkupString)E["filtro.notaRumore"])</p>
+                                }
+
+                                @* ---------------------------------------------- distorsione -- *@
+                                else if (p is DisplacementMapPrimitive distorsione)
+                                {
+                                    @Cursore(E["filtro.ampiezza"], "px", distorsione.Scale, v => distorsione.Scale = v, 0, 40, 0.5)
+                                    @Ingresso(E["filtro.immagineGuida"], distorsione.In2, v => distorsione.In2 = v)
+                                    <div class="pe-grid-2">
+                                        @Scelta(E["filtro.canalePerX"], distorsione.XChannelSelector, v => distorsione.XChannelSelector = v, c => c.ToString())
+                                        @Scelta(E["filtro.canalePerY"], distorsione.YChannelSelector, v => distorsione.YChannelSelector = v, c => c.ToString())
+                                    </div>
+                                }
+
+                                @* --------------------------------------------- convoluzione -- *@
+                                else if (p is ConvolveMatrixPrimitive nucleo)
+                                {
+                                    @Scelta(E["filtro.dimensione"], nucleo.Order, v => CambiaOrdine(nucleo, v), NomeOrdine)
+
+                                    <p class="pe-field__label">@E["filtro.coefficienti"]</p>
+                                    <div class="pe-matrice" style="--colonne: @nucleo.Lato">
+                                        @for (var i = 0; i < nucleo.KernelMatrix.Count; i++)
+                                        {
+                                            var k = i;
+                                            <input class="pe-input pe-matrice__cella" type="number" step="0.1"
+                                                   value="@Num(nucleo.KernelMatrix[k])"
+                                                   @onchange="e => Cambia(() => nucleo.KernelMatrix[k] = InvariantNumber.Parse(e.Value, nucleo.KernelMatrix[k]))" />
+                                        }
+                                    </div>
+
+                                    <div class="pe-grid-2">
+                                        @Numerico(E["filtro.divisore"], "", nucleo.Divisor, v => nucleo.Divisor = v, passo: 0.1)
+                                        @Numerico(E["filtro.scostamento"], "", nucleo.Bias, v => nucleo.Bias = v, passo: 0.05)
+                                    </div>
+                                    <p class="pe-hint">@E["filtro.notaDivisore"]</p>
+
+                                    @Scelta(E["filtro.fuoriBordo"], nucleo.EdgeMode, v => nucleo.EdgeMode = v, NomeBordo)
+                                    <label class="pe-switch">
+                                        <input type="checkbox" checked="@nucleo.PreserveAlpha"
+                                               @onchange="e => Cambia(() => nucleo.PreserveAlpha = (bool)(e.Value ?? false))" />
+                                        <span>@E["filtro.lasciaTrasparenza"]</span>
+                                    </label>
+                                }
+
+                                @* ------------------------------------------ sovrapposizione -- *@
+                                else if (p is MergePrimitive sovrapposizione)
+                                {
+                                    <p class="pe-hint">@E["filtro.notaLivelliPila"]</p>
+
+                                    @for (var i = 0; i < sovrapposizione.Inputs.Count; i++)
+                                    {
+                                        var k = i;
+                                        <div class="pe-livello">
+                                            <input class="pe-input" type="text" spellcheck="false" autocomplete="off"
+                                                   placeholder="@E["filtro.precedente"]" value="@sovrapposizione.Inputs[k]"
+                                                   @onchange="e => Cambia(() => sovrapposizione.Inputs[k] = e.Value?.ToString() ?? string.Empty)" />
+                                            <button type="button" class="pe-icon-btn pe-icon-btn--rimuovi" title="@E["filtro.togliLivello"]"
+                                                    @onclick="() => Cambia(() => sovrapposizione.Inputs.RemoveAt(k))">✕</button>
+                                        </div>
+                                    }
+
+                                    <button type="button" class="pe-btn pe-btn--sm pe-btn--ghost pe-btn--block"
+                                            @onclick="() => Cambia(() => sovrapposizione.Inputs.Add(string.Empty))">
+                                        @E["filtro.aggiungiLivello"]
+                                    </button>
+                                }
+
+                                @* --------------------------------------------- non gestita --- *@
+                                else if (p is UnknownFilterPrimitive ignota)
+                                {
+                                    <p class="pe-note"><em>@E["filtro.notaIgnota", ignota.Tipo]</em></p>
+                                }
+
+                                @* I collegamenti stanno in fondo e chiusi: servono nelle catene, e
+                                   nella stragrande maggioranza dei casi vanno lasciati vuoti. *@
+                                @if (p is not UnknownFilterPrimitive)
+                                {
+                                    <details class="pe-collegamenti">
+                                        <summary>@E["filtro.collegamenti"]</summary>
+                                        @Ingresso(E["filtro.ingresso"], p.In, v => p.In = v)
+                                        <label class="pe-field">
+                                            <span class="pe-field__label">@E["filtro.risultato"] <span class="pe-unit">[@E["filtro.risultatoUnita"]]</span></span>
+                                            <input class="pe-input" type="text" spellcheck="false" autocomplete="off"
+                                                   placeholder="@E["filtro.nessunNome"]" value="@p.Result"
+                                                   @onchange="e => Cambia(() => p.Result = Ripulisci(e.Value))" />
+                                        </label>
+                                        <p class="pe-hint">@E["filtro.notaCollegamenti"]</p>
+                                    </details>
+                                }
+                            </div>
+                        }
+                    </li>
+                }
+            </ol>
+    }
+
+    @* ------------------------------------------------------------- inserimento ---------
+       Il menu di inserimento c'è sempre, anche prima che esista un filtro: aggiungere un
+       passaggio lo crea. Nascondendolo finché non si sceglieva un effetto pronto si
+       obbligava a passare da quelli anche chi sapeva già che cosa voleva. *@
+    <div class="pe-aggiungi">
+        <select class="pe-input pe-input--select" value="@_daAggiungere"
+                @onchange="e => _daAggiungere = e.Value?.ToString() ?? _daAggiungere"
+                title="@DescrizioneDa(_daAggiungere)">
+            @foreach (var voce in FilterPrimitiveTypes.Catalogo)
+            {
+                <option value="@voce.SvgName" selected="@(voce.SvgName == _daAggiungere)">@E.Voce("filtro." + voce.SvgName, voce.Etichetta)</option>
+            }
+        </select>
+        <button type="button" class="pe-btn pe-btn--sm pe-btn--secondary" @onclick="Aggiungi">@E["filtro.aggiungi"]</button>
+    </div>
+    <p class="pe-hint">@DescrizioneDa(_daAggiungere)</p>
+
+    @* ---------------------------------------------------- effetti pronti ----------
+       Aperti finché l'elenco è vuoto — sono il modo più rapido di cominciare, e a quel
+       punto la card non ha altro da mostrare — e richiusi appena si popola, perché da lì
+       in poi quello che serve vedere sono i passaggi. *@
+    <details class="pe-effetti-pronti" open="@ElencoVuoto">
+        <summary>@E["filtro.effettiPronti"]</summary>
+        <p class="pe-hint">@E["filtro.notaEffetti"]</p>
+        @Effetti()
+    </details>
+
+    @if (Filtro is not null)
+    {
+        @* ------------------------------------------------------- impostazioni --------- *@
+        <details class="pe-avanzate">
+            <summary>@E["filtro.areaSpazio"]</summary>
+
+            <p class="pe-hint">
+                @E["filtro.notaArea"]
+                @if (Filtro.QualcunoSconfina)
+                {
+                    <strong>@E["filtro.notaSconfina"]</strong>
+                }
+            </p>
+
+            <div class="pe-grid-2">
+                @Numerico("X", "%", Filtro.X, v => Filtro.X = v, passo: 5)
+                @Numerico("Y", "%", Filtro.Y, v => Filtro.Y = v, passo: 5)
+                @Numerico(E["campo.larghezza"], "%", Filtro.Width, v => Filtro.Width = v, passo: 5)
+                @Numerico(E["campo.altezza"], "%", Filtro.Height, v => Filtro.Height = v, passo: 5)
+            </div>
+
+            @Scelta(E["filtro.spazioColore"], Filtro.ColorSpace, v => Filtro.ColorSpace = v, NomeSpazio)
+            <p class="pe-hint">@E["filtro.notaSpazio"]</p>
+        </details>
+
+        <p class="pe-hint pe-filtro__nota">@((MarkupString)E["filtro.notaSuperficie"])</p>
+    }
+
+    </div>
+    }
+
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public PatternDefinition Definition { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
+
+    private PatternFilter? Filtro => Definition.Filter;
+
+    /// <summary>Il passaggio aperto. Uno per volta: sei aperti insieme sono quaranta campi.</summary>
+    private Guid? _aperto;
+
+    /// <summary>Vero quando non c'è nessun passaggio da mostrare, filtro assente compreso.</summary>
+    private bool ElencoVuoto => Filtro is not { Primitives.Count: > 0 };
+
+    /// <summary>
+    /// Se la card è aperta. Comincia <b>aperta</b>: da quando i filtri hanno una card propria
+    /// in una colonna larga non tolgono spazio a nient'altro, e una funzione che si presenta
+    /// chiusa è una funzione che metà delle persone non scopre mai.
+    /// </summary>
+    private bool _pannelloAperto = true;
+
+    /// <summary>
+    /// Che cosa dire sulla testata quando la card è chiusa: quanti passaggi, oppure che il
+    /// filtro c'è ma non è applicato. Stringa vuota quando non c'è niente da dire.
+    /// </summary>
+    private string Stato
+    {
+        get
+        {
+            if (Filtro is null)
+            {
+                return string.Empty;
+            }
+
+            if (!Filtro.Enabled)
+            {
+                return E["filtro.statoSpento"];
+            }
+
+            var accesi = Filtro.Primitives.Count(p => p.Enabled);
+
+            return accesi == 0 ? E["filtro.statoVuoto"]
+                : accesi == 1 ? E["filtro.statoUnPasso"]
+                : E["filtro.statoPassi", accesi];
+        }
+    }
+
+    private string _daAggiungere = FilterPrimitiveTypes.Catalogo[0].SvgName;
+
+    /// <summary>Identifica i campi colore: cambiandolo, Blazor li ricostruisce.</summary>
+    private int _revisioneColore;
+
+    // ------------------------------------------------------------------ comandi --------
+
+    private void Cambia(Action applica)
+    {
+        applica();
+        OnChanged.InvokeAsync();
+    }
+
+    private void Apri(FilterPrimitive p) => _aperto = _aperto == p.Id ? null : p.Id;
+
+    /// <summary>
+    /// Crea il filtro se non c'è e vi aggiunge i passaggi dell'effetto.
+    ///
+    /// <para>
+    /// Si aggiungono invece di sostituire perché due effetti si sommano spesso — grigio più
+    /// contrasto, seppia più grana — e sostituire farebbe perdere in silenzio il lavoro
+    /// precedente. Toglierne uno costa tre clic; rifarlo, molti di più.
+    /// </para>
+    /// </summary>
+    private void ApplicaPreset(FilterPresets.Preset preset) => Cambia(() =>
+    {
+        var filtro = Definition.Filter ??= new PatternFilter();
+
+        FilterPrimitive? ultimo = null;
+        foreach (var passo in preset.Passaggi())
+        {
+            filtro.Primitives.Add(passo);
+            ultimo = passo;
+        }
+
+        // Si apre l'ultimo dei passaggi appena scritti: è quello che regola l'intensità
+        // dell'effetto, cioè la prima cosa che si vorrà toccare.
+        _aperto = ultimo?.Id;
+    });
+
+    private void Aggiungi() => Cambia(() =>
+    {
+        if (FilterPrimitiveTypes.Crea(_daAggiungere) is not { } nuova)
+        {
+            return;
+        }
+
+        (Definition.Filter ??= new PatternFilter()).Primitives.Add(nuova);
+        _aperto = nuova.Id;
+    });
+
+    private void Elimina(FilterPrimitive p) => Cambia(() =>
+    {
+        Filtro?.Primitives.Remove(p);
+
+        if (_aperto == p.Id)
+        {
+            _aperto = null;
+        }
+    });
+
+    /// <summary>
+    /// Sposta un passaggio di una posizione. L'ordine è la catena: spostare una riga cambia
+    /// il disegno, e va fatto con un comando visibile.
+    /// </summary>
+    private void Sposta(FilterPrimitive p, int verso) => Cambia(() =>
+    {
+        if (Filtro is null)
+        {
+            return;
+        }
+
+        var da = Filtro.Primitives.IndexOf(p);
+        var a = da + verso;
+
+        if (da < 0 || a < 0 || a >= Filtro.Primitives.Count)
+        {
+            return;
+        }
+
+        Filtro.Primitives.RemoveAt(da);
+        Filtro.Primitives.Insert(a, p);
+    });
+
+    private void Rimuovi() => Cambia(() =>
+    {
+        Definition.Filter = null;
+        _aperto = null;
+    });
+
+    /// <summary>
+    /// Cambiare la dimensione del nucleo ne cambia il numero di coefficienti: si riparte da
+    /// quello neutro. Conservare i vecchi valori dentro una griglia di misura diversa
+    /// produrrebbe un nucleo che non significa più niente.
+    /// </summary>
+    private void CambiaOrdine(ConvolveMatrixPrimitive nucleo, ConvolveOrder ordine) => Cambia(() =>
+    {
+        if (nucleo.Order == ordine)
+        {
+            return;
+        }
+
+        nucleo.Order = ordine;
+
+        var quanti = nucleo.Lato * nucleo.Lato;
+        var centro = quanti / 2;
+        nucleo.KernelMatrix = [.. Enumerable.Range(0, quanti).Select(i => i == centro ? 1d : 0d)];
+    });
+
+    private static string? Ripulisci(object? valore)
+    {
+        var testo = valore?.ToString()?.Trim();
+        return string.IsNullOrEmpty(testo) ? null : testo;
+    }
+
+    private string DescrizioneDa(string svgName) =>
+        FilterPrimitiveTypes.Catalogo.FirstOrDefault(v => v.SvgName == svgName) is { } voce
+            ? E.Voce("filtro." + svgName + ".nota", voce.Descrizione)
+            : string.Empty;
+
+    // ------------------------------------------------------------ pezzi di modulo ------
+    //
+    // I campi si ripetono decine di volte con la sola differenza dell'etichetta e di dove
+    // scrivono. Scritti per esteso ogni volta sarebbero ottocento righe in cui un errore di
+    // battitura in una classe CSS non si nota; scritti una volta sola, cambiare il modo in
+    // cui si presenta un numero si fa in un punto.
+
+    private RenderFragment Numerico(
+        string etichetta, string unita, double valore, Action<double> imposta, double passo = 1) =>
+        @<label class="pe-field">
+            <span class="pe-field__label">
+                @etichetta
+                @if (unita.Length > 0)
+                {
+                    <span class="pe-unit">[@unita]</span>
+                }
+            </span>
+            <input class="pe-input" type="number" step="@Num(passo)" value="@Num(valore)"
+                   @onchange="e => Cambia(() => imposta(InvariantNumber.Parse(e.Value, valore)))" />
+        </label>;
+
+    private RenderFragment Cursore(
+        string etichetta, string unita, double valore, Action<double> imposta,
+        double minimo, double massimo, double passo, bool percentuale = false) =>
+        @<div class="pe-field pe-field--slider">
+            <span class="pe-field__label">
+                @etichetta
+                @if (unita.Length > 0)
+                {
+                    <span class="pe-unit">[@unita]</span>
+                }
+                <span class="pe-field__value">@(percentuale ? Percento(valore) : Num(valore))</span>
+            </span>
+            <div class="pe-slider-row">
+                <input class="pe-range" type="range" min="@Num(minimo)" max="@Num(massimo)" step="@Num(passo)"
+                       value="@Num(valore)"
+                       @oninput="e => Cambia(() => imposta(InvariantNumber.Parse(e.Value, valore)))" />
+                <input class="pe-input pe-input--num" type="number" step="@Num(passo)" value="@Num(valore)"
+                       @onchange="e => Cambia(() => imposta(InvariantNumber.Parse(e.Value, valore)))" />
+            </div>
+        </div>;
+
+    private RenderFragment Scelta<TVoce>(
+        string etichetta, TVoce valore, Action<TVoce> imposta, Func<TVoce, string> nome)
+        where TVoce : struct, Enum =>
+        @<label class="pe-field">
+            <span class="pe-field__label">@etichetta</span>
+            <select class="pe-input pe-input--select"
+                    @onchange="e => Cambia(() => imposta(Enum.TryParse<TVoce>(e.Value?.ToString(), out var scelta) ? scelta : valore))">
+                @foreach (var voce in Enum.GetValues<TVoce>())
+                {
+                    <option value="@voce.ToString()" selected="@voce.Equals(valore)">@nome(voce)</option>
+                }
+            </select>
+        </label>;
+
+    private RenderFragment Colore(string etichetta, string valore, Action<string> imposta) =>
+        @<label class="pe-field">
+            <span class="pe-field__label">@etichetta</span>
+            <span class="pe-color">
+                <input class="pe-color__input" type="color" value="@SvgColor.ForPicker(valore)"
+                       @oninput="e => Cambia(() => imposta(SvgColor.Normalize(e.Value?.ToString()) ?? valore))" />
+                <input class="pe-color__code" type="text" spellcheck="false" autocomplete="off"
+                       maxlength="7" size="8" pattern="@SvgColor.HtmlPattern"
+                       title="@E["campo.coloreTitolo"]"
+                       @key="_revisioneColore" value="@valore"
+                       @oninput="e => { if (SvgColor.IsCanonical(e.Value?.ToString())) { Cambia(() => imposta(e.Value!.ToString()!)); } }"
+                       @onchange="e => { if (SvgColor.Normalize(e.Value?.ToString()) is { } c) { Cambia(() => imposta(c)); } _revisioneColore++; }" />
+            </span>
+        </label>;
+
+    /// <summary>
+    /// Il campo di un ingresso. È un testo libero e non un menu: i nomi possibili sono le sei
+    /// sorgenti della specifica più tutti quelli che l'utente ha inventato nei passaggi
+    /// precedenti, e un menu che li elencasse tutti sarebbe più lungo da leggere che da
+    /// scrivere. A dire se un nome non porta da nessuna parte ci pensa il validatore.
+    /// </summary>
+    private RenderFragment Ingresso(string etichetta, string? valore, Action<string?> imposta) =>
+        @<label class="pe-field">
+            <span class="pe-field__label">@etichetta</span>
+            <input class="pe-input" type="text" spellcheck="false" autocomplete="off"
+                   list="pe-sorgenti" placeholder="@E["filtro.precedente"]" value="@valore"
+                   @onchange="e => Cambia(() => imposta(Ripulisci(e.Value)))" />
+        </label>;
+
+    private RenderFragment Elenco(string etichetta, List<double> valori, int minimo) =>
+        @<div class="pe-field">
+            <span class="pe-field__label">@etichetta</span>
+            <div class="pe-elenco">
+                @for (var i = 0; i < valori.Count; i++)
+                {
+                    var k = i;
+                    <input class="pe-input pe-elenco__cella" type="number" step="0.05" value="@Num(valori[k])"
+                           @onchange="e => Cambia(() => valori[k] = InvariantNumber.Parse(e.Value, valori[k]))" />
+                }
+                <button type="button" class="pe-icon-btn" title="@E["filtro.aggiungiValore"]"
+                        @onclick="() => Cambia(() => valori.Add(1))">+</button>
+                <button type="button" class="pe-icon-btn" title="@E["filtro.togliValore"]"
+                        disabled="@(valori.Count <= minimo)"
+                        @onclick="() => Cambia(() => valori.RemoveAt(valori.Count - 1))">−</button>
+            </div>
+        </div>;
+
+    /// <summary>
+    /// Gli effetti pronti, raccolti per famiglia. Ventiquattro pastiglie di fila sono un
+    /// muro; quattro elenchi corti si scorrono, e chi cerca «qualcosa che scurisca» sa dove
+    /// guardare senza leggerle tutte.
+    /// </summary>
+    private RenderFragment Effetti() =>
+        @<div class="pe-effetti">
+            @foreach (var gruppo in FilterPresets.Gruppi)
+            {
+                <div class="pe-effetti__famiglia" @key="gruppo.Nome">
+                    <span class="pe-effetti__titolo">@E.Voce("preset.gruppo." + gruppo.Nome, gruppo.Nome)</span>
+                    <div class="pe-effetti__pastiglie">
+                        @foreach (var preset in gruppo.Effetti)
+                        {
+                            <button type="button" class="pe-effetto"
+                                    title="@E.Voce("preset." + preset.Chiave + ".nota", preset.Descrizione)"
+                                    @onclick="() => ApplicaPreset(preset)">@E.Voce("preset." + preset.Chiave, preset.Nome)</button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>;
+
+    // ------------------------------------------------------------------ i nomi ---------
+
+    @* I nomi delle voci di menu. Non sono statici come prima perché ora passano dal
+       catalogo, e il catalogo è un servizio iniettato: è il prezzo di poterli tradurre. *@
+    private string NomeMatrice(ColorMatrixKind kind) => kind switch
+    {
+        ColorMatrixKind.Saturate => E["filtro.matrice.saturazione"],
+        ColorMatrixKind.HueRotate => E["filtro.matrice.tinta"],
+        ColorMatrixKind.LuminanceToAlpha => E["filtro.matrice.luminanza"],
+        _ => E["filtro.matrice.completa"],
+    };
+
+    private string NomeCurva(TransferFunctionKind kind) => kind switch
+    {
+        TransferFunctionKind.Identity => E["filtro.curva.identita"],
+        TransferFunctionKind.Linear => E["filtro.curva.lineareNome"],
+        TransferFunctionKind.Gamma => E["filtro.curva.gammaNome"],
+        TransferFunctionKind.Table => E["filtro.curva.tabellaNome"],
+        _ => E["filtro.curva.gradiniNome"],
+    };
+
+    private string NomeSpessore(MorphologyOperator operatore) =>
+        operatore == MorphologyOperator.Dilate ? E["filtro.ispessisci"] : E["filtro.assottiglia"];
+
+    private string NomeRumore(TurbulenceKind kind) => E.Testo(TurbulencePrimitive.Nome(kind));
+
+    private string NomeBordo(EdgeMode modo) => modo switch
+    {
+        EdgeMode.Duplicate => E["filtro.bordo.ripeti"],
+        EdgeMode.Wrap => E["filtro.bordo.opposto"],
+        _ => E["filtro.bordo.niente"],
+    };
+
+    private static string NomeOrdine(ConvolveOrder ordine) =>
+        ordine == ConvolveOrder.Tre ? "3 × 3" : "5 × 5";
+
+    private string NomeSpazio(FilterColorSpace spazio) =>
+        spazio == FilterColorSpace.Srgb ? E["filtro.spazio.srgb"] : E["filtro.spazio.lineare"];
+
+    private static string Num(double valore) => InvariantNumber.Format(Math.Round(valore, 4));
+
+    private static string Percento(double frazione) => Math.Round(frazione * 100) + "%";
+}
+
+@* I nomi che la specifica mette a disposizione, suggeriti dai campi di ingresso. Sta qui in
+   fondo e una volta sola: è una lista di completamento, non un controllo, e ripeterla accanto
+   a ogni campo produrrebbe una dozzina di nodi identici. *@
+<datalist id="pe-sorgenti">
+    <option value="SourceGraphic"></option>
+    <option value="SourceAlpha"></option>
+    <option value="BackgroundImage"></option>
+    <option value="BackgroundAlpha"></option>
+    <option value="FillPaint"></option>
+    <option value="StrokePaint"></option>
+</datalist>

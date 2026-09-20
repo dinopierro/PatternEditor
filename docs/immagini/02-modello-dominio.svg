@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 620" width="940" height="620" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="620" fill="#ffffff"/>
+
+  <defs>
+    <marker id="rombo" viewBox="0 0 14 10" refX="1" refY="5" markerWidth="12" markerHeight="9" orient="auto">
+      <path d="M 0 5 L 7 0 L 14 5 L 7 10 z" fill="#1b2430"/>
+    </marker>
+    <marker id="triangolo" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#ffffff" stroke="#6b7684"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="42" font-size="19" font-weight="600" fill="#1b2430">Figura 2 — Modello di dominio</text>
+  <text x="40" y="64" font-size="13" fill="#6b7684">Il rombo indica composizione: la parte non esiste senza il tutto. Il triangolo vuoto indica ereditariet&#224;.</text>
+
+  <!-- Pattern -->
+  <rect x="48" y="96" width="292" height="176" rx="8" fill="#eaf0ff" stroke="#3b6ef5"/>
+  <rect x="48" y="96" width="292" height="30" rx="8" fill="#3b6ef5"/>
+  <rect x="48" y="116" width="292" height="10" fill="#3b6ef5"/>
+  <text x="194" y="117" font-size="14" font-weight="700" fill="#ffffff" text-anchor="middle">Pattern</text>
+  <g font-size="12" fill="#1b2430">
+    <text x="64" y="148">Version : int</text>
+    <text x="64" y="170">Id : Guid  <tspan fill="#6b7684" font-size="10.5">UUIDv7, immutabile</tspan></text>
+    <text x="64" y="192">Name : string</text>
+    <text x="64" y="214">CreatedAt : DateTimeOffset</text>
+    <text x="64" y="236">ModifiedAt : DateTimeOffset</text>
+    <text x="64" y="258">Definition : PatternDefinition</text>
+  </g>
+
+  <path d="M 340 184 L 424 184" stroke="#1b2430" stroke-width="1.4" fill="none" marker-start="url(#rombo)"/>
+  <text x="382" y="176" font-size="11" fill="#6b7684" text-anchor="middle">1</text>
+
+  <!-- PatternDefinition -->
+  <rect x="428" y="96" width="300" height="200" rx="8" fill="#f5f7fa" stroke="#ccd3db"/>
+  <rect x="428" y="96" width="300" height="30" rx="8" fill="#6b7684"/>
+  <rect x="428" y="116" width="300" height="10" fill="#6b7684"/>
+  <text x="578" y="117" font-size="14" font-weight="700" fill="#ffffff" text-anchor="middle">PatternDefinition</text>
+  <g font-size="12" fill="#1b2430">
+    <text x="444" y="148">Width, Height : double</text>
+    <text x="444" y="170">Scale : double</text>
+    <text x="444" y="192">Rotation : double</text>
+    <text x="444" y="214">TranslateX, TranslateY : double</text>
+    <text x="444" y="244">Elements : List&lt;VectorElement&gt;</text>
+    <text x="444" y="262" font-size="10.5" fill="#6b7684">ordine significativo: indice 0 = primo reso,</text>
+    <text x="444" y="277" font-size="10.5" fill="#6b7684">quindi il pi&#249; in basso nella sovrapposizione</text>
+  </g>
+
+  <path d="M 578 296 L 578 344" stroke="#1b2430" stroke-width="1.4" fill="none" marker-start="url(#rombo)"/>
+  <text x="596" y="326" font-size="11" fill="#6b7684">0..*</text>
+
+  <!-- VectorElement -->
+  <rect x="428" y="348" width="300" height="86" rx="8" fill="#f5f7fa" stroke="#ccd3db" stroke-dasharray="6 3"/>
+  <text x="578" y="372" font-size="14" font-weight="700" fill="#1b2430" text-anchor="middle">VectorElement</text>
+  <text x="578" y="389" font-size="10.5" fill="#6b7684" text-anchor="middle" font-style="italic">&#171;abstract&#187;</text>
+  <g font-size="12" fill="#1b2430">
+    <text x="444" y="410">Id : Guid  <tspan fill="#6b7684" font-size="10.5">identifica l'istanza</tspan></text>
+    <text x="444" y="428">Type : string  <tspan fill="#6b7684" font-size="10.5">identifica la tipologia</tspan></text>
+  </g>
+
+  <!-- linee ereditarieta' -->
+  <path d="M 578 434 L 578 462" stroke="#6b7684" stroke-width="1.3" fill="none"/>
+  <path d="M 108 462 L 848 462" stroke="#6b7684" stroke-width="1.3" fill="none"/>
+  <g stroke="#6b7684" stroke-width="1.3" fill="none">
+    <path d="M 108 462 L 108 490"/><path d="M 213 462 L 213 490"/><path d="M 318 462 L 318 490"/>
+    <path d="M 423 462 L 423 490"/><path d="M 528 462 L 528 490"/><path d="M 633 462 L 633 490"/>
+    <path d="M 738 462 L 738 490"/><path d="M 848 462 L 848 546"/>
+  </g>
+  <path d="M 578 448 L 578 434" stroke="#6b7684" stroke-width="1.3" fill="none" marker-end="url(#triangolo)"/>
+
+  <!-- elementi concreti -->
+  <g font-size="11.5" fill="#1b2430" text-anchor="middle">
+    <rect x="56" y="490" width="104" height="30" rx="6" fill="#ffffff" stroke="#ccd3db"/><text x="108" y="510">LineElement</text>
+    <rect x="161" y="490" width="104" height="30" rx="6" fill="#ffffff" stroke="#ccd3db"/><text x="213" y="510">RectElement</text>
+    <rect x="266" y="490" width="104" height="30" rx="6" fill="#ffffff" stroke="#ccd3db"/><text x="318" y="510">CircleElement</text>
+    <rect x="371" y="490" width="104" height="30" rx="6" fill="#ffffff" stroke="#ccd3db"/><text x="423" y="510">EllipseElement</text>
+    <rect x="476" y="490" width="104" height="30" rx="6" fill="#ffffff" stroke="#ccd3db"/><text x="528" y="510">PathElement</text>
+    <rect x="581" y="490" width="104" height="30" rx="6" fill="#ffffff" stroke="#ccd3db"/><text x="633" y="510">PolygonElement</text>
+    <rect x="686" y="490" width="104" height="30" rx="6" fill="#ffffff" stroke="#ccd3db"/><text x="738" y="510">PolylineElement</text>
+  </g>
+  <text x="56" y="542" font-size="11" fill="#6b7684">TextElement e ImageElement completano l'elenco: sette forme geometriche pi&#249; testo e immagine.</text>
+
+  <!-- Unknown -->
+  <rect x="756" y="550" width="184" height="56" rx="8" fill="#fdf6e3" stroke="#d0a215"/>
+  <text x="848" y="571" font-size="12" font-weight="600" fill="#1b2430" text-anchor="middle">UnknownVectorElement</text>
+  <text x="848" y="589" font-size="10.5" fill="#6b7684" text-anchor="middle">RawJson : JsonElement</text>
+  <text x="748" y="580" font-size="11" fill="#6b7684" text-anchor="end">tipo senza plugin: conservato</text>
+  <text x="748" y="596" font-size="11" fill="#6b7684" text-anchor="end">integralmente, mai scartato</text>
+</svg>

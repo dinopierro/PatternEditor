@@ -1,0 +1,804 @@
+@namespace PatternEditor.Components
+@using global::PatternEditor.Abstractions.Plugins
+@using global::PatternEditor.Core.Formatting
+@using global::PatternEditor.Core.Models
+@using global::PatternEditor.Services
+@inject IVectorElementPluginRegistry Registry
+@inject IVectorElementCloner Cloner
+@inject IJSRuntime JS
+@inject TestiEditor E
+@implements IAsyncDisposable
+
+@*
+   Il pannello ha due modalità che si escludono: elenco e dettaglio.
+
+   Tenere aperti più editor contemporaneamente faceva crescere il pannello senza limite,
+   spingendo fuori vista le anteprime proprio mentre si modificavano i valori che le
+   cambiano. Con il dettaglio che SOSTITUISCE l'elenco l'altezza resta contenuta con
+   qualunque numero di elementi.
+
+   La divisione dei compiti è netta: l'elenco serve a disporre (ordine, duplicazione,
+   eliminazione), il dettaglio a configurare. Gli stessi comandi non compaiono in due posti.
+*@
+<div class="pe-panel pe-panel--elements">
+
+    @if (InModifica is { } corrente)
+    {
+        var plugin = PluginDi(corrente.Elemento);
+
+        <div class="pe-dettaglio__testa">
+            <button type="button" class="pe-btn pe-btn--sm pe-btn--ghost" @onclick="TornaAllElenco">
+                <span class="pe-caret-sx">‹</span> @E["editor.elenco"]
+            </button>
+
+            <span class="pe-icon"><VectorElementIcon Plugin="plugin" /></span>
+
+            <span class="pe-dettaglio__nome">
+                @(plugin is null
+                    ? E["editor.sconosciuto", corrente.Elemento.Type]
+                    : E.NomeDelTipo(plugin.Type, plugin.DisplayName))
+            </span>
+
+            <span class="pe-badge">@E["editor.diTotale", corrente.Indice + 1, Definition.Elements.Count]</span>
+        </div>
+
+        <div class="pe-dettaglio__corpo pe-panel__scroll">
+            @if (plugin is not null)
+            {
+                <DynamicComponent Type="plugin.EditorComponentType"
+                                  Parameters="BuildEditorParameters(corrente.Elemento)" />
+
+                @* Rotazione, specchiature e opacità complessiva valgono per qualunque tipo
+                   di elemento, quindi non stanno nella scheda del plugin — che ospita le
+                   proprietà del tipo — ma qui, dopo, uguali per tutti.
+
+                   La riga tratteggiata che separa i gruppi va chiesta a mano: queste due
+                   sezioni non sono sorelle di quelle del plugin, che stanno dentro il
+                   contenitore di quello, e il selettore fra fratelli non le raggiunge. *@
+                <section class="pe-group pe-group--comune">
+                    <div class="pe-group__head">
+                        <h4 class="pe-group__title">@E["editor.posizione"]</h4>
+                        @if (corrente.Elemento.HasTransform)
+                        {
+                            <button type="button" class="pe-link-btn" @onclick="() => AzzeraPosizione(corrente.Elemento)">
+                                @E["editor.azzera"]
+                            </button>
+                        }
+                    </div>
+
+                    <div class="pe-grid-2">
+                        <label class="pe-field pe-field--slider">
+                            <span class="pe-field__label">
+                                @E["editor.rotazione"] <span class="pe-unit">[°]</span>
+                                <span class="pe-field__value">@Gradi(corrente.Elemento.Rotation)</span>
+                            </span>
+                            <input type="range" min="-180" max="180" step="1"
+                                   value="@corrente.Elemento.Rotation"
+                                   @oninput="e => CambiaRotazione(corrente.Elemento, e.Value?.ToString())" />
+                        </label>
+
+                        <label class="pe-field">
+                            <span class="pe-field__label">@E["editor.rotazioneEsatta"] <span class="pe-unit">[°]</span></span>
+                            <input type="number" class="pe-input" step="any"
+                                   value="@corrente.Elemento.Rotation"
+                                   @onchange="e => CambiaRotazione(corrente.Elemento, e.Value?.ToString())" />
+                        </label>
+                    </div>
+
+                    @* Riga intera: la griglia del gruppo affianca i campi a due a due, e
+                       senza dirglielo questo blocco finirebbe in una colonna sola, con
+                       «Centro X» accanto e «Centro Y» sfalsato sotto. *@
+                    <div class="pe-specchi pe-riga-intera">
+                        <label class="pe-switch">
+                            <input type="checkbox" checked="@corrente.Elemento.FlipX"
+                                   @onchange="e => CambiaSpecchio(corrente.Elemento, true, (bool)(e.Value ?? false))" />
+                            <span>@E["editor.specchiaOrizzontale"]</span>
+                        </label>
+
+                        <label class="pe-switch">
+                            <input type="checkbox" checked="@corrente.Elemento.FlipY"
+                                   @onchange="e => CambiaSpecchio(corrente.Elemento, false, (bool)(e.Value ?? false))" />
+                            <span>@E["editor.specchiaVerticale"]</span>
+                        </label>
+                    </div>
+
+                    @* Il punto attorno a cui si ruota è esplicito: l'ingombro della forma lo
+                       conosce solo il plugin, e nei retini il centro che serve è quasi sempre
+                       un punto scelto — il centro della cella, un angolo — non quello della
+                       forma. Il pulsante fa il caso più frequente in un clic. *@
+                    <div class="pe-grid-2">
+                        <label class="pe-field">
+                            <span class="pe-field__label">@E["editor.centroX"] <span class="pe-unit">[px]</span></span>
+                            <input type="number" class="pe-input" step="any"
+                                   value="@corrente.Elemento.OriginX"
+                                   @onchange="e => CambiaOrigine(corrente.Elemento, true, e.Value?.ToString())" />
+                        </label>
+
+                        <label class="pe-field">
+                            <span class="pe-field__label">@E["editor.centroY"] <span class="pe-unit">[px]</span></span>
+                            <input type="number" class="pe-input" step="any"
+                                   value="@corrente.Elemento.OriginY"
+                                   @onchange="e => CambiaOrigine(corrente.Elemento, false, e.Value?.ToString())" />
+                        </label>
+                    </div>
+
+                    <button type="button" class="pe-btn pe-btn--sm pe-btn--ghost pe-btn--block pe-riga-intera"
+                            @onclick="() => CentroDellaCella(corrente.Elemento)">
+                        @E["editor.usaCentroCella"]
+                    </button>
+
+                    @* Il pulsante scrive due numeri e basta: dirlo evita di doverlo premere
+                       per scoprirlo, e mostrare quali numeri sarebbero evita di doverli
+                       cercare nella scheda delle proprietà. *@
+                    @* La frase porta del grassetto attorno ai due numeri, e in un'altra lingua
+                       cade in un punto diverso: il catalogo tiene il markup e qui si rende come
+                       tale. È testo nostro, non di un utente. *@
+                    <p class="pe-hint pe-riga-intera">
+                        @((MarkupString)E["editor.centroCellaNota", Meta(Definition.Width), Meta(Definition.Height)])
+                    </p>
+                </section>
+
+                @* L'opacità dell'elemento intero è l'ultima cosa che si regola, dopo aver
+                   deciso forma, colore e posizione: sta in fondo perché è lì che serve.
+
+                   Compare solo se il modello dichiara di volerla qui (IOverallOpacity). Un
+                   plugin compilato prima che questa sezione esistesse continua a mostrarla
+                   per conto suo, nella propria scheda, e non la si vede due volte. *@
+                @if (corrente.Elemento is IOverallOpacity opacita)
+                {
+                    <section class="pe-group pe-group--comune">
+                        <h4 class="pe-group__title">@E["editor.generale"]</h4>
+                        <label class="pe-field pe-field--slider">
+                            <span class="pe-field__label">
+                                @E["editor.opacitaComplessiva"] <span class="pe-unit">[%]</span>
+                                <span class="pe-field__value">@Percento(opacita.Opacity)</span>
+                            </span>
+                            <input class="pe-range" type="range" min="0" max="1" step="0.01"
+                                   value="@InvariantNumber.Format(opacita.Opacity)"
+                                   @oninput="e => CambiaOpacita(opacita, e.Value?.ToString())" />
+                        </label>
+                    </section>
+                }
+            }
+            else
+            {
+                <p class="pe-note"><em>@E["editor.senzaPlugin"]</em></p>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="pe-panel__head">
+            <h3 class="pe-panel__title">@E["editor.elementi"]</h3>
+            <span class="pe-badge">@Conteggio</span>
+        </div>
+
+        @* Con qualche centinaio di elementi — un disegno importato ne porta facilmente
+           trecento — l'elenco diventa venti schermate di righe quasi identiche. Il filtro
+           per tipo e la selezione multipla servono a questo: restringere e agire in blocco,
+           invece di scorrere. Sotto i due elementi non servono e non compaiono. *@
+        @if (Definition.Elements.Count > 2)
+        {
+            <div class="pe-elenco__strumenti">
+                <label class="pe-elenco__filtro">
+                    <span class="pe-sr">@E["editor.filtraTipo"]</span>
+                    <select class="pe-select" value="@_filtroTipo"
+                            @onchange="e => CambiaFiltro(e.Value?.ToString())">
+                        <option value="">@E["editor.tuttiTipi", Definition.Elements.Count]</option>
+                        @foreach (var conteggio in ConteggioPerTipo)
+                        {
+                            <option value="@conteggio.Tipo">@conteggio.Nome (@conteggio.Quanti)</option>
+                        }
+                    </select>
+                </label>
+
+                <button type="button"
+                        class="pe-btn pe-btn--sm @(_selezione ? "pe-btn--primary" : "pe-btn--ghost")"
+                        title="@(_selezione ? E["editor.tornaADisporre"] : E["editor.scegliPiuElementi"])"
+                        @onclick="AlternaSelezione">
+                    @(_selezione ? E["editor.fine"] : E["editor.seleziona"])
+                </button>
+            </div>
+        }
+
+        @if (_selezione)
+        {
+            <div class="pe-elenco__selezione">
+                <label class="pe-elenco__tutti">
+                    <input type="checkbox" checked="@TuttiVisibiliSelezionati"
+                           @onchange="e => SelezionaVisibili((bool)(e.Value ?? false))" />
+                    <span>@EtichettaSelezione</span>
+                </label>
+
+                <button type="button" class="pe-btn pe-btn--sm pe-btn--danger"
+                        disabled="@(_selezionati.Count == 0)" @onclick="EliminaSelezionati">
+                    @E["editor.elimina"]
+                </button>
+            </div>
+        }
+
+        @* Un unico pulsante apre il menù dei tipi disponibili: la scelta del tipo È
+           l'inserimento, senza il passaggio intermedio "seleziona e poi aggiungi". *@
+        <div class="pe-add" @onkeydown="OnMenuKeyDown">
+            <button type="button"
+                    class="pe-btn pe-btn--primary pe-btn--block"
+                    aria-haspopup="true"
+                    aria-expanded="@(_menuOpen ? "true" : "false")"
+                    disabled="@(!Registry.All.Any())"
+                    @onclick="ToggleMenu">
+                <span class="pe-btn__glyph">+</span>
+                <span>@E["editor.aggiungiElemento"]</span>
+                <span class="pe-caret">@(_menuOpen ? "▴" : "▾")</span>
+            </button>
+
+            @if (_menuOpen)
+            {
+                @* Superficie trasparente a tutto schermo: un clic fuori dal menù lo chiude,
+                   senza bisogno di gestori globali in JavaScript. *@
+                <div class="pe-menu__backdrop" @onclick="CloseMenu"></div>
+
+                <div class="pe-menu" role="menu">
+                    @foreach (var plugin in Registry.All)
+                    {
+                        <button type="button" class="pe-menu__item" role="menuitem"
+                                @onclick="() => AddElement(plugin.Type)">
+                            <span class="pe-icon"><VectorElementIcon Plugin="plugin" /></span>
+                            <span class="pe-menu__label">@E.NomeDelTipo(plugin.Type, plugin.DisplayName)</span>
+                            <span class="pe-menu__type">@plugin.Type</span>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+
+        @* Solo l'elenco scorre: il pulsante "Aggiungi" resta sempre a portata, e il suo
+           menù, che è posizionato in modo assoluto, non verrebbe ritagliato da un
+           contenitore con overflow. *@
+        <div class="pe-panel__scroll">
+
+        @if (Definition.Elements.Count == 0)
+        {
+            <p class="pe-empty">@((MarkupString)E["editor.nessunElemento"])</p>
+        }
+
+        <ul class="pe-elements__list" @ref="_elenco"
+            @onpointermove="Trascina" @onpointerup="FineTrascinamento"
+            @onpointerleave="FineTrascinamento">
+            @for (var i = 0; i < Definition.Elements.Count; i++)
+            {
+                var index = i;
+                var element = Definition.Elements[index];
+
+                @* Il filtro nasconde le righe ma NON rinumera: l'indice resta quello vero,
+                   perche' e' con quello che si duplica e si sposta. *@
+                if (!PassaIlFiltro(element))
+                {
+                    continue;
+                }
+
+                var plugin = PluginDi(element);
+                var scelto = _selezionati.Contains(element.Id);
+
+                @* La chiave è l'elemento, non il suo identificativo: l'istanza è unica per
+                   costruzione e segue l'elemento quando cambia posizione. Con l'identificativo,
+                   un documento che per errore ne ripete uno faceva morire il rendering con
+                   un'eccezione non recuperabile, e l'unica via d'uscita era ricaricare. *@
+                <li class="pe-elements__item @(_trascinato == index ? "is-trascinata" : null) @(scelto ? "is-scelta" : null)" @key="element">
+                    <div class="pe-elements__header">
+                        @* Appiglio per il trascinamento. È un elemento a sé e non parte del
+                           pulsante che apre il dettaglio: un'area che si trascina e che al
+                           tempo stesso apre qualcosa confonde il dito, che non sa mai quale
+                           delle due sta per succedere.
+
+                           Risponde anche alle frecce della tastiera, perché il riordino non
+                           deve richiedere un mouse: sono le stesse due direzioni dei pulsanti
+                           che ha sostituito. *@
+                        @if (_selezione)
+                        {
+                            <label class="pe-elements__spunta" title="@E["editor.scegliElemento"]">
+                                <input type="checkbox" checked="@scelto"
+                                       @onchange="e => Scegli(element.Id, (bool)(e.Value ?? false))" />
+                            </label>
+                        }
+                        else if (FiltroAttivo)
+                        {
+                            @* Sotto filtro l'ordine a schermo non e' l'ordine vero: trascinare
+                               una riga vorrebbe dire spostarla rispetto a righe che non si
+                               vedono, e il risultato sarebbe imprevedibile. Meglio dirlo. *@
+                            <span class="pe-elements__presa is-spenta"
+                                  title="@E["editor.riordinaFiltro"]"
+                                  aria-hidden="true">
+                                <svg width="14" height="14" viewBox="0 0 14 14"
+                                     fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                                    <path d="M2 4h10M2 7h10M2 10h10" />
+                                </svg>
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="pe-elements__presa" role="button" tabindex="0"
+                                  aria-label="@E["editor.spostaElemento", NomeDelTipo(element.Type), index + 1, Definition.Elements.Count]"
+                                  title="@E["editor.trascinaRiordina"]"
+                                  @onpointerdown="e => IniziaTrascinamento(e, index)"
+                                  @onpointermove="Trascina"
+                                  @onpointerup="FineTrascinamento"
+                                  @onpointercancel="FineTrascinamento"
+                                  @onkeydown="e => TastoSullaPresa(e, index)">
+                                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"
+                                     fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                                    <path d="M2 4h10M2 7h10M2 10h10" />
+                                </svg>
+                            </span>
+                        }
+
+                        @* La riga stessa apre il dettaglio. È un <button> vero e non un
+                           gestore sul contenitore: così è raggiungibile da tastiera e
+                           annunciato come comando. I pulsanti di disposizione gli stanno
+                           accanto, non dentro: elementi interattivi annidati non si fanno. *@
+                        <button type="button" class="pe-elements__apri"
+                                title="@(_selezione ? E["editor.scegliElemento"] : E["editor.modifica"])"
+                                @onclick="() => ApriOScegli(element.Id)">
+                            <span class="pe-icon pe-elements__icon"><VectorElementIcon Plugin="plugin" /></span>
+
+                            <span class="pe-elements__title @(plugin is null ? "is-unknown" : null)">
+                                @(plugin?.DisplayName ?? $"Sconosciuto ({element.Type})")
+                            </span>
+
+                            <span class="pe-elements__freccia" aria-hidden="true">›</span>
+                        </button>
+
+                        <div class="pe-elements__actions">
+                            <button type="button" class="pe-icon-btn" title="@E["editor.duplica"]"
+                                    @onclick="() => Duplicate(index)">⧉</button>
+                            <button type="button" class="pe-icon-btn pe-icon-btn--danger" title="@E["editor.elimina"]"
+                                    @onclick="() => Remove(element)">✕</button>
+                        </div>
+                    </div>
+                </li>
+            }
+        </ul>
+
+        </div>
+    }
+
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public PatternDefinition Definition { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnChanged { get; set; }
+
+    /// <summary>Elemento attualmente in modifica; null significa modalità elenco.</summary>
+    private Guid? _idInModifica;
+
+    /// <summary>Tipo su cui è ristretto l'elenco; vuoto significa tutti.</summary>
+    private string _filtroTipo = string.Empty;
+
+    /// <summary>Modalità scelta multipla: le prese diventano caselle di spunta.</summary>
+    private bool _selezione;
+
+    private readonly HashSet<Guid> _selezionati = new();
+
+    private bool _menuOpen;
+
+    /// <summary>
+    /// L'elemento in modifica con la sua posizione, oppure null. È risolto a ogni rendering
+    /// dall'identificativo e non memorizzato: l'elemento può essere stato spostato o
+    /// eliminato, e un riferimento diretto resterebbe indietro.
+    /// </summary>
+    private (VectorElement Elemento, int Indice)? InModifica
+    {
+        get
+        {
+            if (_idInModifica is not { } id)
+            {
+                return null;
+            }
+
+            var indice = Definition.Elements.FindIndex(e => e.Id == id);
+            return indice < 0 ? null : (Definition.Elements[indice], indice);
+        }
+    }
+
+    private IVectorElementPlugin? PluginDi(VectorElement element) =>
+        Registry.TryGet(element.Type, out var plugin) ? plugin : null;
+
+    // ------------------------------------------------------------------ filtro e scelta
+
+    private bool FiltroAttivo => !string.IsNullOrEmpty(_filtroTipo);
+
+    private bool PassaIlFiltro(VectorElement element) =>
+        !FiltroAttivo || string.Equals(element.Type, _filtroTipo, StringComparison.Ordinal);
+
+    private List<VectorElement> Visibili =>
+        Definition.Elements.Where(PassaIlFiltro).ToList();
+
+    /// <summary>Quanti se ne vedono, e su quanti: il secondo numero solo se si sta filtrando.</summary>
+    private string Conteggio =>
+        FiltroAttivo
+            ? $"{Visibili.Count} di {Definition.Elements.Count}"
+            : Definition.Elements.Count.ToString();
+
+    /// <summary>
+    /// I tipi presenti con le loro quantità, nell'ordine del registro.
+    ///
+    /// Il conteggio non è un ornamento: su un disegno importato dice in una riga com'è
+    /// fatto — trecento tracciati e due testi — che è la prima cosa che si vuole sapere.
+    /// </summary>
+    private IEnumerable<(string Tipo, string Nome, int Quanti)> ConteggioPerTipo =>
+        Definition.Elements
+            .GroupBy(e => e.Type, StringComparer.Ordinal)
+            .Select(g => (Tipo: g.Key, Nome: NomeDelTipo(g.Key), Quanti: g.Count()))
+            .OrderByDescending(x => x.Quanti)
+            .ThenBy(x => x.Nome, StringComparer.CurrentCultureIgnoreCase);
+
+    private string NomeDelTipo(string tipo) =>
+        Registry.TryGet(tipo, out var plugin) && plugin is not null
+            ? E.NomeDelTipo(plugin.Type, plugin.DisplayName)
+            : E["editor.sconosciuto", tipo];
+
+    private void CambiaFiltro(string? valore)
+    {
+        _filtroTipo = valore ?? string.Empty;
+
+        // Una scelta fatta su righe che ora non si vedono più sarebbe una scelta invisibile:
+        // eliminarla in blocco toglierebbe elementi che nessuno ha visto selezionare.
+        _selezionati.RemoveWhere(id => Definition.Elements.All(e => e.Id != id || !PassaIlFiltro(e)));
+    }
+
+    private void AlternaSelezione()
+    {
+        _selezione = !_selezione;
+        if (!_selezione)
+        {
+            _selezionati.Clear();
+        }
+    }
+
+    private void Scegli(Guid id, bool scelto)
+    {
+        if (scelto)
+        {
+            _selezionati.Add(id);
+        }
+        else
+        {
+            _selezionati.Remove(id);
+        }
+    }
+
+    /// <summary>In modalità scelta la riga sceglie; altrimenti apre. Un solo gesto, due usi.</summary>
+    private void ApriOScegli(Guid id)
+    {
+        if (_selezione)
+        {
+            Scegli(id, !_selezionati.Contains(id));
+            return;
+        }
+
+        Modifica(id);
+    }
+
+    private bool TuttiVisibiliSelezionati
+    {
+        get
+        {
+            var visibili = Visibili;
+            return visibili.Count > 0 && visibili.All(e => _selezionati.Contains(e.Id));
+        }
+    }
+
+    private string EtichettaSelezione =>
+        _selezionati.Count == 0
+            ? E["editor.scegliTutti"]
+            : _selezionati.Count == 1
+                ? E["editor.unoScelto"]
+                : E["editor.nScelti", _selezionati.Count];
+
+    private void SelezionaVisibili(bool tutti)
+    {
+        foreach (var elemento in Visibili)
+        {
+            Scegli(elemento.Id, tutti);
+        }
+    }
+
+    /// <summary>
+    /// Elimina in un colpo solo tutti gli elementi scelti.
+    ///
+    /// Si rimuove per identificativo e non per posizione: togliendo per indice, ogni
+    /// rimozione sposta indietro le successive e si finisce per cancellare la riga
+    /// sbagliata — è l'errore classico di chi elimina scorrendo in avanti.
+    /// </summary>
+    private void EliminaSelezionati()
+    {
+        if (_selezionati.Count == 0)
+        {
+            return;
+        }
+
+        Definition.Elements.RemoveAll(e => _selezionati.Contains(e.Id));
+
+        if (_idInModifica is { } aperto && _selezionati.Contains(aperto))
+        {
+            _idInModifica = null;
+        }
+
+        _selezionati.Clear();
+        _selezione = false;
+
+        // Se il filtro non ha più niente da mostrare, si toglie da solo: restare su un tipo
+        // che non esiste più lascia l'elenco vuoto con un contatore a zero, e sembra che
+        // l'eliminazione abbia portato via tutto.
+        if (FiltroAttivo && Visibili.Count == 0)
+        {
+            _filtroTipo = string.Empty;
+        }
+
+        NotifyChanged();
+    }
+
+    private Dictionary<string, object> BuildEditorParameters(VectorElement element) => new()
+    {
+        ["Element"] = element,
+        ["OnElementChanged"] = EventCallback.Factory.Create(this, NotifyChanged),
+    };
+
+    private void ToggleMenu() => _menuOpen = !_menuOpen;
+
+    private void CloseMenu() => _menuOpen = false;
+
+    private void OnMenuKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape")
+        {
+            _menuOpen = false;
+        }
+    }
+
+    private void Modifica(Guid id) => _idInModifica = id;
+
+    private void TornaAllElenco() => _idInModifica = null;
+
+    /// <summary>
+    /// Inserisce l'elemento e lo apre subito in modifica: chi preme "Aggiungi" vuole
+    /// configurare quello che ha appena inserito, non tornare a guardare l'elenco.
+    /// </summary>
+    private void AddElement(string type)
+    {
+        _menuOpen = false;
+
+        if (Registry.TryGet(type, out var plugin) && plugin is not null)
+        {
+            var element = plugin.Create();
+            Definition.Elements.Add(element);
+            _idInModifica = element.Id;
+            NotifyChanged();
+        }
+    }
+
+    /// <summary>
+    /// La duplicazione NON apre il dettaglio: si duplica spesso più volte di seguito, e
+    /// uscire dall'elenco a ogni copia costringerebbe a rientrarci ogni volta.
+    /// </summary>
+    private void Duplicate(int index)
+    {
+        var clone = Cloner.Clone(Definition.Elements[index]);
+        Definition.Elements.Insert(index + 1, clone);
+        NotifyChanged();
+    }
+
+    private void Remove(VectorElement element)
+    {
+        Definition.Elements.Remove(element);
+
+        if (_idInModifica == element.Id)
+        {
+            _idInModifica = null;
+        }
+
+        NotifyChanged();
+    }
+
+    // ------------------------------------------------------------ riordino --------
+    //
+    // L'ordine degli elementi e' l'ordine di disegno: il primo finisce sotto tutti gli
+    // altri. Si riordina trascinando l'appiglio di una riga.
+    //
+    // Il trascinamento e' costruito sugli eventi del PUNTATORE e non sul drag-and-drop
+    // di HTML: quest'ultimo semplicemente non esiste sul tocco, e toglierebbe il riordino
+    // a chi usa il telefono. Gli eventi del puntatore valgono per mouse, dito e penna
+    // con lo stesso codice.
+
+    private ElementReference _elenco;
+    private IJSObjectReference? _modulo;
+
+    /// <summary>Indice della riga che si sta trascinando; null quando non si trascina.</summary>
+    private int? _trascinato;
+
+    /// <summary>
+    /// Centro verticale di ogni POSIZIONE dell'elenco, misurato all'inizio del
+    /// trascinamento. Descrive le posizioni e non gli elementi, quindi resta valido anche
+    /// mentre le righe si riordinano sotto il dito.
+    /// </summary>
+    private double[] _centri = [];
+
+    private async Task IniziaTrascinamento(PointerEventArgs e, int index)
+    {
+        // Solo il pulsante principale: con il destro si apre il menu contestuale, e un
+        // trascinamento iniziato li' resterebbe appeso.
+        if (e.Button != 0)
+        {
+            return;
+        }
+
+        var modulo = await ModuloAsync();
+        _centri = await modulo.InvokeAsync<double[]>("centriDelleRighe", _elenco);
+        _trascinato = index;
+    }
+
+    private void Trascina(PointerEventArgs e)
+    {
+        if (_trascinato is not { } partenza || _centri.Length == 0)
+        {
+            return;
+        }
+
+        var destinazione = PosizionePiuVicina(e.ClientY);
+
+        if (destinazione == partenza)
+        {
+            return;
+        }
+
+        // Si sposta subito, senza aspettare il rilascio: l'anteprima si rigenera mentre si
+        // trascina, ed e' quello il modo di capire se l'ordine nuovo funziona.
+        var elemento = Definition.Elements[partenza];
+        Definition.Elements.RemoveAt(partenza);
+        Definition.Elements.Insert(destinazione, elemento);
+        _trascinato = destinazione;
+
+        NotifyChanged();
+    }
+
+    private void FineTrascinamento()
+    {
+        if (_trascinato is not null)
+        {
+            _trascinato = null;
+            _centri = [];
+        }
+    }
+
+    /// <summary>Posizione dell'elenco il cui centro e' piu' vicino al puntatore.</summary>
+    private int PosizionePiuVicina(double y)
+    {
+        var migliore = 0;
+        var distanza = double.MaxValue;
+
+        for (var i = 0; i < _centri.Length && i < Definition.Elements.Count; i++)
+        {
+            var d = Math.Abs(_centri[i] - y);
+            if (d < distanza)
+            {
+                distanza = d;
+                migliore = i;
+            }
+        }
+
+        return migliore;
+    }
+
+    /// <summary>
+    /// Riordino da tastiera. Le frecce dedicate non ci sono piu', ma il riordino non puo'
+    /// dipendere dal mouse: le stesse due direzioni restano qui, sull'appiglio.
+    /// </summary>
+    private void TastoSullaPresa(KeyboardEventArgs e, int index)
+    {
+        var destinazione = e.Key switch
+        {
+            "ArrowUp" => index - 1,
+            "ArrowDown" => index + 1,
+            _ => index,
+        };
+
+        if (destinazione == index || destinazione < 0 || destinazione >= Definition.Elements.Count)
+        {
+            return;
+        }
+
+        (Definition.Elements[destinazione], Definition.Elements[index]) =
+            (Definition.Elements[index], Definition.Elements[destinazione]);
+
+        NotifyChanged();
+    }
+
+    private async Task<IJSObjectReference> ModuloAsync() =>
+        _modulo ??= await JS.InvokeAsync<IJSObjectReference>(
+            "import", "./_content/PatternEditor/patternEditorInterop.js");
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_modulo is not null)
+        {
+            await _modulo.DisposeAsync();
+        }
+    }
+
+    // ------------------------------------------------------------------ posizione
+
+    private static string Gradi(double valore) =>
+        InvariantNumber.Format(Math.Round(valore, 1)) + "°";
+
+    private void CambiaRotazione(VectorElement elemento, string? valore)
+    {
+        elemento.Rotation = InvariantNumber.Parse(valore, elemento.Rotation);
+        NotifyChanged();
+    }
+
+    private void CambiaSpecchio(VectorElement elemento, bool orizzontale, bool attivo)
+    {
+        if (orizzontale)
+        {
+            elemento.FlipX = attivo;
+        }
+        else
+        {
+            elemento.FlipY = attivo;
+        }
+
+        NotifyChanged();
+    }
+
+    private void CambiaOrigine(VectorElement elemento, bool ascissa, string? valore)
+    {
+        if (ascissa)
+        {
+            elemento.OriginX = InvariantNumber.Parse(valore, elemento.OriginX);
+        }
+        else
+        {
+            elemento.OriginY = InvariantNumber.Parse(valore, elemento.OriginY);
+        }
+
+        NotifyChanged();
+    }
+
+    /// <summary>
+    /// Il centro della cella come punto di rotazione: è il caso più frequente nei retini —
+    /// ruotare tutto il motivo attorno a sé stesso — e a mano vorrebbe dire calcolare due
+    /// metà e riscriverle a ogni cambio di misura della cella.
+    /// </summary>
+    /// <summary>La metà di un lato della cella, come la scriverebbe il pulsante.</summary>
+    private static string Meta(double lato) => InvariantNumber.Format(Math.Round(lato / 2, 4));
+
+    private void CentroDellaCella(VectorElement elemento)
+    {
+        elemento.OriginX = Math.Round(Definition.Width / 2, 4);
+        elemento.OriginY = Math.Round(Definition.Height / 2, 4);
+        NotifyChanged();
+    }
+
+    /// <summary>Il modello tiene l'opacità da 0 a 1; a schermo si legge in percentuale.</summary>
+    private static string Percento(double valore) => Math.Round(valore * 100).ToString("0");
+
+    private void CambiaOpacita(IOverallOpacity elemento, string? testo)
+    {
+        elemento.Opacity = Math.Clamp(InvariantNumber.Parse(testo, elemento.Opacity), 0, 1);
+        NotifyChanged();
+    }
+
+    private void AzzeraPosizione(VectorElement elemento)
+    {
+        elemento.Rotation = 0;
+        elemento.FlipX = false;
+        elemento.FlipY = false;
+        elemento.OriginX = 0;
+        elemento.OriginY = 0;
+        NotifyChanged();
+    }
+
+    private void NotifyChanged() => OnChanged.InvokeAsync();
+}

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 570" width="940" height="570" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="570" fill="#ffffff"/>
+  <defs><marker id="punta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b6ef5"/></marker></defs>
+  <text x="30" y="34" font-size="17" font-weight="600" fill="#1b2430">Figura 5 — Il sistema di coordinate</text>
+  <text x="30" y="55" font-size="12.5" fill="#6b7684">Due cose che in SVG funzionano al contrario di come ci si aspetta.</text>
+  <text x="30" y="92" font-size="12" fill="#1b2430" font-weight="650" text-anchor="start">1. L'asse Y cresce verso il BASSO</text>
+  <rect x="30" y="104" width="300" height="230" rx="4" fill="#fbfcfd" stroke="#ccd3db" stroke-width="1"/>
+  <line x1="60" y1="130" x2="60" y2="310" stroke="#3b6ef5" stroke-width="1.5" marker-end="url(#punta)"/>
+  <line x1="60" y1="130" x2="300" y2="130" stroke="#3b6ef5" stroke-width="1.5" marker-end="url(#punta)"/>
+  <text x="66" y="126" font-size="9" fill="#3b6ef5" font-weight="600" text-anchor="start">(0,0) origine</text>
+  <text x="306" y="134" font-size="11" fill="#3b6ef5" font-weight="700" text-anchor="start">X</text>
+  <text x="50" y="320" font-size="11" fill="#3b6ef5" font-weight="700" text-anchor="start">Y</text>
+  <rect x="120" y="180" width="90" height="60" fill="#dc1822" opacity=".85"/>
+  <text x="124" y="174" font-size="9" fill="#1b2430" font-weight="400" text-anchor="start">x=60  y=50</text>
+  <text x="40" y="356" font-size="11" fill="#6b7684" font-weight="400" text-anchor="start">Aumentare Y sposta l'elemento in giù, non in su.</text>
+  <text x="400" y="92" font-size="12" fill="#1b2430" font-weight="650" text-anchor="start">2. Il testo si appoggia alla LINEA DI BASE</text>
+  <rect x="400" y="104" width="300" height="230" rx="4" fill="#fbfcfd" stroke="#ccd3db" stroke-width="1"/>
+  <line x1="430" y1="240" x2="670" y2="240" stroke="#3b6ef5" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="440" y="240" font-size="46" fill="#dc1822" opacity=".85">Ago</text>
+  <text x="430" y="258" font-size="9" fill="#3b6ef5" font-weight="600" text-anchor="start">linea di base — è qui che punta la Y</text>
+  <text x="410" y="356" font-size="11" fill="#6b7684" font-weight="400" text-anchor="start">Con y=0 il testo finisce quasi tutto sopra il bordo.</text>
+  <rect x="30" y="380" width="880" height="170" rx="8" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1"/>
+  <text x="52" y="408" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">Le coordinate degli elementi sono nelle unità della cella, non in pixel dello schermo: in una cella</text>
+  <text x="52" y="429" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">da 100 per 100, un rettangolo largo 50 ne occupa metà, comunque grande venga poi mostrato.</text>
+  <text x="52" y="450" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start"></text>
+  <text x="52" y="471" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">Anche la dimensione del carattere è in quelle unità, non in punti tipografici: in una cella da 50, un</text>
+  <text x="52" y="492" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">corpo 12 occupa quasi un quarto dell'altezza.</text>
+
+</svg>

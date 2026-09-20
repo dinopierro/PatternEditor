@@ -1,0 +1,55 @@
+@namespace PatternEditor.Sample.Client.Components
+@implements IDisposable
+@inject AuthClient Auth
+
+@*
+   Le finestre di accesso e di profilo, fuori dall'intestazione.
+
+   Stanno qui e non accanto al pulsante che le apre per una ragione che si scopre solo
+   provando: l'intestazione ha un `backdrop-filter`, e un elemento con quella proprietà
+   diventa il blocco contenitore dei propri discendenti a posizione fissa. Una finestra
+   modale dichiarata lì dentro non copre la pagina — resta rinchiusa nella striscia alta
+   quaranta pixel, e non si vede.
+
+   Il pulsante resta dov'è; ad aprirle è un evento del servizio di autenticazione.
+*@
+@if (_accesso)
+{
+    <LoginDialog OnChiudi="() => _accesso = false" />
+}
+
+@if (_profilo)
+{
+    <ProfileDialog OnChiudi="() => _profilo = false" />
+}
+
+@code {
+    private bool _accesso;
+    private bool _profilo;
+
+    protected override void OnInitialized()
+    {
+        Auth.AccessoRichiesto += ApriAccesso;
+        Auth.ProfiloRichiesto += ApriProfilo;
+    }
+
+    private void ApriAccesso()
+    {
+        _accesso = true;
+        _profilo = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void ApriProfilo()
+    {
+        _profilo = true;
+        _accesso = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Auth.AccessoRichiesto -= ApriAccesso;
+        Auth.ProfiloRichiesto -= ApriProfilo;
+    }
+}

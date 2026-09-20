@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac2a-7d4d-9525-b6145cabf29a",
+  "name": "Scales - 8",
+  "createdAt": "2026-09-10T15:56:16.1883780\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.7909348\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 20,
+    "height": 20,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M20 20v-9.334c-4.931 0-8.979 3.845-9.309 8.694 1.048.068 2.053.291 2.997.64ZM6.312 20a10.6 10.6 0 0 1 2.997-.64C8.98 14.511 4.931 10.666 0 10.666V20ZM20 6.29V0h-6.312A10.71 10.71 0 0 1 20 6.29Zm-20 0A10.71 10.71 0 0 1 6.312 0H0Z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac2a-7206-8c5e-0fd1d3cf37b4",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M10 16.29c1.434-3.852 5.033-6.654 9.31-6.93C18.98 4.511 14.93.666 10 .666 5.069.666 1.021 4.511.691 9.36c4.276.276 7.875 3.078 9.309 6.93z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac2a-702d-8fca-761700f35cf8",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

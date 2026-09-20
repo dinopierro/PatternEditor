@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-abbe-7040-96d2-a3a65c3a00e3",
+  "name": "Chinese Pattern - 6",
+  "createdAt": "2026-09-10T15:56:14.2183647\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:14.6776883\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 50,
+    "height": 50,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M29.31 3.729V46.27h-8.618V3.73zM3.73 20.691h42.54v8.617H3.73zm25.58-5.159h5.153v5.159m0 8.617v5.149h-5.154m-8.618 0h-5.153v-5.149m0-8.617v-5.159h5.153m-10.24-21.62v16.539H39.55V-6.088zM39.55 10.451v29.097h16.539V10.451zm0 29.097H10.452v16.54h29.097zm-29.097 0V10.451H-6.087v29.097z",
+        "fill": null,
+        "fillOpacity": 1,
+        "stroke": "#ecc94b",
+        "strokeWidth": 1,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abbe-7707-98b0-28070e30cd6b",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

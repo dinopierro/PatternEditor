@@ -1,0 +1,296 @@
+@namespace PatternEditor.Element.Text.Components
+@using PatternEditor.Core.Formatting
+@using PatternEditor.Core.Models
+@using PatternEditor.Element.Text
+@inject TestiEditor E
+
+@if (El is not null)
+@*
+   Editor del testo.
+
+   Oltre alla posizione ci sono il contenuto, il carattere e l'allineamento. Due cose che
+   sorprendono chi arriva dalla grafica: il punto (x, y) è la linea di base e non l'angolo
+   del riquadro, e la dimensione del carattere è nelle unita' del disegno, non in punti
+   tipografici.
+
+   Il nome del carattere è una dipendenza dall'esterno: chi aprira' l'SVG lo vedra' così
+   solo se quel carattere lo ha installato. Il validatore lo segnala come avviso.
+
+   Ogni editor riceve l'elemento come VectorElement generico e lo riconduce al proprio tipo:
+   il contenitore che lo istanzia non conosce il tipo concreto, e passargli qualcosa di più
+   specifico obbligherebbe l'editor principale a conoscere questo assembly.
+
+   Nessun pulsante "Applica": ogni modifica aggiorna subito il modello e chiede la
+   rigenerazione delle anteprime. Vedere l'effetto mentre si regola un valore è il motivo
+   per cui questo strumento esiste, e una conferma intermedia lo annullerebbe.
+
+   L'elemento viene modificato sul posto, non sostituito: è la copia di lavoro interna
+   all'editor, e chi ha aperto il pattern la vede solo se conferma.
+*@
+
+{
+    <div class="pe-element-editor pe-text-editor">
+
+        <section class="pe-group">
+            <h4 class="pe-group__title">@E["campo.testo"]</h4>
+            <label class="pe-field">
+                <span class="pe-field__label">@E["campo.contenuto"]</span>
+                <textarea class="pe-input pe-textarea" rows="2" spellcheck="false"
+                          placeholder="@E["campo.testo"]"
+                          @oninput="e => Update(() => El.Content = e.Value?.ToString() ?? string.Empty)">@El.Content</textarea>
+            </label>
+        </section>
+
+        <section class="pe-group">
+            <h4 class="pe-group__title">@E["campo.coordinateXY"]</h4>
+            <div class="pe-grid-2">
+                <label class="pe-field">
+                    <span class="pe-field__label">X <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" step="1" value="@Num(El.X)"
+                           @oninput="e => Update(() => El.X = InvariantNumber.Parse(e.Value, El.X))" />
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">Y <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" step="1" value="@Num(El.Y)"
+                           @oninput="e => Update(() => El.Y = InvariantNumber.Parse(e.Value, El.Y))" />
+                </label>
+            </div>
+            <label class="pe-field">
+                <span class="pe-field__label">@E["campo.allineamento"]</span>
+                <select class="pe-input pe-input--select" value="@El.TextAnchor"
+                        @onchange="e => Update(() => El.TextAnchor = e.Value?.ToString() ?? TextElement.AnchorStart)">
+                    <option value="@TextElement.AnchorStart">@E["campo.allineaInizio"]</option>
+                    <option value="@TextElement.AnchorMiddle">@E["campo.allineaCentro"]</option>
+                    <option value="@TextElement.AnchorEnd">@E["campo.allineaFine"]</option>
+                </select>
+            </label>
+            <p class="pe-hint">@((MarkupString)E["campo.lineaDiBaseNota"])</p>
+        </section>
+
+        <section class="pe-group">
+            <h4 class="pe-group__title">@E["campo.carattere"]</h4>
+            <div class="pe-grid-2">
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.dimensione"] <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" min="0.5" step="1" value="@Num(El.FontSize)"
+                           @oninput="e => Update(() => El.FontSize = InvariantNumber.Parse(e.Value, El.FontSize))" />
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.pesoCarattere"]</span>
+                    <select class="pe-input pe-input--select" value="@El.FontWeight"
+                            @onchange="e => Update(() => El.FontWeight = e.Value?.ToString() ?? TextElement.WeightNormal)">
+                        <option value="@TextElement.WeightNormal">@E["campo.pesoNormale"]</option>
+                        <option value="@TextElement.WeightBold">@E["campo.pesoGrassetto"]</option>
+                    </select>
+                </label>
+            </div>
+
+            <label class="pe-field">
+                <span class="pe-field__label">@E["campo.famiglia"]</span>
+                <select class="pe-input pe-input--select" value="@FamilyChoice"
+                        @onchange="e => Update(() => SetFamilyChoice(e.Value?.ToString()))">
+                    <option value="sans-serif">@E["campo.famigliaSenzaGrazie"]</option>
+                    <option value="serif">@E["campo.famigliaConGrazie"]</option>
+                    <option value="monospace">@E["campo.famigliaMonospazio"]</option>
+                    <option value="@CustomFamily">@E["campo.famigliaAltro"]</option>
+                </select>
+            </label>
+
+            @if (_customFamily)
+            {
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.nomeCarattere"]</span>
+                    <input class="pe-input" type="text" value="@El.FontFamily" placeholder="Segoe UI, sans-serif"
+                           @oninput="e => Update(() => El.FontFamily = e.Value?.ToString() ?? string.Empty)" />
+                </label>
+                <p class="pe-hint">@((MarkupString)E["campo.carattereNota"])</p>
+            }
+        </section>
+
+        <section class="pe-group">
+            <div class="pe-group__head">
+                <h4 class="pe-group__title">@E["campo.colore"]</h4>
+                <label class="pe-switch">
+                    <input type="checkbox" checked="@(El.Fill is not null)"
+                           @onchange="e => Update(() => El.Fill = ((bool)(e.Value ?? false)) ? (El.Fill ?? DefaultFill) : null)" />
+                    <span>@E["campo.attivo"]</span>
+                </label>
+            </div>
+
+            @if (El.Fill is not null)
+            {
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.colore"]</span>
+                    <span class="pe-color">
+                        <input class="pe-color__input" type="color" value="@SvgColor.ForPicker(El.Fill)"
+                               @oninput="e => Update(() => El.Fill = SvgColor.Normalize(e.Value?.ToString()) ?? El.Fill)" />
+                        <input class="pe-color__code" type="text" spellcheck="false" autocomplete="off"
+                               maxlength="7" size="8" pattern="@SvgColor.HtmlPattern"
+                               title="@E["campo.coloreTitolo"]"
+                               @key="_revisioneColore" value="@El.Fill"
+                               @oninput="e => ColoreDigitato(e, v => Update(() => El.Fill = v))"
+                               @onchange="e => ColoreConfermato(e, v => Update(() => El.Fill = v))" />
+                    </span>
+                </label>
+                <label class="pe-field pe-field--slider">
+                    <span class="pe-field__label">
+                        @E["campo.opacita"] <span class="pe-unit">[%]</span>
+                        <span class="pe-field__value">@Pct(El.FillOpacity)</span>
+                    </span>
+                    <input class="pe-range" type="range" min="0" max="1" step="0.01" value="@Num(El.FillOpacity)"
+                           @oninput="e => Update(() => El.FillOpacity = InvariantNumber.Parse(e.Value, El.FillOpacity))" />
+                </label>
+            }
+        </section>
+
+        <section class="pe-group">
+            <div class="pe-group__head">
+                <h4 class="pe-group__title">@E["campo.contorno"]</h4>
+                <label class="pe-switch">
+                    <input type="checkbox" checked="@(El.Stroke is not null)"
+                           @onchange="e => Update(() => El.Stroke = ((bool)(e.Value ?? false)) ? (El.Stroke ?? DefaultStroke) : null)" />
+                    <span>@E["campo.attivo"]</span>
+                </label>
+            </div>
+
+            @if (El.Stroke is not null)
+            {
+                <div class="pe-grid-2">
+                    <label class="pe-field">
+                        <span class="pe-field__label">@E["campo.colore"]</span>
+                        <span class="pe-color">
+                            <input class="pe-color__input" type="color" value="@SvgColor.ForPicker(El.Stroke)"
+                                   @oninput="e => Update(() => El.Stroke = SvgColor.Normalize(e.Value?.ToString()) ?? El.Stroke)" />
+                            <input class="pe-color__code" type="text" spellcheck="false" autocomplete="off"
+                                   maxlength="7" size="8" pattern="@SvgColor.HtmlPattern"
+                                   title="@E["campo.coloreTitolo"]"
+                                   @key="_revisioneColore" value="@El.Stroke"
+                                   @oninput="e => ColoreDigitato(e, v => Update(() => El.Stroke = v))"
+                                   @onchange="e => ColoreConfermato(e, v => Update(() => El.Stroke = v))" />
+                        </span>
+                    </label>
+                    <label class="pe-field">
+                        <span class="pe-field__label">@E["campo.spessore"] <span class="pe-unit">[px]</span></span>
+                        <input class="pe-input" type="number" min="0" step="0.1" value="@Num(El.StrokeWidth)"
+                               @oninput="e => Update(() => El.StrokeWidth = InvariantNumber.Parse(e.Value, El.StrokeWidth))" />
+                    </label>
+                </div>
+                <label class="pe-field pe-field--slider">
+                    <span class="pe-field__label">
+                        @E["campo.opacita"] <span class="pe-unit">[%]</span>
+                        <span class="pe-field__value">@Pct(El.StrokeOpacity)</span>
+                    </span>
+                    <input class="pe-range" type="range" min="0" max="1" step="0.01" value="@Num(El.StrokeOpacity)"
+                           @oninput="e => Update(() => El.StrokeOpacity = InvariantNumber.Parse(e.Value, El.StrokeOpacity))" />
+                </label>
+            }
+        </section>
+
+    </div>
+}
+
+@code {
+    const string DefaultFill = "#000000";
+    const string DefaultStroke = "#000000";
+
+    /// <summary>Valore sentinella della tendina per "carattere scelto a mano".</summary>
+    const string CustomFamily = "__altro__";
+
+    /// <summary>
+    /// Elemento da modificare. Ricevuto come VectorElement per rispettare il contratto
+    /// generico usato dall'editor principale, che non conosce il tipo concreto TextElement.
+    /// </summary>
+    [Parameter]
+    public VectorElement? Element { get; set; }
+
+    /// <summary>
+    /// Notifica esplicita al Pattern Editor che il modello è stato modificato, così che
+    /// possa rigenerare le anteprime. Ogni modifica aggiorna subito il modello.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnElementChanged { get; set; }
+
+    private TextElement? El => Element as TextElement;
+
+    private Guid? _boundElementId;
+    private bool _customFamily;
+
+    protected override void OnParametersSet()
+    {
+        // La modalità "altro carattere" è una scelta dell'interfaccia, non un dato del
+        // modello: va dedotta una sola volta per elemento, altrimenti ogni rendering la
+        // ricalcolerebbe dal FontFamily e la tendina tornerebbe da sola su una famiglia
+        // generica appena si prova a sceglierla.
+        if (El is not null && _boundElementId != El.Id)
+        {
+            _boundElementId = El.Id;
+            _customFamily = El.FontFamily is not ("sans-serif" or "serif" or "monospace");
+        }
+    }
+
+    /// <summary>
+    /// Voce selezionata nella tendina: una delle famiglie generiche, oppure il segnaposto
+    /// "altro" quando il carattere viene scritto a mano.
+    /// </summary>
+    private string FamilyChoice => _customFamily ? CustomFamily : El!.FontFamily;
+
+    private void SetFamilyChoice(string? choice)
+    {
+        if (choice == CustomFamily)
+        {
+            // Il carattere corrente resta com'è: si parte da quello per modificarlo,
+            // invece di ritrovare il campo vuoto.
+            _customFamily = true;
+            return;
+        }
+
+        _customFamily = false;
+        El!.FontFamily = choice ?? "sans-serif";
+    }
+
+    private void Update(Action apply)
+    {
+        apply();
+        OnElementChanged.InvokeAsync();
+    }
+
+    private static string Num(double value) => InvariantNumber.Format(value);
+
+    /// <summary>Il modello memorizza l'opacità come 0..1; all'utente viene mostrata in percentuale.</summary>
+    private static string Pct(double value) => Math.Round(value * 100).ToString("0");
+
+    /// <summary>
+    /// Il colore si può scrivere a mano accanto al selettore. Mentre si digita il modello
+    /// viene aggiornato solo se il testo è già nella forma canonica #rrggbb, quella che
+    /// usa il selettore: normalizzando anche le forme abbreviate a ogni carattere, il campo
+    /// verrebbe riscritto sotto le dita di chi scrive e il cursore salterebbe a fine riga.
+    /// </summary>
+    private static void ColoreDigitato(ChangeEventArgs e, Action<string> applica)
+    {
+        var testo = e.Value?.ToString();
+
+        if (SvgColor.IsCanonical(testo))
+        {
+            applica(testo!);
+        }
+    }
+
+    /// <summary>
+    /// All'uscita dal campo si accettano anche la forma abbreviata e l'assenza del
+    /// cancelletto. In ogni caso i campi colore vengono ricostruiti, così da tornare a
+    /// mostrare il valore effettivo: un testo lasciato a metà non deve restare a schermo
+    /// facendo credere che sia stato applicato.
+    /// </summary>
+    private void ColoreConfermato(ChangeEventArgs e, Action<string> applica)
+    {
+        if (SvgColor.Normalize(e.Value?.ToString()) is { } colore)
+        {
+            applica(colore);
+        }
+
+        _revisioneColore++;
+    }
+
+    /// <summary>Identifica i campi colore: cambiandolo, Blazor li ricostruisce.</summary>
+    private int _revisioneColore;
+}

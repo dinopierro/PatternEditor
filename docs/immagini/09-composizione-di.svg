@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 416" width="940" height="416" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="416" fill="#ffffff"/>
+  <defs><marker id="punta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b6ef5"/></marker></defs>
+  <text x="30" y="34" font-size="17" font-weight="600" fill="#1b2430">Figura 9 — Composizione a runtime</text>
+  <text x="30" y="55" font-size="12.5" fill="#6b7684">Chi registra che cosa, e in che ordine, quando l'applicazione parte.</text>
+  <rect x="30.0" y="84.0" width="260.0" height="246.0" rx="8" fill="#eef3ff" stroke="#3b6ef5" stroke-width="1.5"/>
+  <text x="42.0" y="104.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">1 · L'applicazione ospitante</text>
+  <text x="42.0" y="122.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">Program.cs — l'unico file che</text>
+  <text x="42.0" y="136.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">conosce i tipi concreti</text>
+  <text x="42.0" y="158.0" font-size="9" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">builder.Services</text>
+  <text x="50.0" y="176.0" font-size="8.6" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">.AddPatternEditor()</text>
+  <text x="50.0" y="191.0" font-size="8.6" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">.AddPatternEditorPlugin&lt;LinePlugin&gt;()</text>
+  <text x="50.0" y="206.0" font-size="8.6" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">.AddPatternEditorPlugin&lt;RectPlugin&gt;()</text>
+  <text x="50.0" y="221.0" font-size="8.6" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">.AddPatternEditorPlugin&lt;CirclePlugin&gt;()</text>
+  <text x="50.0" y="236.0" font-size="8.6" fill="#6b7684" font-weight="400" text-anchor="start">… una riga per tipo, nove in tutto</text>
+  <text x="42.0" y="268.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">L'ordine delle righe è l'ordine</text>
+  <text x="42.0" y="280.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">delle voci nel menù «Aggiungi».</text>
+  <text x="42.0" y="304.0" font-size="8.8" fill="#c2701c" font-weight="400" text-anchor="start">La libreria non referenzia</text>
+  <text x="42.0" y="316.0" font-size="8.8" fill="#c2701c" font-weight="400" text-anchor="start">nessuno di questi assembly.</text>
+  <rect x="345.0" y="84.0" width="250.0" height="246.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="357.0" y="104.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">2 · Contenitore dei servizi</text>
+  <text x="357.0" y="122.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">tutti singleton: nessuno tiene</text>
+  <text x="357.0" y="136.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">stato della singola sessione</text>
+  <text x="357.0" y="168.0" font-size="8.8" fill="#1b2430" font-weight="400" text-anchor="start">• IVectorElementPlugin × 9</text>
+  <text x="357.0" y="184.0" font-size="8.8" fill="#1b2430" font-weight="400" text-anchor="start">• IVectorElementPluginRegistry</text>
+  <text x="357.0" y="200.0" font-size="8.8" fill="#1b2430" font-weight="400" text-anchor="start">• IPatternSerializer</text>
+  <text x="357.0" y="216.0" font-size="8.8" fill="#1b2430" font-weight="400" text-anchor="start">• IPatternFactory</text>
+  <text x="357.0" y="232.0" font-size="8.8" fill="#1b2430" font-weight="400" text-anchor="start">• IPatternValidator</text>
+  <text x="357.0" y="248.0" font-size="8.8" fill="#1b2430" font-weight="400" text-anchor="start">• IPatternSvgRenderer</text>
+  <text x="357.0" y="264.0" font-size="8.8" fill="#1b2430" font-weight="400" text-anchor="start">• IVectorElementCloner</text>
+  <text x="357.0" y="280.0" font-size="8.8" fill="#1b2430" font-weight="400" text-anchor="start">• IPatternCloner</text>
+  <text x="357.0" y="312.0" font-size="8.4" fill="#6b7684" font-weight="400" text-anchor="start">Lo stato della modifica vive nel componente, non qui.</text>
+  <rect x="650.0" y="84.0" width="260.0" height="246.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="662.0" y="104.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">3 · Il registro</text>
+  <text x="662.0" y="122.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">costruito una volta sola, alla</text>
+  <text x="662.0" y="136.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">prima richiesta del registro</text>
+  <text x="662.0" y="172.0" font-size="8.2" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">Dictionary&lt;string, IVectorElementPlugin&gt;</text>
+  <text x="662.0" y="192.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">confronto Ordinal: "rect" è "rect"</text>
+  <text x="662.0" y="204.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">in qualunque lingua</text>
+  <text x="662.0" y="232.0" font-size="8.8" fill="#c2701c" font-weight="400" text-anchor="start">Type duplicato → eccezione all'avvio,</text>
+  <text x="662.0" y="244.0" font-size="8.8" fill="#c2701c" font-weight="400" text-anchor="start">non «vince l'ultimo».</text>
+  <text x="662.0" y="272.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">Da qui in poi il registro si legge</text>
+  <text x="662.0" y="284.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">soltanto: nessun lucchetto, perché</text>
+  <text x="662.0" y="296.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">nessuno scrive più.</text>
+  <path d="M 290.0 190.0 L 345.0 190.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <text x="317.0" y="182.0" font-size="8.2" fill="#3b6ef5" font-weight="600" text-anchor="middle">registra</text>
+  <path d="M 595.0 190.0 L 650.0 190.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <text x="622.0" y="182.0" font-size="8.2" fill="#3b6ef5" font-weight="600" text-anchor="middle">GetServices</text>
+  <rect x="30.0" y="352.0" width="880.0" height="40.0" rx="6" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1.2"/>
+  <text x="40.0" y="369.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">Le tre fasi avvengono all'avvio e non si ripetono. Da quel momento il componente chiede al registro il plugin di un tipo e non sa altro:</text>
+  <text x="40.0" y="382.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">non conosce le classi RectElement o RectEditor, non le referenzia, e aggiungere un decimo tipo non lo tocca.</text>
+</svg>

@@ -1,0 +1,205 @@
+@namespace PatternEditor.Element.Image.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using PatternEditor.Core.Formatting
+@using PatternEditor.Core.Models
+@using PatternEditor.Element.Image
+@inject TestiEditor E
+
+@if (ImageEl is not null)
+@*
+   Editor dell'immagine.
+
+   La sorgente può essere un indirizzo o un'immagine incorporata come data URI, e i due
+   modi hanno conseguenze opposte sul documento: leggero ma dipendente da un server, oppure
+   autonomo ma pesante. L'anteprima dell'adattamento mostra il comportamento dei tre valori
+   di preserveAspectRatio su un riquadro volutamente non quadrato: su un riquadro quadrato
+   i tre modi darebbero lo stesso risultato e non si distinguerebbero.
+
+   Ogni editor riceve l'elemento come VectorElement generico e lo riconduce al proprio tipo:
+   il contenitore che lo istanzia non conosce il tipo concreto, e passargli qualcosa di più
+   specifico obbligherebbe l'editor principale a conoscere questo assembly.
+
+   Nessun pulsante "Applica": ogni modifica aggiorna subito il modello e chiede la
+   rigenerazione delle anteprime. Vedere l'effetto mentre si regola un valore è il motivo
+   per cui questo strumento esiste, e una conferma intermedia lo annullerebbe.
+
+   L'elemento viene modificato sul posto, non sostituito: è la copia di lavoro interna
+   all'editor, e chi ha aperto il pattern la vede solo se conferma.
+*@
+
+{
+    <div class="pe-element-editor pe-image-editor">
+
+        <section class="pe-group">
+            <h4 class="pe-group__title">@E["campo.immagine"]</h4>
+
+            <div class="pe-image-source">
+                <div class="pe-image-thumb pe-checker">
+                    @if (!string.IsNullOrWhiteSpace(ImageEl.Href))
+                    {
+                        <img src="@ImageEl.Href" alt="@E["campo.immagineAnteprima"]" />
+                    }
+                </div>
+                <div class="pe-image-source__info">
+                    <span class="pe-image-source__kind">@SourceDescription</span>
+                    <label class="pe-file">
+                        <InputFile OnChange="LoadFileAsync" accept="image/*" />
+                        <span>@E["campo.scegliFile"]</span>
+                    </label>
+                </div>
+            </div>
+
+            @if (_message is not null)
+            {
+                <p class="pe-hint @(_isError ? "is-error" : null)">@_message</p>
+            }
+
+            <label class="pe-field">
+                <span class="pe-field__label">@E["campo.sorgente"] <span class="pe-unit">[@E["campo.sorgenteUnita"]]</span></span>
+                <textarea class="pe-input pe-textarea" rows="2" spellcheck="false"
+                          placeholder="@E["campo.sorgenteSegnaposto"]"
+                          @oninput="e => Update(() => SetHref(e.Value?.ToString()))">@ImageEl.Href</textarea>
+            </label>
+            <p class="pe-hint">@E["campo.sorgenteNota"]</p>
+        </section>
+
+        <section class="pe-group">
+            <h4 class="pe-group__title">@E["campo.riquadro"]</h4>
+            <div class="pe-grid-2">
+                <label class="pe-field">
+                    <span class="pe-field__label">X <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" step="1" value="@Num(ImageEl.X)"
+                           @oninput="e => Update(() => ImageEl.X = InvariantNumber.Parse(e.Value, ImageEl.X))" />
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">Y <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" step="1" value="@Num(ImageEl.Y)"
+                           @oninput="e => Update(() => ImageEl.Y = InvariantNumber.Parse(e.Value, ImageEl.Y))" />
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.larghezza"] <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" min="0.01" step="1" value="@Num(ImageEl.Width)"
+                           @oninput="e => Update(() => ImageEl.Width = InvariantNumber.Parse(e.Value, ImageEl.Width))" />
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.altezza"] <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" min="0.01" step="1" value="@Num(ImageEl.Height)"
+                           @oninput="e => Update(() => ImageEl.Height = InvariantNumber.Parse(e.Value, ImageEl.Height))" />
+                </label>
+            </div>
+
+            <label class="pe-field">
+                <span class="pe-field__label">@E["campo.adattamento"]</span>
+                <select class="pe-input pe-input--select" value="@ImageEl.PreserveAspectRatio"
+                        @onchange="e => Update(() => ImageEl.PreserveAspectRatio = e.Value?.ToString() ?? ImageElement.FitContain)">
+                    <option value="@ImageElement.FitContain">@E["campo.adattaContiene"]</option>
+                    <option value="@ImageElement.FitCover">@E["campo.adattaRiempi"]</option>
+                    <option value="@ImageElement.FitStretch">@E["campo.adattaDeforma"]</option>
+                </select>
+            </label>
+        </section>
+
+    </div>
+}
+
+@code {
+    /// <summary>
+    /// Dimensione massima del file caricabile. Il limite è dettato dal fatto che l'immagine
+    /// viene incorporata nel JSON del pattern: oltre qualche centinaio di kB il documento
+    /// diventa scomodo da salvare e trasferire.
+    /// </summary>
+    private const long MaxFileBytes = 2 * 1024 * 1024;
+
+    /// <summary>
+    /// Elemento da modificare. Ricevuto come VectorElement per rispettare il contratto
+    /// generico usato dall'editor principale, che non conosce il tipo concreto ImageElement.
+    /// </summary>
+    [Parameter]
+    public VectorElement? Element { get; set; }
+
+    /// <summary>
+    /// Notifica esplicita al Pattern Editor che il modello è stato modificato, così che
+    /// possa rigenerare le anteprime. Ogni modifica aggiorna subito il modello: non esiste
+    /// un pulsante "Applica".
+    /// </summary>
+    [Parameter]
+    public EventCallback OnElementChanged { get; set; }
+
+    private ImageElement? ImageEl => Element as ImageElement;
+
+    private string? _message;
+    private bool _isError;
+
+    private string SourceDescription
+    {
+        get
+        {
+            var href = ImageEl?.Href ?? string.Empty;
+
+            if (href == ImageElement.PlaceholderHref)
+            {
+                return E["campo.immagineSegnaposto"];
+            }
+
+            if (string.IsNullOrWhiteSpace(href))
+            {
+                return E["campo.immagineNessuna"];
+            }
+
+            return href.StartsWith("data:", StringComparison.OrdinalIgnoreCase)
+                ? E["campo.immagineIncorporata", href.Length / 1024]
+                : E["campo.immagineCollegata"];
+        }
+    }
+
+    private async Task LoadFileAsync(InputFileChangeEventArgs args)
+    {
+        var file = args.File;
+        _message = null;
+        _isError = false;
+
+        if (file is null)
+        {
+            return;
+        }
+
+        if (!file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+        {
+            _message = E["campo.immagineNonImmagine", file.ContentType];
+            _isError = true;
+            return;
+        }
+
+        if (file.Size > MaxFileBytes)
+        {
+            _message = E["campo.immagineTroppoGrande", MaxFileBytes / 1024 / 1024, file.Size / 1024];
+            _isError = true;
+            return;
+        }
+
+        // Il contenuto viene letto in memoria e convertito in data URI: il pattern resta
+        // autosufficiente e non dipende da percorsi locali, che non avrebbero comunque
+        // significato per chi ricevesse l'SVG.
+        using var stream = file.OpenReadStream(MaxFileBytes);
+        using var buffer = new MemoryStream();
+        await stream.CopyToAsync(buffer);
+
+        var dataUri = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer.ToArray())}";
+        Update(() => ImageEl!.Href = dataUri);
+
+        _message = E["campo.immagineCaricata", file.Name, file.Size / 1024];
+    }
+
+    private void SetHref(string? value) => ImageEl!.Href = value?.Trim() ?? string.Empty;
+
+    private void Update(Action apply)
+    {
+        apply();
+        OnElementChanged.InvokeAsync();
+    }
+
+    private static string Num(double value) => InvariantNumber.Format(value);
+
+    /// <summary>Il modello memorizza l'opacità come 0..1; all'utente viene mostrata in percentuale.</summary>
+    private static string Pct(double value) => Math.Round(value * 100).ToString("0");
+}

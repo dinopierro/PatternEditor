@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-ac1e-7ae6-93b1-65f3b109b08a",
+  "name": "Plaid Pattern - 11",
+  "createdAt": "2026-09-10T15:56:15.9972817\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:16.5621610\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 60,
+    "height": 60,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m14.998 0 14.998 14.998L44.993 0zM60 15 45.002 29.998 60 44.996zm-60 .008v29.99l14.995-14.995zm30 29.996L15.006 60h29.991z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac1e-7eb2-8379-eb71024c7ad2",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 0v15L14.996.002V0zm44.998 0 14.997 14.997V0zM30.001 15.004l-15 15 15 15 15-15zm-30 30H0V60h14.996zM60 45.005 45.005 60H60z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac1e-7c39-a9ea-b4923c34e5ec",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 0v.532L14.47 15l.524.525L29.47 30l.524.525L44.47 45l.525.525L59.47 60H60v-.516l-.013-.013v-.002L45.517 45l-.01-.005v.002l-.524-.525v-.002L30.513 30l-.01-.005v.002l-.525-.525v-.002L15.508 15v-.004V15l-.524-.524v-.002L.512 0zm14.99 14.472v.004l.522.521L29.985.524 29.46 0zM29.989 29.47l.01.006.518.519L44.989 15.52l-.524-.524zm15.001 15 .01.006.519.519L59.99 30.52l-.524-.525zm15 15 .01.006.01.005v-.022zM29.469 0h.001l.525.525L44.47 15l.525.525L59.47 30l.525.525v.005-1.045l-.014-.014v-.002L45.512 15.001v-.004V15l-.524-.525v-.003L30.516.002V0zm15.522 14.472v.004l.52.52L59.984.524 59.46 0zm14.997 14.997.01.007v.005-.024zM59.47 0l.525.525V.53 0zM14.462 14.996 0 29.458v.023l.513.513 14.473-14.473zM.512 29.994v.002l-.51-.51v1.045L14.472 45l.01.006v-.001l.524.524v.001L29.476 60h1.05-.001l-.01-.007v.002l-.525-.524v-.002l-14.47-14.47-.01-.005v.002l-.524-.525v-.002L.516 30zM14.99 44.47l.01.005.52.52L29.992 30.52l-.525-.524zm15 15 .01.005.52.519L44.991 45.52l-.525-.524zM15.001 45.53l-.01-.005-.519-.519L-.002 59.48l.52.52h.01zM0 59.48V60h.52-.001zm59.463.517V60h.01z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-ac1e-7d6d-a32b-7427146d4693",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

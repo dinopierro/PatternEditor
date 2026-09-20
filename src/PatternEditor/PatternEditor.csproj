@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>PatternEditor</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Il progetto referenzia esclusivamente Abstractions (contratti). NON deve referenziare
+      PatternEditor.Element.Line o PatternEditor.Element.Rect: la registrazione dei plugin
+      concreti è responsabilità dell'applicazione host, non della libreria.
+    -->
+    <ProjectReference Include="..\PatternEditor.Abstractions\PatternEditor.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

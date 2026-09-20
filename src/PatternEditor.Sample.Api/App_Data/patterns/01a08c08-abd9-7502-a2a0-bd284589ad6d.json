@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "id": "01a08c08-abd9-7502-a2a0-bd284589ad6d",
+  "name": "Diamonds - 20",
+  "createdAt": "2026-09-10T15:56:14.6907694\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.2290228\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 60,
+    "height": 60,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M60 60h5v5h-5zm-30-5h5v5h-5zm5 5h5v5h-5zm25-25h5v5h-5zm-5-5h5v5h-5zM25 60h5v5h-5zM0 60h5v5H0zm0-25h5v5H0zm5-5h5v5H5zm55-5h5v5h-5zm0-25h5v5h-5zM30 5h5v5h-5zm5-5h5v5h-5zM0 25h5v5H0zM25 0h5v5h-5zM0 0h5v5H0z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abd9-786f-bcd5-d3fe9c939859",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M40 50h5v5h-5zm5-5h5v5h-5zm5-5h5v5h-5zm-15 5h5v5h-5zm-5-5h5v5h-5zm10-10h5v5h-5zm5 5h5v5h-5zm-10 0h5v5h-5zM20 50h5v5h-5zm5-5h5v5h-5zm-10 0h5v5h-5zm-5-5h5v5h-5zm10-10h5v5h-5zm5 5h5v5h-5zm-10 0h5v5h-5zm30-10h5v5h-5zm5-5h5v5h-5zm-15 5h5v5h-5zm-5-5h5v5h-5zm10-10h5v5h-5zm5 5h5v5h-5zm-10 0h5v5h-5zM25 25h5v5h-5zm-10 0h5v5h-5zm-5-5h5v5h-5zm10-10h5v5h-5zm5 5h5v5h-5zm-10 0h5v5h-5z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abd9-7ad0-8b52-c65efd59b73f",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M60 45h5v5h-5zm-5 5h5v5h-5zm-5 5h5v5h-5zm-5 5h5v5h-5zM0 45h5v5H0zm5 5h5v5H5zm5 5h5v5h-5zm5 5h5v5h-5zm45-45h5v5h-5zm-5-5h5v5h-5zm-5-5h5v5h-5zm-5-5h5v5h-5zM0 15h5v5H0zm5-5h5v5H5zm5-5h5v5h-5zm5-5h5v5h-5z",
+        "fill": "#00bcd4",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abd9-71cc-81dc-1685d43bdbff",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

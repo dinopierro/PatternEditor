@@ -1,0 +1,203 @@
+@namespace PatternEditor.Element.Rect.Components
+@using PatternEditor.Core.Formatting
+@using PatternEditor.Core.Models
+@using PatternEditor.Element.Rect
+@inject TestiEditor E
+
+@if (Rect is not null)
+@*
+   Editor del rettangolo.
+
+   Angolo superiore sinistro e dimensioni. Vale la pena ricordare, guardando i campi, che in
+   SVG l'asse Y cresce verso il basso: aumentare Y sposta il rettangolo in giù, non in su.
+
+   Ogni editor riceve l'elemento come VectorElement generico e lo riconduce al proprio tipo:
+   il contenitore che lo istanzia non conosce il tipo concreto, e passargli qualcosa di più
+   specifico obbligherebbe l'editor principale a conoscere questo assembly.
+
+   Nessun pulsante "Applica": ogni modifica aggiorna subito il modello e chiede la
+   rigenerazione delle anteprime. Vedere l'effetto mentre si regola un valore è il motivo
+   per cui questo strumento esiste, e una conferma intermedia lo annullerebbe.
+
+   L'elemento viene modificato sul posto, non sostituito: è la copia di lavoro interna
+   all'editor, e chi ha aperto il pattern la vede solo se conferma.
+*@
+
+{
+    <div class="pe-element-editor pe-rect-editor">
+
+        <section class="pe-group">
+            <h4 class="pe-group__title">@E["campo.geometria"]</h4>
+            <div class="pe-grid-2">
+                <label class="pe-field">
+                    <span class="pe-field__label">X <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" step="1" value="@Num(Rect.X)"
+                           @oninput="e => Update(() => Rect.X = InvariantNumber.Parse(e.Value, Rect.X))" />
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">Y <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" step="1" value="@Num(Rect.Y)"
+                           @oninput="e => Update(() => Rect.Y = InvariantNumber.Parse(e.Value, Rect.Y))" />
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.larghezza"] <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" min="0.01" step="1" value="@Num(Rect.Width)"
+                           @oninput="e => Update(() => Rect.Width = InvariantNumber.Parse(e.Value, Rect.Width))" />
+                </label>
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.altezza"] <span class="pe-unit">[px]</span></span>
+                    <input class="pe-input" type="number" min="0.01" step="1" value="@Num(Rect.Height)"
+                           @oninput="e => Update(() => Rect.Height = InvariantNumber.Parse(e.Value, Rect.Height))" />
+                </label>
+            </div>
+        </section>
+
+        <section class="pe-group">
+            <div class="pe-group__head">
+                <h4 class="pe-group__title">@E["campo.riempimento"]</h4>
+                <label class="pe-switch">
+                    <input type="checkbox" checked="@(Rect.Fill is not null)"
+                           @onchange="e => Update(() => Rect.Fill = ((bool)(e.Value ?? false)) ? (Rect.Fill ?? DefaultFill) : null)" />
+                    <span>@E["campo.attivo"]</span>
+                </label>
+            </div>
+
+            @if (Rect.Fill is not null)
+            {
+                <label class="pe-field">
+                    <span class="pe-field__label">@E["campo.colore"]</span>
+                    <span class="pe-color">
+                        <input class="pe-color__input" type="color" value="@SvgColor.ForPicker(Rect.Fill)"
+                               @oninput="e => Update(() => Rect.Fill = SvgColor.Normalize(e.Value?.ToString()) ?? Rect.Fill)" />
+                        <input class="pe-color__code" type="text" spellcheck="false" autocomplete="off"
+                               maxlength="7" size="8" pattern="@SvgColor.HtmlPattern"
+                               title="@E["campo.coloreTitolo"]"
+                               @key="_revisioneColore" value="@Rect.Fill"
+                               @oninput="e => ColoreDigitato(e, v => Update(() => Rect.Fill = v))"
+                               @onchange="e => ColoreConfermato(e, v => Update(() => Rect.Fill = v))" />
+                    </span>
+                </label>
+                <label class="pe-field pe-field--slider">
+                    <span class="pe-field__label">
+                        @E["campo.opacita"] <span class="pe-unit">[%]</span>
+                        <span class="pe-field__value">@Pct(Rect.FillOpacity)</span>
+                    </span>
+                    <input class="pe-range" type="range" min="0" max="1" step="0.01" value="@Num(Rect.FillOpacity)"
+                           @oninput="e => Update(() => Rect.FillOpacity = InvariantNumber.Parse(e.Value, Rect.FillOpacity))" />
+                </label>
+            }
+        </section>
+
+        <section class="pe-group">
+            <div class="pe-group__head">
+                <h4 class="pe-group__title">@E["campo.bordo"]</h4>
+                <label class="pe-switch">
+                    <input type="checkbox" checked="@(Rect.Stroke is not null)"
+                           @onchange="e => Update(() => Rect.Stroke = ((bool)(e.Value ?? false)) ? (Rect.Stroke ?? DefaultStroke) : null)" />
+                    <span>@E["campo.attivo"]</span>
+                </label>
+            </div>
+
+            @if (Rect.Stroke is not null)
+            {
+                <div class="pe-grid-2">
+                    <label class="pe-field">
+                        <span class="pe-field__label">@E["campo.colore"]</span>
+                        <span class="pe-color">
+                            <input class="pe-color__input" type="color" value="@SvgColor.ForPicker(Rect.Stroke)"
+                                   @oninput="e => Update(() => Rect.Stroke = SvgColor.Normalize(e.Value?.ToString()) ?? Rect.Stroke)" />
+                            <input class="pe-color__code" type="text" spellcheck="false" autocomplete="off"
+                                   maxlength="7" size="8" pattern="@SvgColor.HtmlPattern"
+                                   title="@E["campo.coloreTitolo"]"
+                                   @key="_revisioneColore" value="@Rect.Stroke"
+                                   @oninput="e => ColoreDigitato(e, v => Update(() => Rect.Stroke = v))"
+                                   @onchange="e => ColoreConfermato(e, v => Update(() => Rect.Stroke = v))" />
+                        </span>
+                    </label>
+                    <label class="pe-field">
+                        <span class="pe-field__label">@E["campo.spessore"] <span class="pe-unit">[px]</span></span>
+                        <input class="pe-input" type="number" min="0" step="0.1" value="@Num(Rect.StrokeWidth)"
+                               @oninput="e => Update(() => Rect.StrokeWidth = InvariantNumber.Parse(e.Value, Rect.StrokeWidth))" />
+                    </label>
+                </div>
+                <label class="pe-field pe-field--slider">
+                    <span class="pe-field__label">
+                        @E["campo.opacita"] <span class="pe-unit">[%]</span>
+                        <span class="pe-field__value">@Pct(Rect.StrokeOpacity)</span>
+                    </span>
+                    <input class="pe-range" type="range" min="0" max="1" step="0.01" value="@Num(Rect.StrokeOpacity)"
+                           @oninput="e => Update(() => Rect.StrokeOpacity = InvariantNumber.Parse(e.Value, Rect.StrokeOpacity))" />
+                </label>
+            }
+        </section>
+
+    </div>
+}
+
+@code {
+    const string DefaultFill = "#AEFAEF";
+    const string DefaultStroke = "#000000";
+
+    /// <summary>
+    /// Elemento da modificare. Ricevuto come VectorElement per rispettare il contratto
+    /// generico usato dall'editor principale, che non conosce il tipo concreto RectElement.
+    /// </summary>
+    [Parameter]
+    public VectorElement? Element { get; set; }
+
+    /// <summary>
+    /// Notifica esplicita al Pattern Editor che il modello è stato modificato, così che
+    /// possa rigenerare le anteprime. Non esiste un pulsante "Applica": ogni modifica
+    /// aggiorna subito il modello e notifica immediatamente.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnElementChanged { get; set; }
+
+    private RectElement? Rect => Element as RectElement;
+
+    private void Update(Action apply)
+    {
+        apply();
+        OnElementChanged.InvokeAsync();
+    }
+
+    private static string Num(double value) => InvariantNumber.Format(value);
+
+    /// <summary>Il modello memorizza l'opacità come 0..1; all'utente viene mostrata in percentuale.</summary>
+    private static string Pct(double value) => Math.Round(value * 100).ToString("0");
+
+    /// <summary>
+    /// Il colore si può scrivere a mano accanto al selettore. Mentre si digita il modello
+    /// viene aggiornato solo se il testo è già nella forma canonica #rrggbb, quella che
+    /// usa il selettore: normalizzando anche le forme abbreviate a ogni carattere, il campo
+    /// verrebbe riscritto sotto le dita di chi scrive e il cursore salterebbe a fine riga.
+    /// </summary>
+    private static void ColoreDigitato(ChangeEventArgs e, Action<string> applica)
+    {
+        var testo = e.Value?.ToString();
+
+        if (SvgColor.IsCanonical(testo))
+        {
+            applica(testo!);
+        }
+    }
+
+    /// <summary>
+    /// All'uscita dal campo si accettano anche la forma abbreviata e l'assenza del
+    /// cancelletto. In ogni caso i campi colore vengono ricostruiti, così da tornare a
+    /// mostrare il valore effettivo: un testo lasciato a metà non deve restare a schermo
+    /// facendo credere che sia stato applicato.
+    /// </summary>
+    private void ColoreConfermato(ChangeEventArgs e, Action<string> applica)
+    {
+        if (SvgColor.Normalize(e.Value?.ToString()) is { } colore)
+        {
+            applica(colore);
+        }
+
+        _revisioneColore++;
+    }
+
+    /// <summary>Identifica i campi colore: cambiandolo, Blazor li ricostruisce.</summary>
+    private int _revisioneColore;
+}

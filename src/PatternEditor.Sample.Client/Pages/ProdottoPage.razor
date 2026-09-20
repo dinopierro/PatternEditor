@@ -1,0 +1,1592 @@
+@page "/"
+@* L'indirizzo storico resta valido: i collegamenti già scritti altrove continuano a
+   funzionare invece di finire su una pagina inesistente. *@
+@page "/prodotto"
+@using System.Reflection
+@using PatternEditor.Abstractions.Plugins
+@using PatternEditor.Core.Models
+@using PatternEditor.Components
+@using PatternEditor.Services
+@using PatternEditor.Sample.Client.Components
+@inject PatternApiClient Api
+@inject AuthClient Auth
+@inject IVectorElementPluginRegistry Registry
+@inject TestiEditor E
+@inject Lingua T
+@inject IPatternSvgRenderer SvgRenderer
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@implements IAsyncDisposable
+
+@*
+   Una seconda lettura dello stesso strumento.
+
+   La pagina di gestione risponde a «dove sono i miei pattern»; questa risponde a «che
+   cos'è questa cosa e perché dovrebbe interessarmi». Sono due domande diverse e meritano
+   due pagine diverse: mescolarle darebbe una vetrina scomoda da usare e un pannello di
+   lavoro che si mette in posa.
+
+   Quello che le due pagine condividono non è il markup ma i servizi — l'archivio,
+   l'accesso, il renderer — ed è esattamente il punto: se il componente è fatto bene, una
+   presentazione e un pannello di lavoro si costruiscono sopra lo stesso motore senza che
+   nessuno dei due debba sapere dell'altro.
+
+   Il materiale scenico è vero. Gli sfondi che si muovono, le tessere che si moltiplicano e
+   il sorgente che si accende non sono immagini preparate: sono documenti generati dallo
+   stesso renderer del componente, a partire dai pattern che ci sono davvero nell'archivio.
+*@
+
+<PageTitle>@T["prodotto.paginaTitolo"]</PageTitle>
+
+<HeadContent>
+    @* Il foglio si carica solo qui: la pagina di gestione non deve pagare nulla per una
+       presentazione che non mostra. *@
+    <link rel="stylesheet" href="css/prodotto.css" />
+</HeadContent>
+
+<div class="pro">
+
+    @* ============================================================ 1 · APERTURA ===== *@
+    <section class="pro-apertura" data-avanzamento>
+        <div class="pro-apertura__fermo">
+
+            @* Non un'immagine di sfondo: un pattern generato adesso, che si allontana
+               mentre si scorre. All'inizio una cella riempie lo schermo, alla fine se ne
+               vedono decine — la tesi della pagina, detta prima di scriverla. *@
+            @* Due strati e non uno: il disegno nuovo si scrive in quello nascosto ed è già
+               a posto quando comincia la dissolvenza. Con un nodo solo, fra il vecchio e il
+               nuovo si vedrebbe il vuoto — cioè esattamente ciò che una dissolvenza serve a
+               evitare. *@
+            <div class="pro-apertura__trama" aria-hidden="true">
+                <div class="pro-strato @(_stratoA ? "e-sopra" : null)">@((MarkupString)_tramaA)</div>
+                <div class="pro-strato @(_stratoA ? null : "e-sopra")">@((MarkupString)_tramaB)</div>
+            </div>
+
+            @* L'alone si muove piano dietro il titolo: dà profondità e movimento senza
+               toccare il velo, che invece serve alla leggibilità. *@
+            <div class="pro-apertura__bagliore" aria-hidden="true"></div>
+            <div class="pro-apertura__velo" aria-hidden="true"></div>
+
+            <div class="pro-apertura__testo">
+                <h1 class="pro-apertura__titolo">
+                    @* Le quattro parole entrano una alla volta e quindi restano quattro nodi
+                       distinti: in un'altra lingua sono altre quattro parole, non le stesse
+                       spostate. *@
+                    <span class="pro-apertura__parola" style="--ritardo: 40ms">@T["prodotto.titolo1"]</span>
+                    <span class="pro-apertura__parola" style="--ritardo: 180ms">@T["prodotto.titolo2"]</span>
+                    <br />
+                    <span class="pro-apertura__parola pro-apertura__parola--brillante" style="--ritardo: 340ms">@T["prodotto.titolo3"]</span>
+                    <span class="pro-apertura__parola pro-apertura__parola--brillante" style="--ritardo: 460ms">@T["prodotto.titolo4"]</span>
+                </h1>
+
+                <p class="pro-apertura__sottotitolo">@T["prodotto.sottotitolo"]</p>
+
+                <div class="pro-apertura__azioni">
+                    <button type="button" class="pro-btn pro-btn--pieno" @onclick="ApriNuovo">
+                        @T["prodotto.cominciaADisegnare"]
+                    </button>
+                    <a class="pro-btn pro-btn--vuoto" href="#archivio">
+                        @T["prodotto.guardaIPattern", _riepiloghi?.Count ?? 0]
+                    </a>
+                </div>
+            </div>
+
+            <div class="pro-apertura__invito" aria-hidden="true">
+                <span class="pro-apertura__freccia"></span>
+                @T["prodotto.scorri"]
+            </div>
+        </div>
+    </section>
+
+    @* ==================================================== 2 · LA CELLA DIVENTA TRAMA = *@
+    <section class="pro-cella" data-avanzamento>
+        <div class="pro-cella__fermo">
+
+            <div class="pro-cella__parole">
+                <span class="pro__occhiello">@T["prodotto.occhielloMeccanismo"]</span>
+                @* Titolo e guida portano del markup — l'a capo, il grassetto — e in un'altra
+                   lingua cade altrove: il catalogo se lo tiene. È testo nostro. *@
+                <h2>@((MarkupString)T["prodotto.cellaTitolo"])</h2>
+                <p class="pro__guida">@((MarkupString)T["prodotto.cellaGuida"])</p>
+            </div>
+
+            @* Lo stesso disegno mostrato due volte non servirebbe a niente: qui è lo stesso
+               disegno mostrato mentre diventa un'altra cosa. La griglia blu compare a metà
+               percorso per dire dove finisce una tessera e comincia la successiva, poi si
+               ritira e lascia solo la trama. *@
+            @* Il palco prende la FORMA della cella, non una sua. Con un riquadro 4/3 e una
+               cella quadrata la tessera verrebbe stirata, e l'SVG — che la propria
+               proporzione la difende — si incornicerebbe lasciando due bande bianche che
+               nella trama vera non esistono. Dividendo per lo stesso numero due lati già
+               proporzionati, ogni tessera resta esattamente la cella. *@
+            @* Il puntatore sul palco ferma l'alternanza: chi si è avvicinato a guardare non
+               deve vedersi cambiare il disegno sotto gli occhi. *@
+            @* Palco e punti in un contenitore solo: la sezione è una griglia a due colonne,
+               e due fratelli finirebbero uno per colonna — i punti si ritroverebbero sotto
+               il testo, lontani dalla cosa che comandano. *@
+            <div class="pro-cella__scena">
+                <div class="pro-cella__palco" style="--forma: @_formaScena"
+                     @onmouseenter="() => _giostraFerma = true"
+                     @onmouseleave="() => _giostraFerma = false">
+                    <div class="pro-cella__tessere @(_stratoA ? "e-sopra" : null)"
+                         style="background-image: url('@_tesseraA');"></div>
+                    <div class="pro-cella__tessere @(_stratoA ? null : "e-sopra")"
+                         style="background-image: url('@_tesseraB');"></div>
+                    <div class="pro-cella__griglia" aria-hidden="true"></div>
+                    <span class="pro-cella__conteggio">@_nomeScena · @Misura(_latoCella) × @Misura(_altezzaCella) px</span>
+                </div>
+
+                @* I punti compaiono solo quando c'è davvero da scegliere, e si aggiungono via
+                   via che gli altri pattern arrivano dalla rete. Non sono decorazione: sono il
+                   modo di dire «ne sta passando una serie» e di fermarla dove si vuole. *@
+                @if (_scene.Count > 1)
+                {
+                    <div class="pro-cella__punti" role="group" aria-label="@T["prodotto.scegliInScena"]">
+                        @for (var i = 0; i < _scene.Count; i++)
+                        {
+                            var indice = i;
+                            <button type="button" class="pro-punto @(indice == _indiceScena ? "e-scelto" : null)"
+                                    title="@_scene[indice].Nome"
+                                    aria-label="@T["prodotto.mostra", _scene[indice].Nome]"
+                                    aria-pressed="@(indice == _indiceScena ? "true" : "false")"
+                                    @onclick="() => VaiA(indice)"></button>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    @* ========================================================= 3 · NOVE TIPI ======== *@
+    <section class="pro-tipi" data-avanzamento>
+        <div class="pro-tipi__fermo">
+
+            <div class="pro-tipi__testa">
+                <span class="pro__occhiello">@T["prodotto.occhielloDotazione"]</span>
+                <h2>@T["prodotto.tipiTitolo"]</h2>
+                <p class="pro__guida">@T["prodotto.tipiGuida"]</p>
+            </div>
+
+            @* Il nastro scorre in orizzontale mentre la pagina scorre in verticale. Ogni
+               scheda mostra il tipo così com'è quando lo si inserisce — nessuna posa, sono i
+               valori predefiniti del plugin — e sotto, che cosa si può regolare. *@
+            <div class="pro-tipi__pista">
+                <div class="pro-tipi__nastro" data-nastro>
+                    @{ var posizioneTipo = 0; }
+                    @foreach (var scheda in _vetrinaTipi)
+                    {
+                        @* La tinta è una variabile e non nove regole: la usano il fondo del
+                           riquadro, il quadratino dell'icona e il filo sopra la scheda, e
+                           una sola dichiarazione li tiene d'accordo. Il ritardo sfasa il
+                           respiro delle nove tele: se si muovessero insieme sembrerebbero
+                           un'unica immagine che trema. *@
+                        <article class="pro-tipo" style="--tinta: @scheda.Tinta; --ritardo: @(posizioneTipo++ * 1.7)s">
+                            <div class="pro-tipo__tela">
+                                @((MarkupString)scheda.Svg)
+                                <span class="pro-tipo__nome-grande">@E.NomeDelTipo(scheda.Plugin.Type, scheda.Plugin.DisplayName)</span>
+                            </div>
+
+                            <div class="pro-tipo__corpo">
+                                <span class="pro-tipo__icona"><VectorElementIcon Plugin="scheda.Plugin" Size="16" /></span>
+                                <span class="pro-tipo__tecnico">@scheda.Plugin.Type</span>
+                            </div>
+
+                            <p class="pro-tipo__descrizione">@scheda.Descrizione</p>
+
+                            <div class="pro-tipo__opzioni">
+                                @foreach (var opzione in scheda.Opzioni)
+                                {
+                                    <span class="pro-opzione">@opzione</span>
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
+            </div>
+
+            <div class="pro-tipi__barra" aria-hidden="true"><span></span></div>
+
+            @* Le proprietà comuni si dicono una volta sola, fuori dal nastro: ripeterle su
+               nove schede le farebbe sembrare nove cose diverse invece di una regola sola. *@
+            <p class="pro-tipi__comuni">
+                @* La frase sta tutta dentro un elemento: spezzata in due nodi, la spaziatura
+                   del contenitore flessibile si infilerebbe anche prima della virgola. *@
+                <strong>@T["prodotto.suTuttiENove"]</strong>
+                @foreach (var comune in _opzioniComuni)
+                {
+                    <span class="pro-opzione pro-opzione--comune">@comune</span>
+                }
+            </p>
+        </div>
+    </section>
+
+    @* ========================================== 3-bis · DA DOVE SI PUÒ PARTIRE ====== *@
+    @* Sta subito dopo i nove tipi, e l'ordine è il ragionamento: prima si mostra di che cosa
+       è fatta una cella, poi che non è obbligatorio comporla a mano. Le due strade non hanno
+       lo stesso peso nella pagina perché non hanno lo stesso peso nei fatti — importare un
+       SVG è una traduzione, ricostruirne uno da una fotografia è un'altra cosa. *@
+    <section class="pro-origini">
+        <div class="pro-origini__testa" data-rivela>
+            <span class="pro__occhiello">@T["prodotto.occhielloOrigini"]</span>
+            <h2>@T["prodotto.originiTitolo"]</h2>
+            <p class="pro__guida">@T["prodotto.originiGuida"]</p>
+        </div>
+
+        <div class="pro-origini__griglia">
+
+            <article class="pro-origine" data-rivela>
+                <span class="pro-origine__glifo" aria-hidden="true">⤥</span>
+                <h3>@T["prodotto.importaTitolo"]</h3>
+                <p>@T["prodotto.importaTesto"]</p>
+                <p class="pro-origine__nota">@T["prodotto.importaNota"]</p>
+            </article>
+
+            <article class="pro-origine pro-origine--forte" data-rivela>
+                <span class="pro-origine__bollo">@T["prodotto.convertiBollo"]</span>
+                <span class="pro-origine__glifo" aria-hidden="true">⬗</span>
+                <h3>@((MarkupString)T["prodotto.convertiTitolo"])</h3>
+                <p class="pro-origine__forte">@T["prodotto.convertiTesto"]</p>
+
+                @* Il prima e il dopo, disegnati invece che fotografati: a sinistra i punti
+                   di una foto, a destra le forme che ne escono. È la sola cosa che questa
+                   sezione deve far capire in un secondo, e una frase non ci riesce. *@
+                <div class="pro-origine__prova" aria-hidden="true">
+                    <svg viewBox="0 0 320 120" role="img">
+                        <defs>
+                            <clipPath id="pro-rit"><rect x="0" y="0" width="140" height="120" rx="10" /></clipPath>
+                        </defs>
+
+                        <g clip-path="url(#pro-rit)">
+                            @{ var caso = new Random(7); }
+                            @for (var y = 0; y < 12; y++)
+                            {
+                                @for (var x = 0; x < 14; x++)
+                                {
+                                    var muro = (y % 3 == 0) || ((x + (y / 3) * 3) % 7 == 0);
+                                    var tono = 150 + caso.Next(-28, 28);
+                                    var colore = muro ? $"rgb({tono - 90},{tono - 120},{tono - 125})"
+                                                      : $"rgb({tono + 55},{tono - 20},{tono - 45})";
+                                    <rect x="@(x * 10)" y="@(y * 10)" width="10" height="10" fill="@colore" />
+                                }
+                            }
+                        </g>
+
+                        <g transform="translate(150 52)">
+                            <path d="M0 8h14M8 2l6 6-6 6" fill="none" stroke="currentColor"
+                                  stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+                        </g>
+
+                        <g transform="translate(180 0)">
+                            <rect x="0" y="0" width="140" height="120" rx="10" fill="#c8836e" />
+                            @for (var y = 0; y < 4; y++)
+                            {
+                                var sfalso = y % 2 == 0 ? 0 : -35;
+                                <rect x="0" y="@(y * 30 + 26)" width="140" height="4" fill="#3a2a26" />
+                                @for (var x = 0; x < 3; x++)
+                                {
+                                    <rect x="@(x * 70 + sfalso + 33)" y="@(y * 30)" width="4" height="30" fill="#3a2a26" />
+                                }
+                            }
+                        </g>
+                    </svg>
+                </div>
+
+                <ul class="pro-origine__punti">
+                    <li>@T["prodotto.convertiPunto1"]</li>
+                    <li>@T["prodotto.convertiPunto2"]</li>
+                    <li>@T["prodotto.convertiPunto3"]</li>
+                </ul>
+
+                <p class="pro-origine__nota">@T["prodotto.convertiNota"]</p>
+            </article>
+        </div>
+    </section>
+
+    @* ============================================================ 4 · I NUMERI ====== *@
+    <section class="pro-numeri">
+        <div data-rivela>
+            <span class="pro__occhiello">@T["prodotto.occhielloInstallazione"]</span>
+            <h2>@T["prodotto.numeriTitolo"]</h2>
+            <p class="pro__guida">@T["prodotto.numeriGuida"]</p>
+        </div>
+
+        <div class="pro-numeri__griglia">
+            <div data-rivela style="--ritardo: 0ms">
+                <span class="pro-numero__valore" data-conta="@(_riepiloghi?.Count ?? 0)">0</span>
+                <span class="pro-numero__etichetta">@T["prodotto.numeroPattern"]</span>
+            </div>
+            <div data-rivela style="--ritardo: 90ms">
+                <span class="pro-numero__valore" data-conta="@Registry.All.Count()">0</span>
+                <span class="pro-numero__etichetta">@T["prodotto.numeroTipi"]</span>
+            </div>
+            <div data-rivela style="--ritardo: 180ms">
+                <span class="pro-numero__valore" data-conta="@ElementiTotali">0</span>
+                <span class="pro-numero__etichetta">@T["prodotto.numeroForme"]</span>
+            </div>
+            <div data-rivela style="--ritardo: 270ms">
+                <span class="pro-numero__valore" data-conta="795">0</span>
+                <span class="pro-numero__etichetta">@T["prodotto.numeroVerifiche"]</span>
+            </div>
+        </div>
+    </section>
+
+    @* ==================================================== 5 · DAL DISEGNO AL CODICE = *@
+    <section class="pro-codice" data-avanzamento>
+        <div class="pro-codice__fermo">
+
+            <div>
+                <span class="pro__occhiello">@T["prodotto.occhielloRisultato"]</span>
+                <h2>@((MarkupString)T["prodotto.codiceTitolo"])</h2>
+                <p class="pro__guida">
+                    @T["prodotto.codiceGuida", _inEvidenza?.Name ?? T["prodotto.questoPattern"]]
+                </p>
+                <div class="pro-codice__anteprima">@((MarkupString)_anteprimaCodice)</div>
+            </div>
+
+            @* Un foglio che si comporta come un file in scrittura: una barra con il nome,
+               le righe che compaiono una dopo l'altra, e il testo che scorre da solo quando
+               il cursore arriva in fondo al riquadro. Prima le righe c'erano tutte e si
+               limitavano ad accendersi: chi guardava vedeva un testo illuminarsi, non un
+               documento nascere — e le ultime, sotto il bordo, non le vedeva affatto. *@
+            <div class="pro-codice__foglio">
+                <div class="pro-codice__barra">
+                    <span class="pro-codice__semafori" aria-hidden="true"><i></i><i></i><i></i></span>
+                    <span class="pro-codice__file">@_nomeFile</span>
+                    <span class="pro-codice__peso">@_peso</span>
+                </div>
+
+                <div class="pro-codice__testo" style="--righe: @_righeSorgente.Count">
+                    <div class="pro-codice__scorre">
+                        @for (var i = 0; i < _righeSorgente.Count; i++)
+                        {
+                            @* Tutto su una riga sola: fra un elemento e l'altro Razor
+                               emetterebbe gli a capo del sorgente, e qui lo spazio bianco
+                               si conserva — il codice si ritroverebbe sventagliato. *@
+                            <code class="pro-codice__riga" style="--i: @i">@foreach (var pezzo in _righeSorgente[i]) {<span class="pro-tok pro-tok--@pezzo.Genere">@pezzo.Testo</span>}</code>
+                        }
+                    </div>
+
+                    @* Il cursore aspetta all'inizio della riga che sta per essere scritta, e
+                       scende con lei finché non tocca il fondo del riquadro: da lì in poi
+                       resta fermo ed è il testo a scorrergli sotto. *@
+                    <span class="pro-codice__cursore" aria-hidden="true"></span>
+
+                    <span class="pro-codice__sfumatura pro-codice__sfumatura--alto" aria-hidden="true"></span>
+                    <span class="pro-codice__sfumatura" aria-hidden="true"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    @* =========================================================== 6 · L'ARCHIVIO ===== *@
+    <section class="pro-archivio" id="archivio">
+
+        <div class="pro-archivio__testa" data-rivela>
+            <span class="pro__occhiello">@T["prodotto.occhielloArchivio"]</span>
+            <h2>@T["prodotto.archivioTitolo"]</h2>
+            <p class="pro__guida">@T["prodotto.archivioGuida"]</p>
+        </div>
+
+        <div data-rivela>
+            <label class="pro-cerca">
+                <span class="pro-cerca__lente" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round">
+                        <circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" />
+                    </svg>
+                </span>
+                <input type="search" placeholder="@T["prodotto.cerca"]" value="@_ricerca"
+                       aria-label="@T["prodotto.cercaPerNome"]"
+                       @oninput="e => CambiaRicerca(e.Value?.ToString())" />
+                <span class="pro-cerca__conteggio">@Filtrati.Count</span>
+            </label>
+
+            <div class="pro-tipi-scelta">
+                <button type="button" class="pro-pastiglia @(string.IsNullOrEmpty(_tipo) ? "e-scelta" : null)"
+                        @onclick="() => CambiaTipo(null)">@T["prodotto.tutti"]</button>
+
+                @foreach (var plugin in Registry.All)
+                {
+                    var tipo = plugin.Type;
+                    <button type="button" class="pro-pastiglia @(_tipo == tipo ? "e-scelta" : null)"
+                            @onclick="() => CambiaTipo(tipo)">
+                        <VectorElementIcon Plugin="plugin" Size="13" />
+                        @E.NomeDelTipo(plugin.Type, plugin.DisplayName)
+                    </button>
+                }
+            </div>
+        </div>
+
+        @if (_riepiloghi is null)
+        {
+            <p class="pro-vuoto">@T["prodotto.staLeggendo"]</p>
+        }
+        else if (Filtrati.Count == 0)
+        {
+            <p class="pro-vuoto">@T["prodotto.nessunPattern"]</p>
+        }
+        else
+        {
+            <div class="pro-griglia">
+                @{ var posizione = 0; }
+                @foreach (var p in Filtrati.Take(_mostrati))
+                {
+                    var ritardo = Math.Min(posizione++, 11) * 45;
+
+                    @* La chiave è l'istanza e non l'identificativo: due documenti con lo
+                       stesso identificativo sono possibili in un archivio su file, e in
+                       Blazor due chiavi uguali fra fratelli sono un'eccezione che non si
+                       recupera. *@
+                    <article class="pro-scheda" data-rivela style="--ritardo: @(ritardo)ms" @key="p">
+                        <button type="button" class="pro-scheda__tela" @onclick="() => ApriAsync(p)"
+                                aria-label="@T["prodotto.apriNome", p.Name]">
+                            @((MarkupString)p.PreviewSvg)
+                            <span class="pro-scheda__lente">@T["prodotto.apri"]</span>
+                        </button>
+
+                        <button type="button" class="pro-scheda__scarica" title="@T["prodotto.scaricaSvg"]"
+                                aria-label="@T["prodotto.scaricaNome", p.Name]"
+                                disabled="@(_scaricando == p.Id)"
+                                @onclick="() => ScaricaAsync(p)">
+                            @(_scaricando == p.Id ? "…" : "↓")
+                        </button>
+
+                        <div class="pro-scheda__corpo">
+                            <span class="pro-scheda__nome">@(string.IsNullOrWhiteSpace(p.Name) ? T["prodotto.senzaNome"] : p.Name)</span>
+                            <span class="pro-scheda__misura">@Misura(p.Width)×@Misura(p.Height) · @p.Peso</span>
+                        </div>
+                    </article>
+                }
+            </div>
+
+            @if (Filtrati.Count > _mostrati)
+            {
+                <div class="pro-archivio__altro">
+                    <button type="button" class="pro-btn pro-btn--chiaro" @onclick="MostraAltri">
+                        @T["prodotto.mostraAltri", Math.Min(24, Filtrati.Count - _mostrati)]
+                    </button>
+                </div>
+            }
+        }
+    </section>
+
+    @* =========================================================== 7 · CHIUSURA ======= *@
+    <section class="pro-chiusura">
+        <div class="pro-chiusura__trama" aria-hidden="true">@((MarkupString)_tramaChiusura)</div>
+
+        <div class="pro-chiusura__testo" data-rivela>
+            <h2>@T["prodotto.chiusuraTitolo"]</h2>
+            <p class="pro__guida" style="margin-inline: auto">@T["prodotto.chiusuraGuida"]</p>
+
+            <div class="pro-chiusura__azioni">
+                <button type="button" class="pro-btn pro-btn--pieno" @onclick="ApriNuovo">
+                    @T["prodotto.creaPattern"]
+                </button>
+                @if (!Auth.Autenticato)
+                {
+                    <button type="button" class="pro-btn pro-btn--vuoto" @onclick="Auth.ChiediAccesso">
+                        @T["app.account.accedi"]
+                    </button>
+                }
+                <a class="pro-btn pro-btn--vuoto" href="gestione">@T["prodotto.vaiAllaLibreria"]</a>
+            </div>
+        </div>
+
+        <p class="pro-chiusura__nota">@T["prodotto.chiusuraNota"]</p>
+    </section>
+</div>
+
+@* ------------------------------------------------------------------ l'editor ------ *@
+@if (_editorAperto)
+{
+    <div class="modal-backdrop">
+        @if (_avviso is { } avviso)
+        {
+            <div class="avviso-permesso" role="alert" @onclick:stopPropagation="true">
+                <span>@avviso</span>
+                <button type="button" class="avviso-errore__chiudi" aria-label="@T["comune.chiudi"]"
+                        @onclick="() => _avviso = null">✕</button>
+            </div>
+        }
+
+        <div class="modal-content">
+            <PatternEditor Pattern="_inModifica"
+                           Theme="Tema"
+                           ReadOnly="_solaLettura"
+                           OnConfirm="ConfermaAsync"
+                           OnCancel="Chiudi" />
+        </div>
+    </div>
+}
+
+@if (_avviso is { } fuori && !_editorAperto)
+{
+    <div class="avviso-errore" role="alert">
+        @fuori
+        <button type="button" class="avviso-errore__chiudi" aria-label="@T["comune.chiudi"]"
+                @onclick="() => _avviso = null">✕</button>
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    public PatternEditorTheme Tema { get; set; } = PatternEditorTheme.System;
+
+    private List<PatternSummary>? _riepiloghi;
+
+    private string _ricerca = string.Empty;
+    private string? _tipo;
+    private int _mostrati = 12;
+
+    private Guid? _scaricando;
+    private string? _avviso;
+
+    private bool _editorAperto;
+    private Pattern? _inModifica;
+    private bool _nuovo;
+    private bool _solaLettura;
+
+    // Materiale scenico, generato dal renderer del componente a partire dall'archivio vero.
+    private Pattern? _inEvidenza;
+    private string _tramaChiusura = string.Empty;
+    private string _anteprimaCodice = string.Empty;
+
+    /// <summary>
+    /// Un pezzo di riga con il suo genere: è quello che permette di colorare il sorgente
+    /// come lo colorerebbe un editor, per parola e non per riga intera.
+    /// </summary>
+    private sealed record Pezzo(string Testo, string Genere);
+
+    private List<List<Pezzo>> _righeSorgente = [];
+    private string _nomeFile = "pattern.svg";
+    private string _peso = string.Empty;
+
+    /// <summary>
+    /// Un pattern pronto ad andare in scena: quello che serve a disegnarlo e a dirne il nome.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// La tessera è già un indirizzo di immagine e non un documento da rendere ogni volta:
+    /// il cambio di scena dev'essere istantaneo, e generare un SVG nel momento in cui parte
+    /// una dissolvenza è il modo per farla partire in ritardo.
+    /// </remarks>
+    private sealed record Scena(
+        string Nome,
+        double Larghezza,
+        double Altezza,
+        string Forma,
+        string TesseraUri,
+        Pattern Pattern);
+
+    private readonly List<Scena> _scene = [];
+    private int _indiceScena;
+
+    // I due strati che si alternano, e quale dei due è in cima.
+    private bool _stratoA = true;
+    private string _tramaA = string.Empty;
+    private string _tramaB = string.Empty;
+    private string _tesseraA = string.Empty;
+    private string _tesseraB = string.Empty;
+
+    private string _nomeScena = "cella";
+    private string _formaScena = "1";
+    /// <summary>Una scheda del nastro: il tipo, come si vede, a cosa serve e cosa si regola.</summary>
+    private sealed record SchedaTipo(
+        IVectorElementPlugin Plugin,
+        string Svg,
+        string Tinta,
+        string Descrizione,
+        IReadOnlyList<string> Opzioni);
+
+    private List<SchedaTipo> _vetrinaTipi = [];
+    private IReadOnlyList<string> _opzioniComuni = [];
+
+    private double _latoCella = 50;
+    private double _altezzaCella = 50;
+
+    private IJSObjectReference? _modulo;
+    private IJSObjectReference? _effetti;
+    private IJSObjectReference? _libreria;
+
+    // ---------------------------------------------------------------- elenco --------
+
+    private List<PatternSummary> Filtrati
+    {
+        get
+        {
+            IEnumerable<PatternSummary> elenco = _riepiloghi ?? [];
+
+            if (!string.IsNullOrWhiteSpace(_ricerca))
+            {
+                var cercato = _ricerca.Trim();
+                elenco = elenco.Where(p => p.Name.Contains(cercato, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrEmpty(_tipo))
+            {
+                elenco = elenco.Where(p => p.ElementTypes.Contains(_tipo, StringComparer.Ordinal));
+            }
+
+            return elenco.ToList();
+        }
+    }
+
+    private int ElementiTotali => _riepiloghi?.Sum(p => p.ElementCount) ?? 0;
+
+    // ---------------------------------------------------------------- ciclo di vita --
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth.Cambiato += Ridisegna;
+        T.Cambiata += CambiaLingua;
+
+        // La scena si prepara prima con quello che si sa già — i tipi di elemento vengono
+        // dal registro e non dalla rete — così la pagina non resta vuota mentre l'archivio
+        // arriva.
+        //
+        // Ma non prima della lingua: le schede portano dentro delle parole, e costruirle
+        // adesso vorrebbe dire mostrarle un istante con i nomi tecnici delle proprietà. Se la
+        // lingua non è ancora decisa ci pensa il suo evento, che arriva comunque.
+        if (T.Pronta)
+        {
+            PreparaVetrinaTipi();
+        }
+
+        _elencoDi = Auth.Utente?.Id;
+        _riepiloghi = (await Api.GetSummariesAsync()).ToList();
+        _daRileggere = true;
+
+        await PreparaScenaAsync();
+    }
+
+    /// <summary>
+    /// Chi era l'utente quando l'elenco è stato chiesto.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// <para>
+    /// Serve perché l'elenco non è più lo stesso per tutti: da anonimi contiene solo i pattern
+    /// pubblici, da autenticati anche i propri in qualunque stato. La prima richiesta parte
+    /// prima che la sessione sia stata ripresa dall'archivio del browser — il ripristino
+    /// passa da JavaScript e quindi dal primo rendering — e senza questo confronto chi
+    /// ricarica la pagina non vedrebbe i propri pattern privati finché non tocca qualcosa.
+    /// </para>
+    /// <para>
+    /// Il confronto è sull'identità e non sulla notifica: <c>Cambiato</c> arriva anche per
+    /// una foto nuova o un colore diverso, e riscaricare quattrocento anteprime per quello
+    /// sarebbe uno spreco.
+    /// </para>
+    /// </remarks>
+    private Guid? _elencoDi;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _modulo = await JS.InvokeAsync<IJSObjectReference>("import", "./js/prodotto.js");
+            await _modulo.InvokeVoidAsync("inCima");
+            _effetti = await _modulo.InvokeAsync<IJSObjectReference>("avvia");
+            await _modulo.InvokeVoidAsync("contatori");
+
+            // Chi ha chiesto meno movimento non se lo ritrova qui: la serie resta, ma la
+            // si scorre a mano con i punti. Un disegno che cambia da solo ogni sette
+            // secondi è movimento quanto una dissolvenza, e va chiesto allo stesso modo.
+            if (!await _modulo.InvokeAsync<bool>("movimentoRidotto"))
+            {
+                _ = GiostraAsync();
+            }
+
+            return;
+        }
+
+        // Una parte della pagina nasce dopo il primo disegno: l'archivio arriva dalla rete
+        // e le sue schede cambiano a ogni ricerca. Senza richiamare l'osservatore quelle
+        // schede resterebbero trasparenti per sempre — presenti ma invisibili, che è il
+        // modo peggiore di non esserci.
+        if (_daRileggere && _effetti is not null)
+        {
+            _daRileggere = false;
+            await _effetti.InvokeVoidAsync("rileggi");
+            await _modulo!.InvokeVoidAsync("contatori");
+        }
+    }
+
+    /// <summary>C'è del contenuto nuovo che l'osservatore delle comparse non ha ancora visto.</summary>
+    private bool _daRileggere = true;
+
+    // ------------------------------------------------------------------- la giostra ---
+
+    /// <summary>Quanto resta in scena un pattern, in secondi.</summary>
+    ///
+    /// <remarks>
+    /// Sette è il tempo di guardare una trama e cominciare a chiedersi se ce ne sono altre.
+    /// Più corto diventa un lampeggio, più lungo non si nota che cambia.
+    /// </remarks>
+    private const int SecondiPerScena = 7;
+
+    private readonly System.Threading.CancellationTokenSource _giostra = new();
+    private int _attesa;
+
+    /// <summary>Il puntatore è sul palco: l'alternanza aspetta.</summary>
+    private bool _giostraFerma;
+
+    /// <summary>
+    /// Il battito che alterna i pattern in scena.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Il battito è al secondo e non ai sette secondi, e il conto lo tiene un contatore:
+    /// così una pausa — il puntatore sul palco, l'editor aperto — la si rispetta al secondo
+    /// invece che al prossimo giro, e un salto manuale riparte da zero senza dover ricreare
+    /// il temporizzatore. Il costo è un confronto al secondo, e il ridisegno avviene solo
+    /// quando la scena cambia davvero.
+    /// </remarks>
+    private async Task GiostraAsync()
+    {
+        using var battito = new System.Threading.PeriodicTimer(TimeSpan.FromSeconds(1));
+
+        try
+        {
+            while (await battito.WaitForNextTickAsync(_giostra.Token))
+            {
+                // Niente da alternare, qualcuno sta guardando da vicino, oppure l'editor
+                // copre la pagina: in tutti e tre i casi il tempo non scorre.
+                if (_scene.Count < 2 || _giostraFerma || _editorAperto)
+                {
+                    continue;
+                }
+
+                if (++_attesa < SecondiPerScena)
+                {
+                    continue;
+                }
+
+                MostraScena(_indiceScena + 1);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // La pagina è stata lasciata: la giostra si ferma senza rumore.
+        }
+    }
+
+    /// <summary>
+    /// Porta in scena il pattern all'indice indicato.
+    /// </summary>
+    ///
+    /// <param name="subito">
+    /// Alla prima scena non c'è niente da dissolvere: si scrive nello strato che è già in
+    /// cima, altrimenti la pagina comincerebbe con un secondo di nero.
+    /// </param>
+    private void MostraScena(int indice, bool subito = false)
+    {
+        if (_scene.Count == 0)
+        {
+            return;
+        }
+
+        _indiceScena = ((indice % _scene.Count) + _scene.Count) % _scene.Count;
+        var scena = _scene[_indiceScena];
+
+        // Si scrive nello strato NASCOSTO e poi si scambiano: quando la dissolvenza comincia
+        // il disegno nuovo è già a posto, e il vecchio resta finché non è coperto.
+        var suA = subito || !_stratoA;
+
+        // Il nodo del pattern prende il nome dello strato: due documenti nella stessa pagina
+        // con lo stesso identificativo si contenderebbero il riferimento, e uno dei due
+        // strati mostrerebbe il disegno dell'altro.
+        if (suA)
+        {
+            _tramaA = SvgRenderer.RenderStandaloneSvg(scena.Pattern, "100%", "100%", "pro-trama-a");
+            _tesseraA = scena.TesseraUri;
+        }
+        else
+        {
+            _tramaB = SvgRenderer.RenderStandaloneSvg(scena.Pattern, "100%", "100%", "pro-trama-b");
+            _tesseraB = scena.TesseraUri;
+        }
+
+        _stratoA = suA;
+
+        _nomeScena = scena.Nome;
+        _latoCella = scena.Larghezza;
+        _altezzaCella = scena.Altezza;
+        _formaScena = scena.Forma;
+
+        _attesa = 0;
+    }
+
+    /// <summary>Scelta manuale dai punti sotto il palco. Il conto riparte da zero: chi ha
+    /// appena scelto non deve vedersi cambiare la scena mezzo secondo dopo.</summary>
+    private void VaiA(int indice) => MostraScena(indice);
+
+    /// <summary>
+    /// Il materiale scenico: la trama d'apertura, la tessera che si moltiplica, il sorgente
+    /// che si accende. Tutto generato dal renderer del componente, a partire da un pattern
+    /// vero dell'archivio.
+    /// </summary>
+    private async Task PreparaScenaAsync()
+    {
+        var candidati = Candidati();
+
+        // Ogni preparazione annulla quella prima. Succede davvero: la scena si prepara
+        // all'avvio e di nuovo quando l'accesso cambia l'elenco, e due caricamenti in volo
+        // insieme riempirebbero la serie il doppio, con i pattern delle due mescolati.
+        var mia = ++_generazione;
+
+        // Il primo pattern si prende e si mostra subito. Gli altri arrivano dopo, uno alla
+        // volta, e la giostra li trova strada facendo: una presentazione non deve restare
+        // vuota per il tempo di sei richieste, e nessuno guarda la sesta scena nel primo
+        // secondo di visita.
+        var primo = Sorteggia(candidati);
+        var pattern = primo is null ? DiRipiego() : await Api.GetByIdAsync(primo.Id) ?? DiRipiego();
+
+        _inEvidenza = pattern;
+
+        _scene.Clear();
+        _scene.Add(Componi(pattern));
+        MostraScena(0, subito: true);
+
+        _tramaChiusura = SvgRenderer.RenderStandaloneSvg(pattern, "100%", "100%", "pro-chiusura");
+        _anteprimaCodice = SvgRenderer.RenderStandaloneSvg(pattern, "100%", "100%", "pro-codice");
+
+        // Il sorgente. Resta quello del primo pattern anche mentre il palco ne alterna
+        // altri: il testo accanto dice «il sorgente di X», e farlo cambiare da solo mentre
+        // qualcuno lo sta leggendo sarebbe un dispetto.
+        var sorgente = SvgRenderer.RenderStandaloneSvg(pattern);
+
+        // Quaranta righe e non ventisei: il riquadro ne mostra una ventina, e servono più
+        // righe di quante ne stiano perché si veda il testo scorrere mentre viene scritto.
+        _righeSorgente = Colora(sorgente
+            .Replace("\r\n", "\n")
+            .Split('\n')
+            .Where(r => !string.IsNullOrWhiteSpace(r))
+            .Take(40));
+
+        _nomeFile = (string.IsNullOrWhiteSpace(pattern.Name) ? "pattern" : pattern.Name) + ".svg";
+
+        // Il peso è quello vero del documento intero, non delle righe mostrate: è il numero
+        // che dice «ecco quanto costa una parete di trama», ed è il punto della sezione.
+        _peso = Dimensione.Leggibile(System.Text.Encoding.UTF8.GetByteCount(sorgente));
+
+        StateHasChanged();
+
+        // Senza await: le altre scene si aggiungono mentre la pagina è già in piedi.
+        _ = AltreSceneAsync(candidati, pattern.Id, mia);
+    }
+
+    private Scena Componi(Pattern pattern) => new(
+        string.IsNullOrWhiteSpace(pattern.Name) ? "cella" : pattern.Name,
+        pattern.Definition.Width,
+        pattern.Definition.Height,
+        Forma(pattern),
+
+        // La tessera diventa un indirizzo di immagine: solo così il browser può ripeterla
+        // con background-size, cioè disegnare la stessa cella cento volte senza che il
+        // documento cresca di un nodo.
+        ComeIndirizzo(SvgRenderer.RenderSingleCellSvg(pattern, 240)),
+        pattern);
+
+    /// <summary>
+    /// Gli altri pattern che entreranno in scena, presi uno alla volta.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Cinque e non tutti: sono documenti interi, e l'archivio ne ha quattrocento. Cinque
+    /// bastano a far capire che la serie è varia, e chi resta sulla pagina abbastanza a
+    /// lungo da vederli tutti ha già capito che cosa fa lo strumento.
+    /// </remarks>
+    private int _generazione;
+
+    private async Task AltreSceneAsync(List<PatternSummary> candidati, Guid gia, int generazione)
+    {
+        var altri = candidati
+            .Where(p => p.Id != gia)
+            .OrderBy(_ => Random.Shared.Next())
+            .Take(5)
+            .ToList();
+
+        try
+        {
+            foreach (var riepilogo in altri)
+            {
+                if (_giostra.IsCancellationRequested || generazione != _generazione)
+                {
+                    return;
+                }
+
+                if (await Api.GetByIdAsync(riepilogo.Id, _giostra.Token) is not { } pattern)
+                {
+                    continue;
+                }
+
+                // Ricontrollato dopo l'attesa: nel frattempo può essere partita un'altra
+                // preparazione, e questa scena apparterrebbe a una serie che non c'è più.
+                if (generazione != _generazione)
+                {
+                    return;
+                }
+
+                _scene.Add(Componi(pattern));
+
+                // I punti sotto il palco compaiono via via: l'attesa si vede riempirsi
+                // invece di comparire tutta insieme alla fine.
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // La pagina è stata lasciata mentre una richiesta era in volo.
+        }
+    }
+
+    /// <summary>
+    /// Una scheda per ogni tipo di elemento: come si presenta appena inserito, a che cosa
+    /// serve, e che cosa se ne può regolare.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// L'elenco delle opzioni non è scritto a mano: si legge dal <b>modello</b> di ciascun
+    /// plugin. Un elenco compilato a mano su una pagina di presentazione è destinato a
+    /// invecchiare — si aggiunge una proprietà al rettangolo e nessuno si ricorda di questa
+    /// pagina — mentre così non può divergere dal codice nemmeno volendo. Il decimo plugin
+    /// comparirà qui con le sue proprietà senza che nessuno scriva una riga.
+    /// </remarks>
+    private void PreparaVetrinaTipi()
+    {
+        // Si riparte da zero: questo metodo si richiama quando cambia la lingua, e senza
+        // svuotare l'elenco le nove schede diventerebbero diciotto — le nove vecchie davanti,
+        // ancora nella lingua di prima.
+        _vetrinaTipi.Clear();
+
+        foreach (var plugin in Registry.All)
+        {
+            var aspetto = Aspetti.GetValueOrDefault(plugin.Type, ("#5b8cff", 0d));
+
+            var pattern = new Pattern { Name = plugin.DisplayName };
+            pattern.Definition.Width = 60;
+            pattern.Definition.Height = 60;
+
+            // Una rotazione diversa per tipo: nove trame tutte diritte, una accanto
+            // all'altra, si leggono come una griglia sola. Basta un'inclinazione perché
+            // ognuna torni a essere una cosa a sé.
+            pattern.Definition.Rotation = aspetto.Item2;
+
+            var elemento = plugin.Create();
+            Tinge(elemento, aspetto.Item1);
+            pattern.Definition.Elements.Add(elemento);
+
+            _vetrinaTipi.Add(new SchedaTipo(
+                plugin,
+                SvgRenderer.RenderStandaloneSvg(pattern, "100%", "100%", $"pro-tipo-{plugin.Type}"),
+                aspetto.Item1,
+                DescrizioneDi(plugin.Type),
+                OpzioniDi(plugin.ElementClrType)));
+        }
+
+        // Le proprietà della classe base valgono per ogni tipo: si leggono una volta sola,
+        // dal tipo base e non da uno dei concreti, perché è lì che sono dichiarate.
+        _opzioniComuni = OpzioniDi(typeof(VectorElement), soloEreditate: true);
+    }
+
+    /// <summary>
+    /// Dà un colore all'elemento di esempio, senza sapere di che tipo sia.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// <para>
+    /// Riempimento e bordo non stanno sulla classe base ma su ciascun modello concreto, e
+    /// questa pagina non conosce i modelli concreti — né deve, o il decimo plugin
+    /// richiederebbe di tornare qui. Si passa dalla riflessione, come già si fa per
+    /// l'elenco delle proprietà regolabili.
+    /// </para>
+    /// <para>
+    /// Si colora <b>solo ciò che il plugin già colorava</b>: una linea non ha riempimento e
+    /// dargliene uno la trasformerebbe in un poligono pieno; un rettangolo senza bordo non
+    /// deve ritrovarsene uno. La regola è sostituire un colore, non inventarne.
+    /// </para>
+    /// </remarks>
+    private static void Tinge(VectorElement elemento, string tinta)
+    {
+        foreach (var nome in new[] { "Fill", "Stroke" })
+        {
+            if (elemento.GetType().GetProperty(nome) is { CanWrite: true, CanRead: true } proprieta
+                && proprieta.PropertyType == typeof(string)
+                && proprieta.GetValue(elemento) is string attuale
+                && !string.Equals(attuale, "none", StringComparison.OrdinalIgnoreCase))
+            {
+                proprieta.SetValue(elemento, tinta);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Come si presenta ogni tipo nel campionario: il suo colore e l'inclinazione della trama.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// <para>
+    /// La geometria resta quella che il plugin dichiara per sé — nessuna posa: sono i valori
+    /// predefiniti, e l'elenco delle proprietà regolabili continua a leggersi dal modello.
+    /// Qui si sceglie soltanto <b>di che colore</b> mostrarlo, che è una decisione editoriale
+    /// di questa pagina e non un dato del plugin.
+    /// </para>
+    /// <para>
+    /// Un tipo che non compare in questo elenco — il decimo plugin — prende il colore
+    /// d'accento e nessuna inclinazione: si vede lo stesso, e si nota che è nuovo.
+    /// </para>
+    /// </remarks>
+    private static readonly Dictionary<string, (string Tinta, double Rotazione)> Aspetti = new(StringComparer.Ordinal)
+    {
+        ["rect"] = ("#3b6ef5", 0),
+        ["circle"] = ("#ff7a45", 0),
+        ["ellipse"] = ("#1fa9a0", 18),
+        ["line"] = ("#7c5cff", -12),
+        ["path"] = ("#d99000", 0),
+        ["polygon"] = ("#d6336c", 0),
+        ["polyline"] = ("#0f9d58", 10),
+        ["text"] = ("#475569", 0),
+        ["image"] = ("#8d6e63", 0),
+    };
+
+    /// <summary>
+    /// Le proprietà regolabili di un modello, tradotte in parole leggibili.
+    /// </summary>
+    ///
+    /// <param name="soloEreditate">
+    /// Con <c>false</c> si prendono le proprietà dichiarate dal tipo concreto, cioè quelle
+    /// che distinguono un cerchio da un rettangolo. Con <c>true</c> quelle della classe
+    /// base, comuni a tutti — e che quindi vanno dette una volta sola.
+    /// </param>
+    private IReadOnlyList<string> OpzioniDi(Type modello, bool soloEreditate = false)
+    {
+        var proprieta = modello.GetProperties(
+            BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+        return proprieta
+            .Where(p => p.CanWrite)
+            .Select(p => p.Name)
+
+            // Identificativo e tipo non si regolano: sono ciò che l'elemento È, non come si
+            // presenta. Il punto di rotazione si accorpa alla rotazione, che è la cosa che
+            // l'utente sta davvero cercando.
+            .Where(n => n is not ("Id" or "Type" or "OriginX" or "OriginY"))
+            .Select(n => EtichettaDi(n))
+            .ToList();
+    }
+
+    /// <summary>
+    /// A che cosa serve ciascun tipo. Una riga, e parla dell'uso e non della geometria:
+    /// che un cerchio sia tondo lo si vede dall'anteprima sopra.
+    /// </summary>
+    /// <summary>
+    /// A che cosa serve ciascun tipo, presa dal catalogo con il tipo come nome. Un tipo che
+    /// il catalogo non conosce — un plugin di qualcun altro — resta senza descrizione invece
+    /// di mostrare una chiave.
+    /// </summary>
+    private string DescrizioneDi(string tipo) => T.Voce("prodotto.tipo." + tipo, string.Empty);
+
+    /// <summary>
+    /// I nomi delle proprietà tradotti per chi legge.
+    ///
+    /// <para>
+    /// Quello che manca dal dizionario compare com'è scritto nel codice: è brutto ma
+    /// onesto, e soprattutto si nota — il giorno in cui un plugin aggiunge una proprietà,
+    /// qui compare il suo nome tecnico e qualcuno se ne accorge. Una traduzione inventata
+    /// al volo, invece, nasconderebbe la novità.
+    /// </para>
+    /// </summary>
+    private string EtichettaDi(string proprieta) => T.Voce("prop." + proprieta, proprieta);
+
+    /// <summary>
+    /// I pattern che possono andare in scena.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Nessun elenco scelto a mano: su un'altra installazione quei nomi non esistono, e la
+    /// pagina si ritroverebbe a ripiegare sempre. Il criterio è la ricchezza del disegno,
+    /// che vale su qualunque archivio.
+    /// </remarks>
+    private List<PatternSummary> Candidati()
+    {
+        if (_riepiloghi is null or { Count: 0 })
+        {
+            return [];
+        }
+
+        // Abbastanza forme da reggere l'ingrandimento a schermo intero, non tante da
+        // diventare una macchia: una miniatura con trecento elementi, ingrandita, è rumore.
+        var buoni = _riepiloghi.Where(p => p.ElementCount is >= 6 and <= 80).ToList();
+
+        if (buoni.Count > 0)
+        {
+            return buoni;
+        }
+
+        // Archivio più povero: si allarga la rete invece di arrendersi.
+        var qualsiasi = _riepiloghi.Where(p => p.ElementCount >= 2).ToList();
+        return qualsiasi.Count > 0 ? qualsiasi : _riepiloghi;
+    }
+
+    /// <summary>
+    /// Estrae uno dei candidati, evitando quello già scelto per l'altra scena.
+    ///
+    /// <para>
+    /// A sorte e non sempre lo stesso: l'archivio ne ha quattrocento, e una presentazione
+    /// che mostra ogni volta il medesimo disegno racconta meno di quello che c'è. Con un
+    /// solo candidato disponibile si accetta la ripetizione — meglio due volte lo stesso
+    /// pattern che una scena vuota.
+    /// </para>
+    /// </summary>
+    private static PatternSummary? Sorteggia(List<PatternSummary> candidati, PatternSummary? diverso = null)
+    {
+        if (candidati.Count == 0)
+        {
+            return null;
+        }
+
+        var scelta = candidati.Where(p => diverso is null || p.Id != diverso.Id).ToList();
+        if (scelta.Count == 0)
+        {
+            scelta = candidati;
+        }
+
+        return scelta[Random.Shared.Next(scelta.Count)];
+    }
+
+    /// <summary>La forma della cella come numero singolo, per <c>aspect-ratio</c>.</summary>
+    private static string Forma(Pattern? pattern)
+    {
+        var larghezza = pattern?.Definition.Width ?? 1;
+        var altezza = pattern?.Definition.Height ?? 1;
+
+        // Un lato a zero è un dato non valido, che il validatore segnala: nel frattempo non
+        // deve far sparire il riquadro, e si ripiega sul quadrato.
+        if (larghezza <= 0 || altezza <= 0)
+        {
+            return "1";
+        }
+
+        return Math.Round(larghezza / altezza, 4)
+            .ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>
+    /// Il pattern da mostrare quando l'archivio è vuoto o non risponde: la pagina deve
+    /// reggersi anche al primo avvio, quando non c'è ancora niente dentro.
+    /// </summary>
+    private Pattern DiRipiego()
+    {
+        var pattern = new Pattern { Name = "Esempio" };
+        pattern.Definition.Width = 60;
+        pattern.Definition.Height = 60;
+
+        foreach (var tipo in new[] { "rect", "circle", "line" })
+        {
+            if (Registry.TryGet(tipo, out var plugin) && plugin is not null)
+            {
+                pattern.Definition.Elements.Add(plugin.Create());
+            }
+        }
+
+        return pattern;
+    }
+
+    /// <summary>
+    /// Un documento SVG come indirizzo di immagine.
+    ///
+    /// <para>
+    /// La codifica è integrale e non selettiva: si potrebbe sostituire solo il cancelletto
+    /// e gli apici, che sono i caratteri che romperebbero l'indirizzo, ma basta un colore
+    /// scritto in una forma inattesa perché «solo questi» diventi «quasi tutti». Qualche
+    /// byte in più vale la certezza.
+    /// </para>
+    /// </summary>
+    private static string ComeIndirizzo(string svg) =>
+        "data:image/svg+xml;charset=utf-8," + Uri.EscapeDataString(svg);
+
+    private static List<List<Pezzo>> Colora(IEnumerable<string> righe) =>
+        righe.Select(ColoraRiga).ToList();
+
+    /// <summary>
+    /// Spezza una riga di XML nei suoi pezzi: nome del nodo, nome dell'attributo, valore,
+    /// punteggiatura, contenuto.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// <para>
+    /// È un analizzatore minimo e lo è di proposito: non deve leggere «un XML qualunque» ma
+    /// esattamente quello che scrive il renderer di questo progetto — un nodo per riga,
+    /// attributi con valori fra virgolette doppie. Un analizzatore completo qui sarebbe
+    /// codice da mantenere per un lavoro che nessuno gli chiederà mai.
+    /// </para>
+    /// <para>
+    /// Se una riga non si lascia interpretare non succede niente di grave: finisce come
+    /// contenuto, cioè senza colore. Colorare male è peggio che non colorare, ma rompersi
+    /// sarebbe peggio di entrambi.
+    /// </para>
+    /// </remarks>
+    private static List<Pezzo> ColoraRiga(string riga)
+    {
+        var pezzi = new List<Pezzo>();
+        var i = 0;
+
+        void Aggiungi(string genere, int da, int a)
+        {
+            if (a > da)
+            {
+                pezzi.Add(new Pezzo(riga[da..a], genere));
+            }
+        }
+
+        var inizio = i;
+        while (i < riga.Length && char.IsWhiteSpace(riga[i]))
+        {
+            i++;
+        }
+
+        Aggiungi("punt", inizio, i);
+
+        if (i >= riga.Length)
+        {
+            return pezzi;
+        }
+
+        if (riga[i] != '<')
+        {
+            Aggiungi("testo", i, riga.Length);
+            return pezzi;
+        }
+
+        // Commenti e dichiarazioni si prendono interi: dentro non c'è niente da distinguere.
+        if (riga.AsSpan(i).StartsWith("<!--") || riga.AsSpan(i).StartsWith("<?"))
+        {
+            Aggiungi("commento", i, riga.Length);
+            return pezzi;
+        }
+
+        inizio = i;
+        i++;
+
+        if (i < riga.Length && riga[i] == '/')
+        {
+            i++;
+        }
+
+        Aggiungi("punt", inizio, i);
+
+        inizio = i;
+        while (i < riga.Length && (char.IsLetterOrDigit(riga[i]) || riga[i] is '-' or ':' or '_'))
+        {
+            i++;
+        }
+
+        Aggiungi("tag", inizio, i);
+
+        while (i < riga.Length)
+        {
+            inizio = i;
+            while (i < riga.Length && char.IsWhiteSpace(riga[i]))
+            {
+                i++;
+            }
+
+            Aggiungi("punt", inizio, i);
+
+            if (i >= riga.Length)
+            {
+                break;
+            }
+
+            // Chiusura del tag: quello che segue è contenuto, non più attributi.
+            if (riga[i] == '>' || (riga[i] == '/' && i + 1 < riga.Length && riga[i + 1] == '>'))
+            {
+                inizio = i;
+                i += riga[i] == '/' ? 2 : 1;
+                Aggiungi("punt", inizio, i);
+                Contenuto(riga, i, pezzi);
+                break;
+            }
+
+            inizio = i;
+            while (i < riga.Length && riga[i] != '=' && riga[i] != '>' && !char.IsWhiteSpace(riga[i]))
+            {
+                i++;
+            }
+
+            Aggiungi("attr", inizio, i);
+
+            if (i >= riga.Length || riga[i] != '=')
+            {
+                continue;
+            }
+
+            Aggiungi("punt", i, i + 1);
+            i++;
+
+            if (i < riga.Length && riga[i] == '\"')
+            {
+                inizio = i;
+                i++;
+
+                while (i < riga.Length && riga[i] != '\"')
+                {
+                    i++;
+                }
+
+                if (i < riga.Length)
+                {
+                    i++;
+                }
+
+                Aggiungi("val", inizio, i);
+            }
+        }
+
+        return pezzi;
+    }
+
+    /// <summary>
+    /// Quello che sta fra l'apertura e la chiusura sulla stessa riga, come nel testo:
+    /// <c>&lt;text ...&gt;Ciao&lt;/text&gt;</c>. Il contenuto è testo, il tag di chiusura no.
+    /// </summary>
+    private static void Contenuto(string riga, int da, List<Pezzo> pezzi)
+    {
+        if (da >= riga.Length)
+        {
+            return;
+        }
+
+        var chiusura = riga.IndexOf("</", da, StringComparison.Ordinal);
+
+        if (chiusura < 0)
+        {
+            pezzi.Add(new Pezzo(riga[da..], "testo"));
+            return;
+        }
+
+        if (chiusura > da)
+        {
+            pezzi.Add(new Pezzo(riga[da..chiusura], "testo"));
+        }
+
+        pezzi.Add(new Pezzo("</", "punt"));
+
+        var nome = chiusura + 2;
+        var fine = nome;
+        while (fine < riga.Length && riga[fine] != '>')
+        {
+            fine++;
+        }
+
+        if (fine > nome)
+        {
+            pezzi.Add(new Pezzo(riga[nome..fine], "tag"));
+        }
+
+        if (fine < riga.Length)
+        {
+            pezzi.Add(new Pezzo(riga[fine..], "punt"));
+        }
+    }
+
+    private static string Misura(double valore) =>
+        valore == Math.Floor(valore) ? ((int)valore).ToString() : valore.ToString("0.##");
+
+    // ---------------------------------------------------------------- interazione ---
+
+    private void CambiaRicerca(string? testo)
+    {
+        _ricerca = testo ?? string.Empty;
+        _mostrati = 12;
+        _daRileggere = true;
+    }
+
+    private void CambiaTipo(string? tipo)
+    {
+        _tipo = _tipo == tipo ? null : tipo;
+        _mostrati = 12;
+        _daRileggere = true;
+    }
+
+    private void MostraAltri()
+    {
+        _mostrati += 24;
+        _daRileggere = true;
+    }
+
+    private void ApriNuovo()
+    {
+        _inModifica = null;
+        _nuovo = true;
+        _solaLettura = !Auth.Autenticato;
+        _avviso = null;
+        _editorAperto = true;
+    }
+
+    private async Task ApriAsync(PatternSummary riepilogo)
+    {
+        var pattern = await Api.GetByIdAsync(riepilogo.Id);
+
+        if (pattern is null)
+        {
+            _avviso = T["prodotto.nonSiApre"];
+            return;
+        }
+
+        _inModifica = pattern;
+        _nuovo = false;
+
+        // La stessa regola del pannello di gestione, e per la stessa ragione: mostrarla
+        // prima invece di farla scoprire da un rifiuto a lavoro finito.
+        _solaLettura = Auth.Utente is not { } io || riepilogo.OwnerId != io.Id;
+
+        _avviso = null;
+        _editorAperto = true;
+    }
+
+    private async Task ConfermaAsync(Pattern pattern)
+    {
+        var esito = _nuovo ? await Api.CreateAsync(pattern) : await Api.UpdateAsync(pattern);
+
+        if (esito.Riuscito)
+        {
+            _editorAperto = false;
+            _inModifica = null;
+            _riepiloghi = (await Api.GetSummariesAsync()).ToList();
+            _daRileggere = true;
+            return;
+        }
+
+        // L'editor resta aperto: chiuderlo su un salvataggio fallito butterebbe via il
+        // lavoro proprio nel momento in cui non è stato messo al sicuro.
+        _avviso = esito.Testo(T);
+
+        if (esito.NonAutenticato)
+        {
+            await Auth.SessioneScadutaAsync();
+            _solaLettura = true;
+            Auth.ChiediAccesso();
+        }
+        else if (esito.Vietato)
+        {
+            _solaLettura = true;
+        }
+    }
+
+    private void Chiudi()
+    {
+        _editorAperto = false;
+        _inModifica = null;
+        _avviso = null;
+    }
+
+    private async Task ScaricaAsync(PatternSummary riepilogo)
+    {
+        if (_scaricando is not null)
+        {
+            return;
+        }
+
+        _scaricando = riepilogo.Id;
+
+        try
+        {
+            var pattern = await Api.GetByIdAsync(riepilogo.Id);
+            if (pattern is null)
+            {
+                _avviso = T["prodotto.nonEsistePiu"];
+                return;
+            }
+
+            var nome = string.IsNullOrWhiteSpace(pattern.Name) ? "pattern" : pattern.Name;
+
+            _libreria ??= await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./_content/PatternEditor/patternEditorInterop.js");
+
+            await _libreria.InvokeVoidAsync(
+                "downloadTextFile", $"{nome}.svg", SvgRenderer.RenderStandaloneSvg(pattern), "image/svg+xml");
+        }
+        finally
+        {
+            _scaricando = null;
+        }
+    }
+
+    /// <summary>
+    /// La lingua è cambiata: le nove schede dei tipi vanno rifatte.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// Non basta ridisegnare. Le schede si costruiscono una volta sola all'apertura — dentro
+    /// ci sono l'anteprima SVG, la descrizione e i nomi delle proprietà — e le parole stanno
+    /// dentro quelle: senza rifarle resterebbero nella lingua di prima mentre tutto il resto
+    /// della pagina è già cambiato.
+    /// </remarks>
+    private void CambiaLingua()
+    {
+        PreparaVetrinaTipi();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void Ridisegna()
+    {
+        // Entrando compaiono anche i propri pattern non ancora pubblici, uscendo spariscono:
+        // la vetrina va rifatta, non solo ridisegnata.
+        if (_elencoDi != Auth.Utente?.Id)
+        {
+            InvokeAsync(async () =>
+            {
+                _elencoDi = Auth.Utente?.Id;
+                _riepiloghi = (await Api.GetSummariesAsync()).ToList();
+                _daRileggere = true;
+
+                await PreparaScenaAsync();
+                StateHasChanged();
+            });
+
+            return;
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Auth.Cambiato -= Ridisegna;
+        T.Cambiata -= CambiaLingua;
+
+        // La giostra gira su un ciclo suo: senza questo, continuerebbe a chiedere ridisegni
+        // di una pagina che non c'è più, per tutta la sessione.
+        await _giostra.CancelAsync();
+        _giostra.Dispose();
+
+        // Gli ascoltatori di scorrimento vanno tolti: una pagina singola non ricarica il
+        // documento cambiando schermata, e uno rimasto acceso continuerebbe a misurare
+        // elementi che non esistono più, a ogni pixel, per tutta la sessione.
+        try
+        {
+            if (_effetti is not null)
+            {
+                await _effetti.InvokeVoidAsync("dismetti");
+                await _effetti.DisposeAsync();
+            }
+
+            if (_modulo is not null)
+            {
+                await _modulo.DisposeAsync();
+            }
+
+            if (_libreria is not null)
+            {
+                await _libreria.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // Il circuito è già chiuso: non c'è più niente da togliere.
+        }
+    }
+}

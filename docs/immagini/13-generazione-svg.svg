@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 547" width="940" height="547" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="547" fill="#ffffff"/>
+  <defs><marker id="punta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b6ef5"/></marker></defs>
+  <text x="30" y="34" font-size="17" font-weight="600" fill="#1b2430">Figura 13 — Come nasce l'SVG, riga per riga</text>
+  <text x="30" y="55" font-size="12.5" fill="#6b7684">Lo stesso codice produce l'anteprima e il file scaricato: non esistono due rendering.</text>
+  <rect x="30.0" y="84.0" width="262.0" height="128.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="42.0" y="104.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">1 · Che cosa entra</text>
+  <text x="42.0" y="122.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">Pattern.Definition</text>
+  <text x="42.0" y="140.0" font-size="8.4" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">Width = 50   Height = 50</text>
+  <text x="42.0" y="156.0" font-size="8.4" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">Scale = 1    Rotation = 0</text>
+  <text x="42.0" y="172.0" font-size="8.4" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">TranslateX = 0  TranslateY = 0</text>
+  <text x="42.0" y="188.0" font-size="8.4" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">Elements = [ rect, line × 5 ]</text>
+  <rect x="339.0" y="84.0" width="262.0" height="128.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="351.0" y="104.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">2 · Ogni elemento, da solo</text>
+  <text x="351.0" y="122.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">per ciascun elemento in ordine:</text>
+  <text x="351.0" y="140.0" font-size="8.4" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">registry.TryGet(el.Type)</text>
+  <text x="351.0" y="158.0" font-size="8.4" fill="#2f8f5b" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">trovato  → plugin.Render(el)</text>
+  <text x="351.0" y="176.0" font-size="8.4" fill="#c2701c" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">assente  → si salta il disegno</text>
+  <text x="351.0" y="196.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">Il plugin produce un tag e basta: niente</text>
+  <text x="351.0" y="206.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">&lt;svg&gt;, niente &lt;pattern&gt;, niente trasformazioni.</text>
+  <rect x="648.0" y="84.0" width="262.0" height="128.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="660.0" y="104.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">3 · La trasformazione</text>
+  <text x="660.0" y="122.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="start">scale, rotate e translate, in quest'ordine</text>
+  <text x="660.0" y="146.0" font-size="8.2" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">patternTransform="scale(1)</text>
+  <text x="660.0" y="160.0" font-size="8.2" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">  rotate(0) translate(0,0)"</text>
+  <text x="660.0" y="184.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">Se è l'identità l'attributo non viene</text>
+  <text x="660.0" y="194.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">scritto affatto: un documento pulito</text>
+  <text x="660.0" y="204.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start">non porta in giro istruzioni inutili.</text>
+  <path d="M 292.0 148.0 L 339.0 148.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <path d="M 601.0 148.0 L 648.0 148.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <rect x="30.0" y="246.0" width="880.0" height="206.0" rx="8" fill="#ffffff" stroke="#ccd3db" stroke-width="1.5"/>
+  <text x="42.0" y="266.0" font-size="11" fill="#1b2430" font-weight="700" text-anchor="start">4 · L'assemblaggio finale</text>
+  <text x="44.0" y="286.0" font-size="8.2" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">&lt;svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"&gt;</text>
+  <text x="44.0" y="301.0" font-size="8.2" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">  &lt;defs&gt;</text>
+  <text x="44.0" y="316.0" font-size="8.2" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">    &lt;pattern id="p-9f24…e91c" width="50" height="50" patternUnits="userSpaceOnUse"&gt;</text>
+  <text x="44.0" y="331.0" font-size="8.2" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">      &lt;rect x="0" y="0" width="50" height="50" fill="#9f2828" fill-opacity="1" /&gt;</text>
+  <text x="44.0" y="346.0" font-size="8.2" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">      &lt;line x1="0" y1="25" x2="50" y2="25" stroke="#ffffff" stroke-width="2" /&gt;</text>
+  <text x="44.0" y="361.0" font-size="8.2" fill="#6b7684" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">      …</text>
+  <text x="44.0" y="376.0" font-size="8.2" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">    &lt;/pattern&gt;</text>
+  <text x="44.0" y="391.0" font-size="8.2" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">  &lt;/defs&gt;</text>
+  <text x="44.0" y="406.0" font-size="8.2" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">  &lt;rect width="100%" height="100%" fill="url(#p-9f24…e91c)" /&gt;</text>
+  <text x="44.0" y="421.0" font-size="8.2" fill="#1b2430" font-weight="400" text-anchor="start" font-family="Consolas, ui-monospace, monospace">&lt;/svg&gt;</text>
+  <rect x="30.0" y="470.0" width="880.0" height="53.0" rx="6" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1.2"/>
+  <text x="40.0" y="487.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">patternUnits="userSpaceOnUse" dice che le misure della cella sono in unità del disegno, non frazioni del riquadro: è ciò che permette</text>
+  <text x="40.0" y="500.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">di ragionare in pixel. L'identificativo del nodo &lt;pattern&gt; contiene l'identificativo del pattern perché url(#…) si risolve sull'intero</text>
+  <text x="40.0" y="513.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">documento: due anteprime nella stessa pagina con lo stesso id mostrerebbero entrambe il primo dei due disegni.</text>
+</svg>

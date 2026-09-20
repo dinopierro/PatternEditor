@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 651" width="940" height="651" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="651" fill="#ffffff"/>
+  <defs><marker id="punta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3b6ef5"/></marker></defs>
+  <text x="30" y="34" font-size="17" font-weight="600" fill="#1b2430">Figura 16 — Il riordino per trascinamento</text>
+  <text x="30" y="55" font-size="12.5" fill="#6b7684">Eventi puntatore, non drag-and-drop HTML: il secondo, sul telefono, non esiste.</text>
+  <rect x="51.0" y="84.0" width="150.0" height="34.0" rx="7" fill="#eef3ff" stroke="#3b6ef5" stroke-width="1.4"/>
+  <text x="126.0" y="106.0" font-size="9.5" fill="#1b2430" font-weight="700" text-anchor="middle">Dito o mouse</text>
+  <rect x="223.0" y="84.0" width="150.0" height="34.0" rx="7" fill="#eef3ff" stroke="#3b6ef5" stroke-width="1.4"/>
+  <text x="298.0" y="106.0" font-size="9.5" fill="#1b2430" font-weight="700" text-anchor="middle">La presa ≡</text>
+  <rect x="395.0" y="84.0" width="150.0" height="34.0" rx="7" fill="#eef3ff" stroke="#3b6ef5" stroke-width="1.4"/>
+  <text x="470.0" y="99.0" font-size="9" fill="#1b2430" font-weight="700" text-anchor="middle">VectorElements</text>
+  <text x="470.0" y="111.0" font-size="9" fill="#1b2430" font-weight="700" text-anchor="middle">Panel</text>
+  <rect x="567.0" y="84.0" width="150.0" height="34.0" rx="7" fill="#eef3ff" stroke="#3b6ef5" stroke-width="1.4"/>
+  <text x="642.0" y="106.0" font-size="9.5" fill="#1b2430" font-weight="700" text-anchor="middle">JavaScript</text>
+  <rect x="739.0" y="84.0" width="150.0" height="34.0" rx="7" fill="#eef3ff" stroke="#3b6ef5" stroke-width="1.4"/>
+  <text x="814.0" y="106.0" font-size="9.5" fill="#1b2430" font-weight="700" text-anchor="middle">Elenco</text>
+  <line x1="126.0" y1="118.0" x2="126.0" y2="536.0" stroke="#ccd3db" stroke-width="1.1" stroke-dasharray="4 4"/>
+  <line x1="298.0" y1="118.0" x2="298.0" y2="536.0" stroke="#ccd3db" stroke-width="1.1" stroke-dasharray="4 4"/>
+  <line x1="470.0" y1="118.0" x2="470.0" y2="536.0" stroke="#ccd3db" stroke-width="1.1" stroke-dasharray="4 4"/>
+  <line x1="642.0" y1="118.0" x2="642.0" y2="536.0" stroke="#ccd3db" stroke-width="1.1" stroke-dasharray="4 4"/>
+  <line x1="814.0" y1="118.0" x2="814.0" y2="536.0" stroke="#ccd3db" stroke-width="1.1" stroke-dasharray="4 4"/>
+  <path d="M 130.0 144.0 L 294.0 144.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <text x="212.0" y="137.0" font-size="9" fill="#1b2430" font-weight="600" text-anchor="middle">pointerdown sulla presa</text>
+  <path d="M 302.0 186.0 L 466.0 186.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <text x="384.0" y="179.0" font-size="9" fill="#1b2430" font-weight="600" text-anchor="middle">IniziaTrascinamento(indice)</text>
+  <path d="M 474.0 228.0 L 638.0 228.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <text x="556.0" y="221.0" font-size="9" fill="#1b2430" font-weight="600" text-anchor="middle">centriDelleRighe(righe)</text>
+  <path d="M 638.0 270.0 L 474.0 270.0" fill="none" stroke="#6b7684" stroke-width="1.6" marker-end="url(#punta)" stroke-dasharray="5 4"/>
+  <text x="556.0" y="263.0" font-size="9" fill="#6b7684" font-weight="400" text-anchor="middle">la metà verticale di ogni riga</text>
+  <path d="M 130.0 312.0 L 294.0 312.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <text x="212.0" y="305.0" font-size="9" fill="#1b2430" font-weight="600" text-anchor="middle">pointermove — il dito scorre</text>
+  <path d="M 302.0 354.0 L 466.0 354.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <text x="384.0" y="347.0" font-size="9" fill="#1b2430" font-weight="600" text-anchor="middle">Trascina(y del puntatore)</text>
+  <path d="M 470.0 390.0 L 504.0 390.0 L 504.0 404.0 L 474.0 404.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <text x="512.0" y="398.0" font-size="9" fill="#1b2430" font-weight="400" text-anchor="start">posizione più vicina: se è cambiata, sposta e ridisegna</text>
+  <path d="M 130.0 432.0 L 294.0 432.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <text x="212.0" y="425.0" font-size="9" fill="#1b2430" font-weight="600" text-anchor="middle">pointerup</text>
+  <path d="M 302.0 474.0 L 466.0 474.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <text x="384.0" y="467.0" font-size="9" fill="#1b2430" font-weight="600" text-anchor="middle">FineTrascinamento → OnChanged</text>
+  <path d="M 474.0 516.0 L 810.0 516.0" fill="none" stroke="#3b6ef5" stroke-width="1.6" marker-end="url(#punta)"/>
+  <text x="642.0" y="509.0" font-size="9" fill="#1b2430" font-weight="600" text-anchor="middle">l'ordine nuovo è l'ordine di disegno</text>
+  <rect x="40.0" y="574.0" width="860.0" height="53.0" rx="6" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1.2"/>
+  <text x="50.0" y="591.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">Sul touch il browser assegna la cattura del puntatore da solo: il dito può uscire dalla riga e gli eventi continuano ad arrivare.</text>
+  <text x="50.0" y="604.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">La presa dichiara touch-action: none, altrimenti il primo movimento verticale verrebbe interpretato come scorrimento della pagina</text>
+  <text x="50.0" y="617.0" font-size="8.8" fill="#6b7684" font-weight="400" text-anchor="start">e il trascinamento non comincerebbe mai. Senza puntatore resta la tastiera: si raggiunge la presa col tabulatore e si usano ↑ e ↓.</text>
+</svg>

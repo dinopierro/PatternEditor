@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 570" width="940" height="570" font-family="Segoe UI, system-ui, -apple-system, sans-serif">
+  <rect width="940" height="570" fill="#ffffff"/>
+  <text x="30" y="34" font-size="17" font-weight="600" fill="#1b2430">Figura 8 — L'adattamento di un'immagine</text>
+  <text x="30" y="55" font-size="12.5" fill="#6b7684">preserveAspectRatio: cosa succede quando le proporzioni non coincidono.</text>
+  <text x="30" y="88" font-size="12" fill="#6b7684" font-weight="400" text-anchor="start">L'immagine di partenza è larga e bassa; il riquadro che la ospita è quadrato.</text>
+  <text x="30" y="126" font-size="12" fill="#3b6ef5" font-weight="700" text-anchor="start">meet</text>
+  <text x="82" y="126" font-size="11" fill="#1b2430" font-weight="400" text-anchor="start">— la contiene tutta</text>
+  <rect x="30" y="136" width="180" height="180" rx="4" fill="#eef1f5" stroke="#ccd3db" stroke-width="1"/>
+  <rect x="30" y="196" width="180" height="60" fill="#1f9d6b" opacity=".85"/>
+  <circle cx="80" cy="226" r="18" fill="#f4c14b"/>
+  <text x="30" y="336" font-size="10.5" fill="#6b7684" font-weight="400" text-anchor="start">lascia spazio vuoto ai lati</text>
+  <text x="330" y="126" font-size="12" fill="#3b6ef5" font-weight="700" text-anchor="start">slice</text>
+  <text x="382" y="126" font-size="11" fill="#1b2430" font-weight="400" text-anchor="start">— riempie il riquadro</text>
+  <rect x="330" y="136" width="180" height="180" rx="4" fill="#eef1f5" stroke="#ccd3db" stroke-width="1"/>
+  <clipPath id="s1"><rect x="330" y="136" width="180" height="180"/></clipPath>
+  <g clip-path="url(#s1)"><rect x="150" y="136" width="540" height="180" fill="#1f9d6b" opacity=".85"/><circle cx="360" cy="226" r="54" fill="#f4c14b"/></g>
+  <text x="330" y="336" font-size="10.5" fill="#6b7684" font-weight="400" text-anchor="start">taglia ciò che avanza</text>
+  <text x="630" y="126" font-size="12" fill="#3b6ef5" font-weight="700" text-anchor="start">none</text>
+  <text x="682" y="126" font-size="11" fill="#1b2430" font-weight="400" text-anchor="start">— la fa combaciare</text>
+  <rect x="630" y="136" width="180" height="180" rx="4" fill="#eef1f5" stroke="#ccd3db" stroke-width="1"/>
+  <rect x="630" y="136" width="180" height="180" fill="#1f9d6b" opacity=".85"/>
+  <ellipse cx="680" cy="226" rx="18" ry="54" fill="#f4c14b"/>
+  <text x="630" y="336" font-size="10.5" fill="#6b7684" font-weight="400" text-anchor="start">la deforma</text>
+  <rect x="30" y="366" width="880" height="190" rx="8" fill="#fbfcfd" stroke="#e3e6ea" stroke-width="1"/>
+  <text x="52" y="394" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">Non esiste una scelta giusta in assoluto: si sceglie cosa si è disposti a perdere. Con meet non si</text>
+  <text x="52" y="415" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">perde niente dell'immagine ma si accetta dello spazio vuoto; con slice il riquadro è pieno ma i bordi</text>
+  <text x="52" y="436" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">dell'immagine escono dall'inquadratura; con none c'è tutto e il riquadro è pieno, ma le forme sono</text>
+  <text x="52" y="457" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">stirate — su un volto o su un logo si nota subito.</text>
+  <text x="52" y="478" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start"></text>
+  <text x="52" y="499" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">Nell'editor l'anteprima dei tre modi usa apposta un riquadro non quadrato: su un riquadro quadrato,</text>
+  <text x="52" y="520" font-size="12" fill="#1b2430" font-weight="400" text-anchor="start">con un'immagine quadrata, i tre modi darebbero lo stesso risultato e non si distinguerebbero.</text>
+
+</svg>

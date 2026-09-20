@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-abab-796b-aec3-bc36a49f5e11",
+  "name": "African Pattern - 2",
+  "createdAt": "2026-09-10T15:56:13.8656135\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:14.3036486\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 48,
+    "height": 96,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M4 0v4H0v8h4V8h4V4h4V0zm16 0v4h-4v4h-4v4H8v4H4v8H0v16h4v8h4v4h4v4h4v4h4v4h4v-4h4v-4h4v-4h4v-4h4v-8h4v-4h4v-8h-4v-4h-4v-8h-4v-4h-4V8h-4V4h-4V0zm12 0v4h4v4h4v4h4v4h4V8h-4V4h-4V0zM20 12h4v4h4v4h4v24h-4v4h-4v4h-4v-4h-4v-4h-4V20h4v-4h4zm0 8v4h-4v16h4v4h4v-4h4V24h-4v-4zm24 28v4h-4v4h-4v4h-4v4h-4v8h-4v4h-4v-4h-4v-8h-4v-4H8v-4H4v-4H0v12h4v4h4v24H4v4h12v-8h4v-4h4v4h4v8h12v-4h-4V68h4v-4h4v-4h4V48zm0 20v4h-4v16h4v4h4V68zM0 72v16h4V72z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abab-7e7d-8574-14b0bf74a4e8",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

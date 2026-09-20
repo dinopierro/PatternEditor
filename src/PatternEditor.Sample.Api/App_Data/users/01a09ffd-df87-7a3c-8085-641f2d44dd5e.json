@@ -1,0 +1,16 @@
+{
+  "id": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "username": "s4ynot",
+  "usernameNormalizzato": "s4ynot",
+  "passwordHash": "pbkdf2-sha256$600000$AHm4vcrWOz7NbMFbLm04xw==$RWqVHAHe5c4MytoR850DkRUb3icFqohCgtVcX1lV47M=",
+  "securityQuestion": "La citt\u00E0 in cui sono nato",
+  "securityAnswerHash": "pbkdf2-sha256$600000$sGGJWLzlKKAyHasRAB9s3w==$TcTDeV/kU1ejwOEL0bQd32fqEpauMump53MREjLBu/Q=",
+  "avatarColor": "#3d58c2",
+  "avatarContentType": null,
+  "avatarVersion": 1,
+  "isAdmin": true,
+  "createdAt": "2026-09-14T12:56:51.1022164+00:00",
+  "lastLoginAt": "2026-09-20T07:15:30.490976+00:00",
+  "tentativiFalliti": 0,
+  "bloccatoFinoA": null
+}

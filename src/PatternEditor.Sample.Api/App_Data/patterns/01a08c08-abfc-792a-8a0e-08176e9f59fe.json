@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-abfc-792a-8a0e-08176e9f59fe",
+  "name": "Hexagon - 10",
+  "createdAt": "2026-09-10T15:56:15.3453967\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.8809045\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 69.3,
+    "height": 46.8,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m46.08-12.52-5.68 9.8H12.6L7.77 0-4.1 20.63H-22v5.5h17.9L7.77 46.8l4.83 2.72h27.8l5.68 9.8 14.41.05 7.24-12.52-7.24-12.52-13.19-.05h-1.22l-5.68 9.8H12.6L.68 23.4 12.6 2.72h27.8l5.68 9.8h1.15l.06.1 13.2-.05L67.73.05 60.5-12.47ZM77.03.05 65.16 20.68H47.3v-.06h-5.9L34.14 7.97h-6.4l8.9 15.43-8.9 14.87h6.4l7.25-12.15h5.87v.06h17.9l11.87 20.67 4.83-2.72-11.92-20.68L81.86 2.77Z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abfc-77e6-bd47-13635f102e6d",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

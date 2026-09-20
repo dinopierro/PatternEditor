@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-abed-7f6c-b653-1fa2b93d95f8",
+  "name": "Geometric Pattern - 12",
+  "createdAt": "2026-09-10T15:56:15.0511359\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.6337168\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 48,
+    "height": 32,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "m5.33 0 12.84 7.124.708-1.226L9.054 0zm17.799 0-.191 11.202L5.122 21.898l.708 1.226L24 13.043l18.17 10.081.708-1.226-17.815-10.696L24.872 0zm15.817 0-9.824 5.898.708 1.226L42.67 0zM0 6.426v22.617L5.33 32h3.724l-7.991-4.798L.709 6.426zm47.292 0-.354 20.776L38.946 32h3.724L48 29.043V6.426zm-24 16L23.129 32h1.743l-.163-9.574z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abed-7cd9-bc55-71a900b32240",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

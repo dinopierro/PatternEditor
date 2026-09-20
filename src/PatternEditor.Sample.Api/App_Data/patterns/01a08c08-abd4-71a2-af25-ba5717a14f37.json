@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "01a08c08-abd4-71a2-af25-ba5717a14f37",
+  "name": "Cubes - 6",
+  "createdAt": "2026-09-10T15:56:14.5828097\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:15.1021701\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 60,
+    "height": 36.043,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M20.001 0v11.998L30 18.046V0Zm19.998 0v11.998l10.002 6.051v11.995L60 36.043V11.998Zm-30 18.046v11.998l10.002 5.999H30v-5.999z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abd4-78af-83ec-dea347ff840d",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      },
+      {
+        "type": "path",
+        "d": "M0 0v11.998L20.001 0Zm39.999 0L60 11.998V0ZM20.001 11.998 9.999 18.046 30 30.044l20.001-11.998-10.002-6.048L30 18.046ZM9.999 30.044 0 36.043h20.001zm40.002 0-10.002 5.999H60z",
+        "fill": "#f44336",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abd4-75f7-8956-d44edcec5d91",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}

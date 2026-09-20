@@ -1,0 +1,75 @@
+@namespace PatternEditor.Sample.Client.Components
+@implements IDisposable
+@inject Lingua Lingua
+
+@*
+   In che lingua si legge.
+
+   Sta nell'intestazione accanto al tema, e per la stessa ragione: sono le due scelte che
+   riguardano come si vede l'applicazione e non che cosa ci si fa dentro. Si toccano di rado —
+   una volta per visita, spesso mai — e stanno percio' alla fine della riga, dove non
+   contendono spazio ai comandi di lavoro.
+
+   Il pulsante mostra il codice della lingua e non una bandiera: una bandiera e' un paese, non
+   una lingua, e chiedere a chi parla spagnolo di riconoscersi in una bandiera sola e' un modo
+   di sbagliare che si nota subito.
+*@
+
+@if (Lingua.Disponibili.Count > 1)
+{
+    <div class="app-lingua">
+        <button type="button" class="app-lingua__bottone" @onclick="() => _aperto = !_aperto"
+                aria-haspopup="true" aria-expanded="@(_aperto ? "true" : "false")"
+                title="@Lingua["app.lingua.scegli"]">
+            <span class="app-lingua__glifo" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                     stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18" />
+                </svg>
+            </span>
+            <span class="app-lingua__codice">@Lingua.Corrente.ToUpperInvariant()</span>
+        </button>
+
+        @if (_aperto)
+        {
+            @* Superficie trasparente a tutto schermo: un clic fuori chiude il menu, senza
+               ascoltatori globali in JavaScript. È la stessa soluzione dell'angolo utente. *@
+            <div class="app-utente__fondo" @onclick="() => _aperto = false"></div>
+
+            <div class="app-lingua__menu" role="menu" aria-label="@Lingua["app.lingua.titolo"]">
+                @foreach (var lingua in Lingua.Disponibili)
+                {
+                    var codice = lingua.Codice;
+
+                    <button type="button" role="menuitemradio"
+                            class="app-utente__voce @(codice == Lingua.Corrente ? "e-scelta" : null)"
+                            aria-checked="@(codice == Lingua.Corrente ? "true" : "false")"
+                            @onclick="() => ScegliAsync(codice)">
+                        <span class="app-lingua__nome">@lingua.Nome</span>
+                        @if (codice == Lingua.Corrente)
+                        {
+                            <span class="app-lingua__spunta" aria-hidden="true">✓</span>
+                        }
+                    </button>
+                }
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private bool _aperto;
+
+    protected override void OnInitialized() => Lingua.Cambiata += Ridisegna;
+
+    private async Task ScegliAsync(string codice)
+    {
+        _aperto = false;
+        await Lingua.CambiaAsync(codice);
+    }
+
+    private void Ridisegna() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Lingua.Cambiata -= Ridisegna;
+}

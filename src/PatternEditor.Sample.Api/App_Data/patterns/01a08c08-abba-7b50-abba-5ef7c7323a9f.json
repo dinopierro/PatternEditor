@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "id": "01a08c08-abba-7b50-abba-5ef7c7323a9f",
+  "name": "Chinese Pattern - 10",
+  "createdAt": "2026-09-10T15:56:14.1498003\u002B00:00",
+  "modifiedAt": "2026-09-10T20:01:14.6265339\u002B00:00",
+  "authorId": "01a09ffd-df87-7a3c-8085-641f2d44dd5e",
+  "authorName": "s4ynot",
+  "definition": {
+    "width": 60,
+    "height": 60,
+    "scale": 1,
+    "rotation": 0,
+    "translateX": 0,
+    "translateY": 0,
+    "elements": [
+      {
+        "type": "path",
+        "d": "M0 0v60H60V0H6.447zm5.727.72H17.76v9.782H10.8v7.556H.66V5.787zM19.2.72h10.02v9.782H19.2zm11.46 0H40.8v9.782H30.66zm11.58 0h11.902l5.198 5.199v12.14H49.2v-7.557h-6.96zm-30 11.222h5.52v6.116h-5.52zm6.96 0h10.02v12.391l-4.947 4.947H12.24v-9.782h6.96zm11.46 0H40.8v7.556h6.96v9.782H35.859l-5.199-5.199zm11.58 0h5.52v6.116h-5.52zM.66 19.498H10.8v9.782H.66zm48.54 0h10.14v9.782H49.2zM.66 30.72H10.8v9.782H.66zm11.58 0h11.902l5.078 5.079v12.26H19.2v-7.557h-6.96zm23.488 0H47.76v9.782H40.8v7.556H30.66v-12.27zm13.472 0h10.14v9.782H49.2zM.66 41.942H10.8v7.556h6.96v9.842H5.92L.66 54.081zm11.58 0h5.52v6.116h-5.52zm30 0h5.52v6.116h-5.52zm6.96 0h10.14v12.27l-5.127 5.128H42.24v-9.842h6.96zm-30 7.556h10.02v9.842H19.2zm11.46 0H40.8v9.842H30.66z",
+        "fill": "#ecc94b",
+        "fillOpacity": 1,
+        "stroke": null,
+        "strokeWidth": 0,
+        "strokeOpacity": 1,
+        "opacity": 1,
+        "id": "01a08c08-abba-7735-8892-4cbf6a15b799",
+        "rotation": 0,
+        "flipX": false,
+        "flipY": false,
+        "originX": 0,
+        "originY": 0,
+        "hasTransform": false
+      }
+    ]
+  }
+}
