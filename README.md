@@ -328,15 +328,3 @@ permesso, non crea account.
 
 Non serve riavviare l'API (l'account viene riletto dal disco a ogni richiesta) e chi ha la
 pagina aperta vede la voce "Moderazione" ricaricandola.
-
-Due avvertenze:
-
-- **con l'API avviata** `dotnet run` fallisce con `MSB3027`, perche' il processo tiene bloccati
-  i propri file: aggiungere `--no-build`, oppure fermare l'API prima;
-- **i comandi usano le cartelle dati configurate** (`Storage:Directory`, `Auth:Directory`):
-  lanciarli con una configurazione diversa da quella del servizio significa lavorare su un
-  altro archivio.
-
-Dettagli e casistica completa nell'appendice E dell'analisi funzionale.
-
-Segnalami eventuali errori di compilazione o comportamenti inattesi: li correggo.
