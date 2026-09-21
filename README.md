@@ -1,4 +1,5 @@
 # PatternEditor
+app: https://patterneditor-chaceyf5f2dxcqbu.italynorth-01.azurewebsites.net/gestione
 
 > La descrizione completa del sistema — obiettivi, architettura, contratto dei plugin,
 > catalogo degli elementi, formato dei documenti e scelte progettuali — sta in
